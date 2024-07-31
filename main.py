@@ -1,5 +1,3 @@
-# Attribute VB_Name = "if97_1_1"
-# Option Base 1 ЭТО ВАЩЕ НАДА???
 from math import sqrt, exp, log
 
 global N1, I1, J1  # I phase
@@ -71,7 +69,7 @@ VHij = [0.520094, 0.0850895, -1.08374, -0.289555, 0.222531, 0.999115, 1.88797, 1
 
 def Region(t: float, p: float) -> int:
     if (t <= 590) and (p <= 100):
-        pf = Давление_границы(t)
+        pf = Border_Pressure(t)
     ans = 0
     if (590 < t) and (t <= 800) and (0 <= p) and (p <= 100):
         ans = 2
@@ -88,9 +86,9 @@ def Region(t: float, p: float) -> int:
     return ans
 
 
-def Плотность3(t: float, p: float, accuracy=None) -> float:
+def Density3(t: float, p: float, accuracy=None) -> float:
     if t < 373.946:
-        if Давление_насыщения(t) < p:
+        if Saturation_Pressure(t) < p:
             ro_min = 322
             ro_max = 762.4
         else:
@@ -116,38 +114,38 @@ def Плотность3(t: float, p: float, accuracy=None) -> float:
     return ans
 
 
-def Энергия_Гельмгольца(t: float, ro: float) -> float:
+def Helmholtz_Energy(t: float, ro: float) -> float:
     return JF(t, ro, non, 3) * (t + 273.15) * R
 
 
-def Давление3(t: float, ro: float) -> float:
+def Pressure3(t: float, ro: float) -> float:
     return ro ** 2 * R * (t + 273.15) * JF(t, ro, dp, 3) / 322
 
 
-def Удельная_энергия3(t: float, ro: float) -> float:
+def Specific_Energy3(t: float, ro: float) -> float:
     return R * 647.096 * JF(t, ro, dt, 3)
 
 
-def Удельная_энтропия3(t: float, ro: float) -> float:
+def Specific_Entropy3(t: float, ro: float) -> float:
     return R * (647.096 / (t + 273.15) * JF(t, ro, dt, 3) - JF(t, ro, non, 3))
 
 
-def Удельная_энтальпия3(t: float, ro: float) -> float:
+def Specific_Entalpy3(t: float, ro: float) -> float:
     return R * (647.096 * JF(t, ro, dt, 3) + (t + 273.15) * JF(t, ro, dp, 3) * ro / 322)
 
 
-def Теплоемкость_изобарная3(t: float, ro: float) -> float:
+def Heat_Isobary3(t: float, ro: float) -> float:
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
     return (-tf ** 2 * JF(t, ro, dtt, 3) + (fp - tf * JF(t, ro, dtp, 3)) ** 2 / (2 * fp / rof + JF(t, ro, dpp, 3))) * R
 
 
-def Теплоемкость_изохорная3(t: float, ro: float) -> float:
+def Heat_Isochorny3(t: float, ro: float) -> float:
     return -(647.096 / (t + 273.15)) ** 2 * JF(t, ro, dtt, 3) * R
 
 
-def Скорость_звука3(t: float, ro: float) -> float:
+def Sound_Speed3(t: float, ro: float) -> float:
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
@@ -155,17 +153,17 @@ def Скорость_звука3(t: float, ro: float) -> float:
             tf ** 2 * JF(t, ro, dtt, 3)))) ** 0.5
 
 
-def Энергия_Гиббса(t: float, p: float, reg=None) -> float:
+def Gibbs_Energy(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger in [1, 2, 4, 5, 21]:
         return JF(t, p, non, Trigger) * (t + 273.15) * R
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         return JF(t, ro, non, 3) * (t + 273.15) * R
 
 
-def Удельный_объем(t: float, p: float, reg=None) -> float:
+def Specific_Volume(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -173,10 +171,10 @@ def Удельный_объем(t: float, p: float, reg=None) -> float:
     elif Trigger in [2, 4, 5, 21]:
         return (t + 273.15) * R * JF(t, p, dp, Trigger) / 1000000
     elif Trigger == 3:
-        return 1 / Плотность3(t, p)
+        return 1 / Density3(t, p)
 
 
-def Плотность(t: float, p: float, reg=None) -> float:
+def Density(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -184,10 +182,10 @@ def Плотность(t: float, p: float, reg=None) -> float:
     elif Trigger in [2, 4, 5, 21]:
         return 1 / ((t + 273.15) * R * JF(t, p, dp, Trigger) / 1000000)
     elif Trigger == 3:
-        return Плотность3(t, p)
+        return Density3(t, p)
 
 
-def Удельная_энергия(t: float, p: float, reg=None) -> float:
+def Specific_Energy(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -197,11 +195,11 @@ def Удельная_энергия(t: float, p: float, reg=None) -> float:
     elif Trigger == 5:
         return R * (1000 * JF(t, p, dt, Trigger) - p * (t + 273.15) * JF(t, p, dp, Trigger))
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         return R * 647.096 * JF(t, ro, dt, Trigger)
 
 
-def Удельная_энтропия(t: float, p: float, reg=None) -> float:
+def Specific_Entropy(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -211,11 +209,11 @@ def Удельная_энтропия(t: float, p: float, reg=None) -> float:
     elif Trigger == 5:
         return R * (1000 / (t + 273.15) * JF(t, p, dt, Trigger) - JF(t, p, non, Trigger))
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         return R * (647.096 / (t + 273.15) * JF(t, ro, dt, Trigger) - JF(t, ro, non, Trigger))
 
 
-def Удельная_энтальпия(t: float, p: float, reg=None) -> float:
+def Specific_Enthalpy(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -225,11 +223,11 @@ def Удельная_энтальпия(t: float, p: float, reg=None) -> float:
     elif Trigger == 5:
         return R * 1000 * JF(t, p, dt, Trigger)
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         return R * (647.096 * JF(t, ro, dt, Trigger) + (t + 273.15) * JF(t, ro, dp, Trigger) * ro / 322)
 
 
-def Теплоемкость_изобарная(t: float, p: float, reg=None) -> float:
+def Heat_Capacity_Isobaric(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -239,7 +237,7 @@ def Теплоемкость_изобарная(t: float, p: float, reg=None) ->
     elif Trigger == 5:
         return -R * (1000 / (t + 273.15)) ** 2 * JF(t, p, dtt, Trigger)
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         tf = 647.096 / (t + 273.15)
         rof = ro / 322
         fp = JF(t, ro, dp, Trigger)
@@ -247,7 +245,7 @@ def Теплоемкость_изобарная(t: float, p: float, reg=None) ->
                 2 * fp / rof + JF(t, ro, dpp, Trigger))) * R
 
 
-def Теплоемкость_изохорная(t: float, p: float, reg=None) -> float:
+def Heat_Capacity_Isochoric(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -263,11 +261,11 @@ def Теплоемкость_изохорная(t: float, p: float, reg=None) ->
         return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / JF(
             t, p, dpp, Trigger))
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         return -(647.096 / (t + 273.15)) ** 2 * JF(t, ro, dtt, 3) * R
 
 
-def Скорость_звука(t: float, p: float, reg=None) -> float:
+def Speed_Sound(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -286,7 +284,7 @@ def Скорость_звука(t: float, p: float, reg=None) -> float:
                 (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / (
                 tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
     elif Trigger == 3:
-        ro = Плотность3(t, p)
+        ro = Density3(t, p)
         tf = 647.096 / (t + 273.15)
         rof = ro / 322
         fp = JF(t, ro, dp, Trigger)
@@ -295,7 +293,7 @@ def Скорость_звука(t: float, p: float, reg=None) -> float:
                 tf ** 2 * JF(t, ro, dtt, Trigger)))) ** 0.5
 
 
-def Температура_насыщения(p: float) -> float:
+def Saturation_Temperature(p: float) -> float:
     N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
     pf = p ** 0.25
     E = pf ** 2 + N3 * pf + n6
@@ -305,7 +303,7 @@ def Температура_насыщения(p: float) -> float:
     return (n10 + D - ((n10 + D) ** 2 - 4 * (n9 + n10 * D)) ** 0.5) / 2 - 273.15
 
 
-def Давление_насыщения(t: float) -> float:
+def Saturation_Pressure(t: float) -> float:
     N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
     tf = (t + 273.15) + n9 / (t + 273.15 - n10)
     a = tf ** 2 + N1 * tf + n2
@@ -314,7 +312,7 @@ def Давление_насыщения(t: float) -> float:
     return (2 * C / (-B + (B ** 2 - 4 * a * C) ** 0.5)) ** 4
 
 
-def Температура_границы(p: float) -> float:
+def Border_Temperature(p: float) -> float:
     if p < 16.5292:
         N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
         pf = p ** 0.25
@@ -327,7 +325,7 @@ def Температура_границы(p: float) -> float:
         return 572.54459862746 + ((p - 13.91883977887) / 1.0192970039326E-03) ** 0.5 - 273.15
 
 
-def Давление_границы(t: float) -> float:
+def Border_Pressure(t: float) -> float:
     if t < 350:
         N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
         tf = (t + 273.15) + n9 / (t + 273.15 - n10)
@@ -339,11 +337,11 @@ def Давление_границы(t: float) -> float:
         return 348.05185628969 - 1.1671859879975 * (t + 273.15) + 1.0192970039326E-03 * (t + 273.15) ** 2
 
 
-def Вязкость(t: float, p: float, reg=None) -> float:
+def Viscosity(t: float, p: float, reg=None) -> float:
     Trigger = Region(t, p) if reg is None else reg
 
     tf = (t + 273.15) / 647.096
-    rof = Плотность(t, p, Trigger) / 322
+    rof = Density(t, p, Trigger) / 322
     mu0 = 0
     for i in range(1, 4):
         mu0 = mu0 + VHi[i] / tf ** (i - 1)
@@ -358,7 +356,7 @@ def Вязкость(t: float, p: float, reg=None) -> float:
     return mu0 * mu1 * mu2 * 0.000001
 
 
-def Плотность_МИ(t: float, p: float) -> float:
+def Density_MI(t: float, p: float) -> float:
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
     return 1000 / (
@@ -367,7 +365,7 @@ def Плотность_МИ(t: float, p: float) -> float:
                     -6.417443 * tau + 19.84842 - 24.00174 / tau + 14.21655 / tau ** 2 - 4.13194 / tau ** 3 + 0.4721637 / tau ** 4))
 
 
-def Удельная_энтальпия_МИ(t: float, p: float) -> float:
+def Specific_Enthalpy_MI(t: float, p: float) -> float:
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
     return (
@@ -376,7 +374,7 @@ def Удельная_энтальпия_МИ(t: float, p: float) -> float:
                     -148.1135 * tau + 224.3027 - 111.4602 / tau + 18.15823 / tau ** 2)) * 1000
 
 
-''' JF '''
+''' JF and the end '''
 
 
 def JF(t: float, p: float, Trigger: int, reg: int) -> float:
