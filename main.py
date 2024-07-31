@@ -1,11 +1,11 @@
 from math import sqrt, exp, log
 
-global N1, I1, J1  # I phase
-global N02, J02, Nr2, Ir2, Jr2  # II phase
-global N02m, Nr2m, Ir2m, Jr2m  # metastable-vapor region
-global N3, I3, J3  # III phase
-global N05, J05, Nr5, Ir5, Jr5  # V phase
-global Vi0, VHi, Vi, Vj, VHij  # Viscosity
+# global N1, I1, J1  # I phase
+# global N02, J02, Nr2, Ir2, Jr2  # II phase
+# global N02m, Nr2m, Ir2m, Jr2m  # metastable-vapor region
+# global N3, I3, J3  # III phase
+# global N05, J05, Nr5, Ir5, Jr5  # V phase
+# global Vi0, VHi, Vi, Vj, VHij  # Viscosity
 non, dt, dtt, dtp, dp, dpp = 0, 1, 2, 3, 4, 5  # Триггеры функции энергии Гиббса
 R, Default_accuracy = 461.526, 3
 
@@ -68,10 +68,10 @@ VHij = [0.520094, 0.0850895, -1.08374, -0.289555, 0.222531, 0.999115, 1.88797, 1
 
 
 def N_Update():
-    N1, n2, N3, n4 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247
+    n1, n2, n3, n4 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247
     n5, n6, n7, n8 = -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057
     n9, n10 = -0.23855557567849, 650.17534844798
-    return N1, n2, N3, n4, n5, n6, n7, n8, n9, n10
+    return n1, n2, n3, n4, n5, n6, n7, n8, n9, n10
 
 
 def Region(t: float, p: float) -> int:
@@ -302,30 +302,30 @@ def Speed_Sound(t: float, p: float, reg=None) -> float:
 
 
 def Saturation_Temperature(p: float) -> float:
-    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
+    n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     pf = p ** 0.25
-    E = pf ** 2 + N3 * pf + n6
-    F = N1 * pf ** 2 + n4 * pf + n7
+    E = pf ** 2 + n3 * pf + n6
+    F = n1 * pf ** 2 + n4 * pf + n7
     G = n2 * pf ** 2 + n5 * pf + n8
     D = 2 * G / (-F - (F ** 2 - 4 * E * G) ** 0.5)
     return (n10 + D - ((n10 + D) ** 2 - 4 * (n9 + n10 * D)) ** 0.5) / 2 - 273.15
 
 
 def Saturation_Pressure(t: float) -> float:
-    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
+    n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     tf = (t + 273.15) + n9 / (t + 273.15 - n10)
-    a = tf ** 2 + N1 * tf + n2
-    B = N3 * tf ** 2 + n4 * tf + n5
+    a = tf ** 2 + n1 * tf + n2
+    B = n3 * tf ** 2 + n4 * tf + n5
     C = n6 * tf ** 2 + n7 * tf + n8
     return (2 * C / (-B + (B ** 2 - 4 * a * C) ** 0.5)) ** 4
 
 
 def Border_Temperature(p: float) -> float:
     if p < 16.5292:
-        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
+        n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         pf = p ** 0.25
-        E = pf ** 2 + N3 * pf + n6
-        F = N1 * pf ** 2 + n4 * pf + n7
+        E = pf ** 2 + n3 * pf + n6
+        F = n1 * pf ** 2 + n4 * pf + n7
         G = n2 * pf ** 2 + n5 * pf + n8
         D = 2 * G / (-F - (F ** 2 - 4 * E * G) ** 0.5)
         return (n10 + D - ((n10 + D) ** 2 - 4 * (n9 + n10 * D)) ** 0.5) / 2 - 273.15
@@ -335,10 +335,10 @@ def Border_Temperature(p: float) -> float:
 
 def Border_Pressure(t: float) -> float:
     if t < 350:
-        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
+        n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         tf = (t + 273.15) + n9 / (t + 273.15 - n10)
-        a = tf ** 2 + N1 * tf + n2
-        B = N3 * tf ** 2 + n4 * tf + n5
+        a = tf ** 2 + n1 * tf + n2
+        B = n3 * tf ** 2 + n4 * tf + n5
         C = n6 * tf ** 2 + n7 * tf + n8
         return (2 * C / (-B + (B ** 2 - 4 * a * C) ** 0.5)) ** 4
     else:
