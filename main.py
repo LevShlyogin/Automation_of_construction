@@ -67,6 +67,13 @@ VHij = [0.520094, 0.0850895, -1.08374, -0.289555, 0.222531, 0.999115, 1.88797, 1
         -0.000593264]
 
 
+def N_Update():
+    N1, n2, N3, n4 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247
+    n5, n6, n7, n8 = -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057
+    n9, n10 = -0.23855557567849, 650.17534844798
+    return N1, n2, N3, n4, n5, n6, n7, n8, n9, n10
+
+
 def Region(t: float, p: float) -> int:
     if (t <= 590) and (p <= 100):
         pf = Border_Pressure(t)
@@ -271,30 +278,31 @@ def Speed_Sound(t: float, p: float, reg=None) -> float:
     if Trigger == 1:
         tf = 1386 / (t + 273.15)
         return sqrt(R * (t + 273.15) * JF(t, p, dp, Trigger) ** 2 / (
-                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / (
-                tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
+                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 /
+                (tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
     elif Trigger in [2, 4, 21]:
         tf = 540 / (t + 273.15)
         return sqrt(R * (t + 273.15) * JF(t, p, dp, Trigger) ** 2 / (
-                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / (
-                tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
+                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 /
+                (tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
     elif Trigger == 5:
         tf = 1000 / (t + 273.15)
         return sqrt(R * (t + 273.15) * JF(t, p, dp, Trigger) ** 2 / (
-                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / (
-                tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
+                (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 /
+                (tf ** 2 * JF(t, p, dtt, Trigger)) - JF(t, p, dpp, Trigger)))
     elif Trigger == 3:
         ro = Density3(t, p)
         tf = 647.096 / (t + 273.15)
         rof = ro / 322
         fp = JF(t, ro, dp, Trigger)
         return (R * (t + 273.15) * rof ** 2 * (
-                2 * fp / rof + JF(t, ro, dpp, Trigger) - (fp - tf * JF(t, ro, dtp, Trigger)) ** 2 / (
-                tf ** 2 * JF(t, ro, dtt, Trigger)))) ** 0.5
+                2 * fp / rof + JF(t, ro, dpp, Trigger) -
+                (fp - tf * JF(t, ro, dtp, Trigger)) ** 2 /
+                (tf ** 2 * JF(t, ro, dtt, Trigger)))) ** 0.5
 
 
 def Saturation_Temperature(p: float) -> float:
-    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
+    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     pf = p ** 0.25
     E = pf ** 2 + N3 * pf + n6
     F = N1 * pf ** 2 + n4 * pf + n7
@@ -304,7 +312,7 @@ def Saturation_Temperature(p: float) -> float:
 
 
 def Saturation_Pressure(t: float) -> float:
-    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
+    N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     tf = (t + 273.15) + n9 / (t + 273.15 - n10)
     a = tf ** 2 + N1 * tf + n2
     B = N3 * tf ** 2 + n4 * tf + n5
@@ -314,7 +322,7 @@ def Saturation_Pressure(t: float) -> float:
 
 def Border_Temperature(p: float) -> float:
     if p < 16.5292:
-        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
+        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         pf = p ** 0.25
         E = pf ** 2 + N3 * pf + n6
         F = N1 * pf ** 2 + n4 * pf + n7
@@ -327,7 +335,7 @@ def Border_Temperature(p: float) -> float:
 
 def Border_Pressure(t: float) -> float:
     if t < 350:
-        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247, -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057, -0.23855557567849, 650.17534844798
+        N1, n2, N3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         tf = (t + 273.15) + n9 / (t + 273.15 - n10)
         a = tf ** 2 + N1 * tf + n2
         B = N3 * tf ** 2 + n4 * tf + n5
@@ -360,18 +368,19 @@ def Density_MI(t: float, p: float) -> float:
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
     return 1000 / (
-            114.332 * tau - 431.6382 + 706.5474 / tau - 641.9127 / tau ** 2 + 349.4417 / tau ** 3 - 113.8191 / tau ** 4 + 20.5199 / tau ** 5 - 1.578507 / tau ** 6 + Pi * (
-            -3.117072 + 6.589303 / tau - 5.210142 / tau ** 2 + 1.819096 / tau ** 3 - 0.2365448 / tau ** 4) + Pi ** 2 * (
-                    -6.417443 * tau + 19.84842 - 24.00174 / tau + 14.21655 / tau ** 2 - 4.13194 / tau ** 3 + 0.4721637 / tau ** 4))
+            114.332 * tau - 431.6382 + 706.5474 / tau - 641.9127 / tau ** 2 + 349.4417 /
+            tau ** 3 - 113.8191 / tau ** 4 + 20.5199 / tau ** 5 - 1.578507 / tau ** 6 + Pi *
+            (-3.117072 + 6.589303 / tau - 5.210142 / tau ** 2 + 1.819096 / tau ** 3 - 0.2365448 / tau ** 4) +
+            Pi ** 2 * (-6.417443 * tau + 19.84842 - 24.00174 / tau + 14.21655
+                       / tau ** 2 - 4.13194 / tau ** 3 + 0.4721637 / tau ** 4))
 
 
 def Specific_Enthalpy_MI(t: float, p: float) -> float:
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
-    return (
-            7809.096 * tau - 13868.72 + 12725.22 / tau - 6370.893 / tau ** 2 + 1595.86 / tau ** 3 - 159.9064 / tau ** 4 + Pi * (
-            9.488789 / tau + 1) + Pi ** 2 * (
-                    -148.1135 * tau + 224.3027 - 111.4602 / tau + 18.15823 / tau ** 2)) * 1000
+    return (7809.096 * tau - 13868.72 + 12725.22 / tau - 6370.893 / tau ** 2 + 1595.86 /
+            tau ** 3 - 159.9064 / tau ** 4 + Pi * (9.488789 / tau + 1) + Pi ** 2 *
+            (-148.1135 * tau + 224.3027 - 111.4602 / tau + 18.15823 / tau ** 2)) * 1000
 
 
 ''' JF and the end '''
