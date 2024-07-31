@@ -1,0 +1,40 @@
+name: Code Quality and Formatting
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint autopep8
+      - name: Format code with autopep8
+        run: autopep8 --in-place --aggressive --global-config=.pep8 .
+      - name: Analyze code with Pylint
+        env:
+          PYLINT_OUTPUT: pylint-report.txt
+        run: |
+          pylint --output-format=parseable --reports=n $(git ls-files '*.py') > $PYLINT_OUTPUT
+      - name: Report Pylint results
+        if: failure()
+        run: |
+          echo "::error::Pylint errors found. See report below:"
+          cat $PYLINT_OUTPUT
+        continue-on-error: true
+      - name: Check for Pylint errors
+        if: fileExists('pylint-report.txt')
+        run: |
+          if [ $(grep -c "^[^:]+:E:" pylint-report.txt) -gt 0 ]; then
+            echo "::error::Pylint errors found. Fix before committing."
+            exit 1
+          fi
