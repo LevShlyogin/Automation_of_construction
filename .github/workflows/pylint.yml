@@ -32,9 +32,7 @@ jobs:
           cat $PYLINT_OUTPUT
         continue-on-error: true
       - name: Check for Pylint errors
-        if: fileExists('pylint-report.txt')
+        if: test -f pylint-report.txt && grep -q "^[^:]+:E:" pylint-report.txt
         run: |
-          if [ $(grep -c "^[^:]+:E:" pylint-report.txt) -gt 0 ]; then
-            echo "::error::Pylint errors found. Fix before committing."
-            exit 1
-          fi
+          echo "::error::Pylint errors found. Fix before committing."
+          exit 1
