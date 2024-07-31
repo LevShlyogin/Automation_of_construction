@@ -145,7 +145,8 @@ def Heat_Isobary3(t: float, ro: float) -> float:
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
-    return (-tf ** 2 * JF(t, ro, dtt, 3) + (fp - tf * JF(t, ro, dtp, 3)) ** 2 / (2 * fp / rof + JF(t, ro, dpp, 3))) * R
+    return (-tf ** 2 * JF(t, ro, dtt, 3) + (fp - tf * JF(t, ro, dtp, 3)) ** 2 / (
+            2 * fp / rof + JF(t, ro, dpp, 3))) * R
 
 
 def Heat_Isochorny3(t: float, ro: float) -> float:
@@ -156,8 +157,9 @@ def Sound_Speed3(t: float, ro: float) -> float:
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
-    return (R * (t + 273.15) * rof ** 2 * (2 * fp / rof + JF(t, ro, dpp, 3) - (fp - tf * JF(t, ro, dtp, 3)) ** 2 / (
-            tf ** 2 * JF(t, ro, dtt, 3)))) ** 0.5
+    return (R * (t + 273.15) * rof ** 2 *
+            (2 * fp / rof + JF(t, ro, dpp, 3) - (fp - tf * JF(t, ro, dtp, 3)) ** 2 / (
+                    tf ** 2 * JF(t, ro, dtt, 3)))) ** 0.5
 
 
 def Gibbs_Energy(t: float, p: float, reg=None) -> float:
@@ -257,16 +259,16 @@ def Heat_Capacity_Isochoric(t: float, p: float, reg=None) -> float:
 
     if Trigger == 1:
         tf = 1386 / (t + 273.15)
-        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / JF(
-            t, p, dpp, Trigger))
+        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf *
+                                                         JF(t, p, dtp, Trigger)) ** 2 / JF(t, p, dpp, Trigger))
     elif Trigger in [2, 4, 21]:
         tf = 540 / (t + 273.15)
-        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / JF(
-            t, p, dpp, Trigger))
+        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf *
+                                                         JF(t, p, dtp, Trigger)) ** 2 / JF(t, p, dpp, Trigger))
     elif Trigger == 5:
         tf = 1000 / (t + 273.15)
-        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf * JF(t, p, dtp, Trigger)) ** 2 / JF(
-            t, p, dpp, Trigger))
+        return R * (-tf ** 2 * JF(t, p, dtt, Trigger) + (JF(t, p, dp, Trigger) - tf *
+                                                         JF(t, p, dtp, Trigger)) ** 2 / JF(t, p, dpp, Trigger))
     elif Trigger == 3:
         ro = Density3(t, p)
         return -(647.096 / (t + 273.15)) ** 2 * JF(t, ro, dtt, 3) * R
@@ -381,9 +383,6 @@ def Specific_Enthalpy_MI(t: float, p: float) -> float:
     return (7809.096 * tau - 13868.72 + 12725.22 / tau - 6370.893 / tau ** 2 + 1595.86 /
             tau ** 3 - 159.9064 / tau ** 4 + Pi * (9.488789 / tau + 1) + Pi ** 2 *
             (-148.1135 * tau + 224.3027 - 111.4602 / tau + 18.15823 / tau ** 2)) * 1000
-
-
-''' JF and the end '''
 
 
 def JF(t: float, p: float, Trigger: int, reg: int) -> float:
