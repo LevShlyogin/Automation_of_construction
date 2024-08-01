@@ -1,11 +1,15 @@
 from math import sqrt, exp, log
 
-# global N1, I1, J1  # I phase
-# global N02, J02, Nr2, Ir2, Jr2  # II phase
-# global N02m, Nr2m, Ir2m, Jr2m  # metastable-vapor region
-# global N3, I3, J3  # III phase
-# global N05, J05, Nr5, Ir5, Jr5  # V phase
-# global Vi0, VHi, Vi, Vj, VHij  # Viscosity
+"""
+Variables description:
+N1, I1, J1               | I phase
+N02, J02, Nr2, Ir2, Jr2  | II phase
+N3, I3, J3               | III phase
+N02m, Nr2m, Ir2m, Jr2m   | metastable-vapor region
+N05, J05, Nr5, Ir5, Jr5  | V phase
+Vi0, VHi, Vi, Vj, VHij   | Viscosity
+"""
+
 non, dt, dtt, dtp, dp, dpp = 0, 1, 2, 3, 4, 5  # Триггеры функции энергии Гиббса
 R, Default_accuracy = 461.526, 3
 

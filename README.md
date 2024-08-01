@@ -74,8 +74,8 @@ The library includes the following functions:
 References
 --------------
 
+* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)
 * [IAPWS](http://www.iapws.org/)
 * [IAPWS Documentation](http://www.iapws.org/relguide/IAPWS-95.html)
-* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)
 
 #### Mikhail and Lev's DevTeam
