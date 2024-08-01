@@ -68,6 +68,10 @@ VHij = [0.520094, 0.0850895, -1.08374, -0.289555, 0.222531, 0.999115, 1.88797, 1
 
 
 def N_Update():
+    """
+    Returns a list of constants n1, n2, ..., n10 used in other functions.
+    These constants are used for calculations in different regions of water state.
+    """
     n1, n2, n3, n4 = 1167.0521452767, -724213.16703206, -17.073846940092, 12020.82470247
     n5, n6, n7, n8 = -3232555.0322333, 14.91510861353, -4823.2657361591, 405113.40542057
     n9, n10 = -0.23855557567849, 650.17534844798
@@ -75,6 +79,10 @@ def N_Update():
 
 
 def Region(t: float, p: float) -> int:
+    """
+    Determines the region of water state based on given temperature (t) and pressure (p).
+    Returns an integer representing the region.
+    """
     if (t <= 590) and (p <= 100):
         pf = Border_Pressure(t)
     ans = 0
@@ -94,6 +102,11 @@ def Region(t: float, p: float) -> int:
 
 
 def Density3(t: float, p: float, accuracy=None) -> float:
+    """
+    Calculates the density of water at given temperature (t) and pressure (p).
+    Uses the bisection method to find the root of the density equation.
+    Optional argument 'accuracy' determines the precision of the calculation.
+    """
     if t < 373.946:
         if Saturation_Pressure(t) < p:
             ro_min = 322
@@ -122,26 +135,50 @@ def Density3(t: float, p: float, accuracy=None) -> float:
 
 
 def Helmholtz_Energy(t: float, ro: float) -> float:
+    """
+    Calculates the Helmholtz energy of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return JF(t, ro, non, 3) * (t + 273.15) * R
 
 
 def Pressure3(t: float, ro: float) -> float:
+    """
+    Calculates the pressure of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return ro ** 2 * R * (t + 273.15) * JF(t, ro, dp, 3) / 322
 
 
 def Specific_Energy3(t: float, ro: float) -> float:
+    """
+    Calculates the specific energy of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return R * 647.096 * JF(t, ro, dt, 3)
 
 
 def Specific_Entropy3(t: float, ro: float) -> float:
+    """
+    Calculates the specific entropy of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return R * (647.096 / (t + 273.15) * JF(t, ro, dt, 3) - JF(t, ro, non, 3))
 
 
 def Specific_Entalpy3(t: float, ro: float) -> float:
+    """
+    Calculates the specific enthalpy of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return R * (647.096 * JF(t, ro, dt, 3) + (t + 273.15) * JF(t, ro, dp, 3) * ro / 322)
 
 
 def Heat_Isobary3(t: float, ro: float) -> float:
+    """
+    Calculates the isobaric heat capacity of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
@@ -150,10 +187,18 @@ def Heat_Isobary3(t: float, ro: float) -> float:
 
 
 def Heat_Isochorny3(t: float, ro: float) -> float:
+    """
+    Calculates the isochoric heat capacity of water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     return -(647.096 / (t + 273.15)) ** 2 * JF(t, ro, dtt, 3) * R
 
 
 def Sound_Speed3(t: float, ro: float) -> float:
+    """
+    Calculates the speed of sound in water at given temperature (t) and density (ro).
+    Uses the JF function for calculation.
+    """
     tf = 647.096 / (t + 273.15)
     rof = ro / 322
     fp = JF(t, ro, dp, 3)
@@ -163,6 +208,11 @@ def Sound_Speed3(t: float, ro: float) -> float:
 
 
 def Gibbs_Energy(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the Gibbs energy of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger in [1, 2, 4, 5, 21]:
@@ -173,6 +223,11 @@ def Gibbs_Energy(t: float, p: float, reg=None) -> float:
 
 
 def Specific_Volume(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the specific volume of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -184,6 +239,11 @@ def Specific_Volume(t: float, p: float, reg=None) -> float:
 
 
 def Density(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the density of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -195,6 +255,11 @@ def Density(t: float, p: float, reg=None) -> float:
 
 
 def Specific_Energy(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the specific energy of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -209,6 +274,11 @@ def Specific_Energy(t: float, p: float, reg=None) -> float:
 
 
 def Specific_Entropy(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the specific entropy of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -223,6 +293,11 @@ def Specific_Entropy(t: float, p: float, reg=None) -> float:
 
 
 def Specific_Enthalpy(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the specific enthalpy of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -237,6 +312,11 @@ def Specific_Enthalpy(t: float, p: float, reg=None) -> float:
 
 
 def Heat_Capacity_Isobaric(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the isobaric heat capacity of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -255,6 +335,11 @@ def Heat_Capacity_Isobaric(t: float, p: float, reg=None) -> float:
 
 
 def Heat_Capacity_Isochoric(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the isochoric heat capacity of water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -275,6 +360,11 @@ def Heat_Capacity_Isochoric(t: float, p: float, reg=None) -> float:
 
 
 def Speed_Sound(t: float, p: float, reg=None) -> float:
+    """
+    Calculates the speed of sound in water at given temperature (t) and pressure (p).
+    Uses the JF function for calculation.
+    Optional argument 'reg' determines the region of water state.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     if Trigger == 1:
@@ -304,6 +394,10 @@ def Speed_Sound(t: float, p: float, reg=None) -> float:
 
 
 def Saturation_Temperature(p: float) -> float:
+    """
+    Calculates the saturation temperature of water at given pressure (p).
+    Uses the N_Update function to get the constants.
+    """
     n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     pf = p ** 0.25
     E = pf ** 2 + n3 * pf + n6
@@ -314,6 +408,10 @@ def Saturation_Temperature(p: float) -> float:
 
 
 def Saturation_Pressure(t: float) -> float:
+    """
+    Calculates the saturation pressure of water at given temperature (t).
+    Uses the N_Update function to get the constants.
+    """
     n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
     tf = (t + 273.15) + n9 / (t + 273.15 - n10)
     a = tf ** 2 + n1 * tf + n2
@@ -323,6 +421,10 @@ def Saturation_Pressure(t: float) -> float:
 
 
 def Border_Temperature(p: float) -> float:
+    """
+    Calculates the border temperature of water at given pressure (p).
+    Uses the N_Update function to get the constants.
+    """
     if p < 16.5292:
         n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         pf = p ** 0.25
@@ -336,6 +438,10 @@ def Border_Temperature(p: float) -> float:
 
 
 def Border_Pressure(t: float) -> float:
+    """
+    Calculates the border pressure of water at given temperature (t).
+    Uses the N_Update function to get the constants.
+    """
     if t < 350:
         n1, n2, n3, n4, n5, n6, n7, n8, n9, n10 = N_Update()
         tf = (t + 273.15) + n9 / (t + 273.15 - n10)
@@ -348,6 +454,14 @@ def Border_Pressure(t: float) -> float:
 
 
 def Viscosity(t: float, p: float, reg=None) -> float:
+    """
+    Calculate the viscosity of water or steam based on temperature and pressure.
+    Returns viscosity in Pa·s.
+
+    Notes:
+    - Utilizes helper functions and global coefficients (VHi, VHij, Vi, Vj) for calculations.
+    - Converts temperature to Kelvin and normalizes parameters for calculations.
+    """
     Trigger = Region(t, p) if reg is None else reg
 
     tf = (t + 273.15) / 647.096
@@ -367,6 +481,14 @@ def Viscosity(t: float, p: float, reg=None) -> float:
 
 
 def Density_MI(t: float, p: float) -> float:
+    """
+    Calculate the density of water in Region MI (mixture region).
+    Returns density in kg/m³.
+
+    Notes:
+    - This function uses specific coefficients tailored for the mixture region.
+    - Temperature is converted to Kelvin, and pressure is normalized for the calculation.
+    """
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
     return 1000 / (
@@ -378,6 +500,14 @@ def Density_MI(t: float, p: float) -> float:
 
 
 def Specific_Enthalpy_MI(t: float, p: float) -> float:
+    """
+    Calculate the specific enthalpy of water in Region MI (mixture region).
+    Returns specific enthalpy in J/kg.
+
+    Notes:
+    - This function uses specific coefficients for the mixture region.
+    - Both temperature and pressure are normalized for use in the calculation.
+    """
     tau = (t + 273.15) / 647.14
     Pi = p / 22.064
     return (7809.096 * tau - 13868.72 + 12725.22 / tau - 6370.893 / tau ** 2 + 1595.86 /
@@ -386,6 +516,30 @@ def Specific_Enthalpy_MI(t: float, p: float) -> float:
 
 
 def JF(t: float, p: float, Trigger: int, reg: int) -> float:
+    """
+    Compute a generic thermodynamic property 'JF' for water/steam, which can be specialized
+    to represent different properties (like entropy, internal energy, etc.) based on 'Trigger'.
+
+    Parameters:
+    t (float): Temperature in Celsius.
+    p (float): Pressure, units depend on 'reg'.
+    Trigger (int): Determines the derivative or property to calculate (non, dt, dtt, dtp, dp, dpp).
+    reg (int): Region identifier (1, 2, 4, 21, 3, 5) which dictates the formula and units used.
+
+    Returns:
+    float: The calculated value of the property 'JF'.
+
+    Notes:
+    - 'Trigger' specifies the type of calculation:
+        - non: no derivative,
+        - dt: derivative with respect to temperature,
+        - dtt: second derivative with respect to temperature,
+        - dtp: mixed derivative with respect to temperature and pressure,
+        - dp: derivative with respect to pressure,
+        - dpp: second derivative with respect to pressure.
+    - 'reg' specifies the region and thus the coefficients and formula to use.
+    - Calculations involve region-specific coefficients (N1, N02, Nr2, etc.) and exponents (I1, J1, etc.).
+    """
     jf_ans = 0
 
     if reg == 1:
