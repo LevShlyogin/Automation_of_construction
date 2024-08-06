@@ -6,7 +6,7 @@ Introduction
 
 This library is a collection of functions for calculating various thermodynamic properties of water and steam. The library is based on the international formulation IAPWS (International Association for the Properties of Water and Steam) and allows for the calculation of properties of water and steam over a wide range of temperatures and pressures.
 
-![SchemeWork.png](SchemeWork.png)
+![SchemeWork.png](https://habrastorage.org/r/w1560/getpro/habr/upload_files/b71/af3/fda/b71af3fda61c88ee3a6f3d3e6149554b.jpg)
 
 The module also is based on the following article:\
 [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)\
@@ -24,24 +24,26 @@ Second, you can use any function from the library (use the `WaterProperties.Any_
 ### Example Usage
 
 ```python
-import WaterProperties
+import WSAProperties
 
 t = 25  # temperature in degrees Celsius
 p = 101325  # pressure in Pascals
 
 # calculate the density of water
-density = WaterProperties.Density(t, p)
+density = WSAProperties.Density(t, p)
 print("Density of water:", density, "kg/m^3")
 
 # calculate the specific entropy of water
-entropy = WaterProperties.Specific_Entropy(t, p)
+entropy = WSAProperties.Specific_Entropy(t, p)
 print("Specific entropy of water:", entropy, "J/kg·K")
 ```
 
 ### Functions
 
-The purpose of each of the functions is contained directly in the name.\
-The library includes the following functions:
+The purpose of each of the functions is contained directly in the name.
+
+#### _Water and steam part_
+The part of water and steam in library includes the following functions:
 
 * `Region(t, p)`
 * `Density3(t, p)`
@@ -69,7 +71,13 @@ The library includes the following functions:
 * `Viscosity(t, p)`
 * `Density_MI(t, p)`
 * `Specific_Enthalpy_MI(t, p)`
-* `JF(t, p, Trigger, reg)`
+* `JF(t, p, Trigger, reg)`\
+
+#### _Air Part_
+Library also have formuls and thermal properties calculations for air:
+* `lambda_calc(B)`
+* `ksi_calc(A)`
+* `air_calc(A, B)`
 
 References
 --------------
