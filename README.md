@@ -15,11 +15,11 @@ Which is written in the Visual Basic programming language.
 Quick Guide
 ---------------
 
-Install library, use the `pip install WaterProperties` construct.\
+Install library, use the `pip install WSAProperties` construct.\
 Using the library is as simple and convenient as possible:
 
-First, import everything or needed functions from the library (use the `from WaterProperties import *` construct).\
-Second, you can use any function from the library (use the `WaterProperties.Any_Function` construct).
+First, import everything or needed functions from the library (use the `from WSAProperties import *` construct).\
+Second, you can use any function from the library (use the `WSAProperties.Any_Function` construct).
 
 ### Example Usage
 

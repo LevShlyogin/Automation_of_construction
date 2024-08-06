@@ -5,14 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC">
+      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SchemeWork.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/waterproperties-0.0.4-py3-none-any.whl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dist/waterproperties-0.0.4.tar.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/WaterProperties/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/WSAProperties/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/WaterProperties/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/WSAProperties/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WSAProperties/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/WSAProperties/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WSAProperties/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/WSAProperties/base.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -163,7 +160,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722490919776</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC">
+      <option name="closed" value="true" />
+      <created>1722916279795</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1722916279795</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -217,6 +222,7 @@
     <MESSAGE value="Code Readable Up v3" />
     <MESSAGE value="README.md update v3" />
     <MESSAGE value="comments + README.md&#10;big update v4" />
-    <option name="LAST_COMMIT_MESSAGE" value="comments + README.md&#10;big update v4" />
+    <MESSAGE value="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC" />
   </component>
 </project>

@@ -1,5 +1,4 @@
 from math import sqrt, exp, log, pi, fabs
-import numpy as np
 from scipy.interpolate import interp1d
 
 ''' Part Thermodynamical Properties of Water&Steam + RegionsAuto '''
