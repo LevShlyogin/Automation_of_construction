@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC">
-      <change afterPath="$PROJECT_DIR$/src/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WSAProperties/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/WSAProperties/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/WSAProperties/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/WSAProperties/base.py" afterDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Fix FUNCS build">
+      <change afterPath="$PROJECT_DIR$/dist/wsaproperties-0.1.2-py3-none-any.whl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dist/wsaproperties-0.1.2.tar.gz" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,8 +82,10 @@
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src\WaterProperties" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\WSAProperties" />
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src\WaterProperties" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -168,7 +168,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722916279795</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Fix FUNCS build">
+      <option name="closed" value="true" />
+      <created>1722919154406</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1722919154406</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -223,6 +231,7 @@
     <MESSAGE value="README.md update v3" />
     <MESSAGE value="comments + README.md&#10;big update v4" />
     <MESSAGE value="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Air Thermodynamical Props&#10;+ Fixed RegionAuto FUNC" />
+    <MESSAGE value="Fix FUNCS build" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix FUNCS build" />
   </component>
 </project>
