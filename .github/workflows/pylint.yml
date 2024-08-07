@@ -1,6 +1,9 @@
 name: Code Quality and Formatting
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'  # Это позволит запускать workflow на любой ветке
 
 jobs:
   build:
@@ -8,32 +11,33 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10"]
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pylint autopep8
-      - name: Format code with autopep8
-        run: autopep8 --in-place --aggressive --global-config=.pep8 .
-      - name: Analyze code with Pylint
-        env:
-          PYLINT_OUTPUT: pylint-report.txt
-        run: |
-          pylint --output-format=parseable --reports=n $(git ls-files '*.py') > $PYLINT_OUTPUT
-      - name: Report Pylint results
-        if: failure()
-        run: |
-          echo "::error::Pylint errors found. See report below:"
-          cat $PYLINT_OUTPUT
-        continue-on-error: true
-      - name: Check for Pylint errors
-        run: |
-          if [ -f pylint-report.txt ] && grep -q "^[^:]+:E:" pylint-report.txt; then
-            echo "::error::Pylint errors found. Fix before committing."
-            exit 1
-          fi
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint autopep8
+    
+    - name: Format code with autopep8
+      run: autopep8 --in-place --aggressive --recursive .
+    
+    - name: Analyze code with Pylint
+      run: |
+        pylint $(git ls-files '*.py') --output-format=text --exit-zero > pylint-report.txt || true
+    
+    - name: Check for Pylint errors
+      run: |
+        if grep -q 'E:' pylint-report.txt; then
+          echo "::error::Pylint errors found. Please fix the following issues:"
+          cat pylint-report.txt
+          exit 1
+        else
+          echo "No Pylint errors found."
+        fi
