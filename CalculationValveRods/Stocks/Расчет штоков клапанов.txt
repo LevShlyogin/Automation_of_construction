@@ -1,0 +1,261 @@
+{
+Методика 1:
+	Величина расхода задается для каждого участка. Энтальпия рассчитывается как
+	сдросселированная и смесь.	
+Методика 2:	
+	Определение величины расхода основано на методике "Расчета щелевых уплотнений"
+РТМ 108.020.33-86. Суть методики заключается в последовательном приближении
+скорости в щели. На первой итерации мы задаемся скоростью и определеяем величину
+расхода, после чего определяем скорость и уточняем расход. Так величина расхода
+определяется дозаданной величины погрешности 0,001.
+Методика 3:
+	Определение величина расхода производитса через определение величины режима
+течения (турбулентный или ламинарный). НА ДАННЫЙ МОМЕНТ НЕ РЕАЛИЗОВАНО.
+	Индексы:
+}
+
+{Входные параметры}
+input
+	Delta_part1, W_part1,
+	Delta_part2, W_part2,
+	Delta_part3, W_part3;
+
+{Выходные параметры}
+output
+	_Delta_part1,	_W_part1,
+	_Delta_part2, _W_part2,
+	_Delta_part3, _W_part3;
+
+t_valve = SUBMODEL.T0;
+p_valve = SUBMODEL.P0;
+h_valve = SteamPT(p_valve * 98066.5, t_valve, 3) / 4186.8;
+p_deaerator = SUBMODEL.Pout_1;
+p_ejector = SUBMODEL.Pout_2;
+
+{________________________ОБЩИЕ ГЕОМЕТРИЧЕСКИЕ ПАРАМЕТРЫ________________________}
+
+IF SUBMODEL.Calc_type = 0 THEN begin
+	r = SUBMODEL.r_inlet / 1000       // Радиус скругления входа или величина фаски
+	delt = SUBMODEL.delt_b_s / 1000  // Радиальный зазор
+	d = SUBMODEL.D_stem / 1000        // Диаметр штока
+	L1 = SUBMODEL.L1_b / 1000      // Длина участка 1
+	L2 = SUBMODEL.L2_b / 1000      // Длина участка 2
+	L3 = SUBMODEL.L3_b / 1000      // Длина участка 3
+END
+	ELSE begin
+		r = SUBMODEL.r_inlet_DB / 1000
+		delt = SUBMODEL.delt_DB / 1000
+		d = SUBMODEL.D_stem_DB / 1000
+		L1 = SUBMODEL.L1_DB / 1000
+		L2 = SUBMODEL.L2_DB / 1000
+		L3 = SUBMODEL.L3_DB / 1000
+	END;
+
+Z = SUBMODEL.Z_valve;              // Количество клапанов
+k_prop = r / (delt * 2);           // Коэффициент пропорциональности
+f = delt * PI * d;                 // Площадь зазаора
+
+{____________________________ДОПОЛНИТЕЛЬНЫЕ ФУНКЦИИ____________________________}
+
+// Функция определения коэффициента сопротивления трения 
+FUNCTION LAMBDA_CALC(B): Double
+Matrix_LAMBDA = [[100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200,
+									1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000,
+									4000, 5000,	6000, 8000, 10000, 15000, 20000, 30000, 40000,
+									50000, 60000, 80000, 100000, 150000, 200000, 300000, 400000,
+									500000, 600000, 800000, 1000000, 1500000, 2000000, 3000000,
+									4000000, 5000000, 8000000, 10000000, 15000000, 20000000,
+									30000000, 60000000, 80000000, 100000000], 
+								 [0.640, 0.320, 0.213, 0.160, 0.128, 0.107, 0.092, 0.080, 0.071,
+								  0.064, 0.058, 0.053, 0.049, 0.046, 0.043, 0.040, 0.038, 0.036,
+									0.034, 0.032,	0.034, 0.040, 0.040, 0.038, 0.036, 0.033, 0.032,
+									0.028, 0.026, 0.024, 0.022, 0.021, 0.020, 0.019, 0.018, 0.017,
+									0.016, 0.015, 0.014, 0.013, 0.013, 0.012, 0.012, 0.011, 0.011,
+									0.010, 0.010, 0.009, 0.009, 0.008, 0.008, 0.008, 0.007, 0.007,
+									0.006, 0.006]];
+	LAMBDA_CALC = Interpol(Matrix_LAMBDA[1], Matrix_LAMBDA[2], B);
+END; 
+
+// Функция определения коэффициента смягчения входа
+FUNCTION KSI_CALC(A): Double
+Matrix_KSI = [[0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.20,
+							 10.0],
+					    [0.50, 0.43, 0.36, 0.31, 0.26, 0.22, 0.20, 0.15, 0.09, 0.06, 0.03,
+							 0.03]];	
+	KSI_CALC = Interpol(Matrix_KSI[1], Matrix_KSI[2], A);
+END;
+
+// Определение свойств воздуха
+FUNCTION AIR_CALC(A:Double, B:integer): Double
+	RO = 353.089 / (A + 273.15);
+	V = 1 / RO;
+	Din_vis = (1.7162 + A * 4.8210 / 10^2 - A^2 * 2.17419 / 10^5 - A^3 * 7.0665 / 10^9) / 10^6;
+	Kin_vis = (13.2 + 0.1 * A) / 10^6;
+	AIR_CALC = CASE(B, RO, V, Din_vis, Kin_vis);
+END;
+
+// Определение коэффициента смягчения входа (одинаков для всех участков) 
+KSI = KSI_CALC(k_prop);
+
+{______________________ОПРЕДЕЛЕНИЕ ПАРАМЕТРОВ ПО УЧАСТКАМ______________________}
+
+// Определение параметров пара участка 1
+IF SUBMODEL.Type_calc = 2 THEN begin
+	h_part1 = h_valve
+	G_part1 = SUBMODEL.G_fix1
+	h_part2 = h_valve
+	G_part2 = SUBMODEL.G_fix2
+	h_part3 = SUBMODEL.h_vozd
+	G_part3 = SUBMODEL.G_fix3;
+END
+	ELSE begin
+		h_part1 = h_valve;
+		P1_part1 = p_valve*98066.5;
+		P2_part1 = p_deaerator*98066.5;
+		v_part1 = steamPH(P1_part1, h_part1 * 4186.8, 4);
+		t_part1 = steamPH(P1_part1, h_part1 * 4186.8, 2);
+		din_vis_part1 = steamPH(P1_part1, h_part1 * 4186.8, 6);
+		kin_vis_part1 = v_part1 * din_vis_part1;
+		Re_part1 = (W_part1 * 2 * delt) / kin_vis_part1;
+		Lambda_part1 = LAMBDA_CALC(Re_part1);
+		ALFA_part1 = 1 / (1 + KSI + (0.5 * Lambda_part1 * L1) / delt)^0.5
+		G_part1 = ALFA_part1*f*((P1_part1^2-P2_part1^2)/(P1_part1*v_part1))^0.5*3.6;
+		DELT_W_part1 = W_part1 - v_part1 * G_part1 / (3.6 * f);
+		IF DELT_W_part1 <= 0.001 THEN begin
+			_W_part1 += max(0.001, Delta_part1)
+			_Delta_part1 = Delta_part1;
+		END
+			ELSE begin
+				IF DELT_W_part1 >= 0.001 THEN begin
+					_W_part1 -= max(0.001, Delta_part1)
+					_Delta_part1 = Delta_part1 * 0.9;
+					END
+				END;
+// Определение параметров пара участка 2	
+		h_part2 = h_valve;
+		P1_part2 = p_deaerator*98066.5;
+		P2_part2 = p_ejector*98066.5;
+		v_part2 = steamPH(P1_part2, h_part2 * 4186.8, 4);
+		t_part2_ = steamPH(P1_part2, h_part2 * 4186.8, 2);
+		din_vis_part2 = steamPH(P1_part2, h_part2 * 4186.8, 6);
+		kin_vis_part2 = v_part2 * din_vis_part2;
+		Re_part2 = (W_part2 * 2 * delt) / kin_vis_part2;
+		Lambda_part2 = LAMBDA_CALC(Re_part2);
+		ALFA_part2 = 1 / (1 + KSI + (0.5 * Lambda_part2 * L2) / delt)^0.5
+		G_part2 = ALFA_part2*f*((P1_part2^2-P2_part2^2)/(P1_part2*v_part2))^0.5*3.6;
+		DELT_W_part2 = W_part2 - v_part2 * G_part2 / (3.6 * f);
+		IF DELT_W_part2 <= 0.001 THEN begin
+			_W_part2 += max(0.001, Delta_part2)
+			_Delta_part2 = Delta_part2;
+		END
+			ELSE begin
+				IF DELT_W_part2 >= 0.001 THEN begin
+					_W_part2 -= max(0.001, Delta_part2)
+					_Delta_part2 = Delta_part2 * 0.9;
+					END
+				END;
+// Определение параметров пара участка 3	
+		h_part3 = SUBMODEL.h_vozd;
+		P1_part3 = SUBMODEL.p_vozd*98066.5;
+		P2_part3 = p_ejector*98066.5;
+		v_part3 = AIR_CALC(SUBMODEL.t_vozd, 1);
+		t_part3 = SUBMODEL.t_vozd;
+		din_vis_part3 = AIR_CALC(SUBMODEL.t_vozd, 2);
+		kin_vis_part3 = v_part3 * din_vis_part3;
+		Re_part3 = (W_part3 * 2 * delt) / kin_vis_part3;
+		Lambda_part3 = LAMBDA_CALC(Re_part3);
+		ALFA_part3 = 1 / (1 + KSI + (0.5 * Lambda_part3 * L3) / delt)^0.5
+		G_part3 = max(0.001, ALFA_part3*f*((P1_part3^2-P2_part3^2)/(P1_part3*v_part3))^0.5*3.6);
+		DELT_W_part3 = W_part3 - v_part3 * G_part3 / (3.6 * f);
+		IF DELT_W_part3 <= 0.001 THEN begin
+			_W_part3 += max(0.001, Delta_part3)
+			_Delta_part3 = Delta_part3;
+		END
+			ELSE begin
+				IF DELT_W_part3 >= 0.001 THEN begin
+					_W_part3 -= max(0.001, Delta_part3)
+					_Delta_part3 = Delta_part3 * 0.9;
+					END
+				END;
+	END;
+
+{______________________ОПРЕДЕЛЕНИЕ ПАРАМЕТРОВ ПО ОТСОСАМ_______________________}
+
+// Определение параметров отсоса в деаэратор
+g_deaerator = (G_part1 - G_part2) * Z;
+h_deaerator = h_part2;
+t_deaerator = steamPH(p_deaerator * 98066.5, h_deaerator * 4186.8, 2);
+X1 = (h_deaerator * 4186.8 - WaterPS(p_deaerator * 98066.5, 3))/(SteamPS(p_deaerator * 98066.5, 3) - WaterPS(p_deaerator * 98066.5, 3));
+IF X1 > 1 THEN x_deaerator = 1 ELSE x_deaerator = X1;
+
+// Определение параметров отсоса в эжектор уплотнений
+g_ejector = (G_part2 + G_part3) * Z;
+IF type_calc_SAM = 0 THEN begin
+t_part2 = steamPH(p_ejector * 98066.5, h_part2 * 4186.8, 2)
+t_ejector = (SUBMODEL.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
+h_ejector = steamPT(p_ejector * 98066.5, t_ejector, 3) / 4186.8
+end
+	ELSE begin
+		h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
+		t_ejector = steamPH(p_ejector * 98066.5, h_ejector * 4186.8, 2)
+	END;
+X2 = (h_ejector * 4186.8 - WaterPS(p_ejector * 98066.5, 3))/(SteamPS(p_ejector * 98066.5, 3) - WaterPS(p_ejector * 98066.5, 3));
+IF X2 > 1 THEN x_ejector = 1 ELSE x_ejector = X2;
+
+// Определение суммарного расхода пара на штока клапанов 
+g_valve = G_part1 * Z;
+// Определение суммарного расхода воздуха 
+g_vozd = G_part3 * Z;
+
+
+{Вывод переменных в свойства блока субмодели}
+SUBMODEL.g_d = g_deaerator;
+SUBMODEL.h_d = h_deaerator;
+SUBMODEL.p_d = p_deaerator;
+SUBMODEL.t_d = t_deaerator;
+SUBMODEL.x_d = x_deaerator;
+
+SUBMODEL.g_e = g_ejector;
+SUBMODEL.h_e = h_ejector;
+SUBMODEL.p_e = p_ejector;
+SUBMODEL.t_e = t_ejector;
+SUBMODEL.x_e = x_ejector;
+
+SUBMODEL.g_valve = g_valve;
+SUBMODEL.h_valve = h_valve;
+SUBMODEL.p_valve = p_valve;
+SUBMODEL.t_valve = t_valve;
+
+SUBMODEL.G_part1 = G_part1;
+SUBMODEL.H_part1 = H_part1;
+SUBMODEL.v_part1 = v_part1;
+SUBMODEL.P1_part1 = P1_part1;
+SUBMODEL.T1_part1 = T_part1;
+SUBMODEL.P2_part1 = P2_part1;
+SUBMODEL.Re_part1 = Re_part1;
+SUBMODEL.w_part1 = _w_part1;
+
+SUBMODEL.G_part2 = G_part2;
+SUBMODEL.H_part2 = H_part2;
+SUBMODEL.v_part2 = v_part2;
+SUBMODEL.P1_part2 = P1_part2;
+SUBMODEL.T1_part2 = t_part2_;
+SUBMODEL.P2_part2 = P2_part2;
+SUBMODEL.Re_part2 = Re_part2;
+SUBMODEL.w_part2 = _w_part2;
+
+SUBMODEL.G_part3 = G_part3;
+SUBMODEL.H_part3 = H_part3;
+SUBMODEL.v_part3 = v_part3;
+SUBMODEL.P1_part3 = P1_part3;
+SUBMODEL.T1_part3 = T_part3;
+SUBMODEL.P2_part3 = P2_part3;
+SUBMODEL.Re_part3 = Re_part3;
+SUBMODEL.w_part3 = _w_part3;
+
+SUBMODEL.L1_Print = L1 * 1000;
+SUBMODEL.L2_Print = L2 * 1000;
+SUBMODEL.L3_Print = L3 * 1000;
+SUBMODEL.D_Print = D * 1000;
+SUBMODEL.delt_Print = delt * 1000;
+SUBMODEL.f_zaz = f*10^6;    
