@@ -75,9 +75,13 @@ The part of water and steam in library includes the following functions:
 
 #### _Air Part_
 Library also have formuls and thermal properties calculations for air:
+* `air_calc(A, B)`
+
+#### _Additional Funcs Part_
+These functions are rarely used and do not belong to one of the W/S/A.\
+They are needed to determine the additional features:
 * `lambda_calc(B)`
 * `ksi_calc(A)`
-* `air_calc(A, B)`
 
 References
 --------------
