@@ -17,29 +17,63 @@ try:
     # Запрос названия турбины у пользователя
     turbine_name = input("Введите название турбины: ")
 
-    # SQL-запрос для получения информации о клапанах
-    query = """
-    SELECT b.Турбина, s.Чертеж_клапана 
-    FROM Base b
-    JOIN Stock s ON b.Чертеж_клапана = s.Чертеж_клапана
-    WHERE b.Турбина = %s
+    # SQL-запрос для получения чертежей клапанов по турбине
+    query_get_drawings = """
+    SELECT Чертеж_клапана 
+    FROM "Base"
+    WHERE Турбина = %s
     """
 
-    # Выполнение запроса
-    cursor.execute(query, (turbine_name,))
-    results = cursor.fetchall()
+    # Выполнение первого запроса
+    cursor.execute(query_get_drawings, (turbine_name,))
+    drawings = cursor.fetchall()
 
-    if results:
-        print(f"Клапаны для турбины '{turbine_name}':")
-        for row in results:
-            print(f"- Чертеж клапана: {row[1]}")
+    if not drawings:
+        print(f"Чертежи для турбины '{turbine_name}' не найдены.")
     else:
-        print(f"Клапаны для турбины '{turbine_name}' не найдены.")
+        print(f"Чертежи клапанов для турбины '{turbine_name}':")
+        for drawing in drawings:
+            drawing_number = drawing[0]
+
+            # SQL-запрос для получения данных о клапане из таблицы "Stock"
+            query_get_valve_info = """
+            SELECT * 
+            FROM "Stock"
+            WHERE Чертеж_клапана = %s
+            """
+
+            # Выполнение второго запроса
+            cursor.execute(query_get_valve_info, (drawing_number,))
+            valve_info = cursor.fetchall()
+
+            if valve_info:
+                for info in valve_info:
+                    # Вывод всей информации о клапане
+                    print("-------------")
+                    print(f"ID: {info[0]}")
+                    print(f"Источник: {info[1]}")
+                    print(f"Проверено (да/нет): {info[2]}")
+                    print(f"Проверяющий: {info[3]}")
+                    print(f"Тип клапана: {info[4]}")
+                    print(f"Чертеж клапана: {info[5]}")
+                    print(f"Количество участков: {info[6]}")
+                    print(f"Чертеж буксы: {info[7]}")
+                    print(f"Чертеж штока: {info[8]}")
+                    print(f"Диаметр штока (мм): {info[9]}")
+                    print(f"Точность изготовления штока (мм): {info[10]}")
+                    print(f"Точность изготовления буксы (мм): {info[11]}")
+                    print(f"Расчетный зазор (мм): {info[12]}")
+                    print(f"Длина участка 1 (мм): {info[13]}")
+                    print(f"Длина участка 2 (мм): {info[14]}")
+                    print(f"Длина участка 3 (мм): {info[15]}")
+                    print(f"Длина участка 4 (мм): {info[16]}")
+                    print(f"Длина участка 5 (мм): {info[17]}")
+                    print(f"Радиус скругления размер фаски (мм): {info[18]}")
+            else:
+                print(f"Данные для чертежа '{drawing_number}' не найдены.")
 
 except psycopg2.Error as e:
     print(f"Ошибка базы данных: {e}")
-    print(f"SQL-запрос: {query}")
-    print(f"Параметры запроса: {turbine_name}")
 finally:
     # Закрытие соединения с базой данных
     if conn:

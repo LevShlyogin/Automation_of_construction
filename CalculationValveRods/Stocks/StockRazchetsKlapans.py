@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from math import pi
+from models import ClapanModel
 
 # Input parameters
 Delta_part1, W_part1 = None, None
@@ -12,29 +13,29 @@ _Delta_part1, _W_part1 = None, None
 _Delta_part2, _W_part2 = None, None
 _Delta_part3, _W_part3 = None, None
 
-t_valve = SUBMODEL.T0
-p_valve = SUBMODEL.P0
+t_valve = ClapanModel.T0
+p_valve = ClapanModel.P0
 h_valve = SteamPT(p_valve * 98066.5, t_valve, 3) / 4186.8
-p_deaerator = SUBMODEL.Pout_1
-p_ejector = SUBMODEL.Pout_2
+p_deaerator = ClapanModel.Pout_1
+p_ejector = ClapanModel.Pout_2
 
 # General geometric parameters
-if SUBMODEL.Calc_type == 0:
-    r = SUBMODEL.r_inlet / 1000  # Radius of inlet rounding or chamfer size
-    delt = SUBMODEL.delt_b_s / 1000  # Radial clearance
-    d = SUBMODEL.D_stem / 1000  # Stem diameter
-    L1 = SUBMODEL.L1_b / 1000  # Length of section 1
-    L2 = SUBMODEL.L2_b / 1000  # Length of section 2
-    L3 = SUBMODEL.L3_b / 1000  # Length of section 3
+if ClapanModel.Calc_type == 0:
+    r = ClapanModel.r_inlet / 1000  # Radius of inlet rounding or chamfer size
+    delt = ClapanModel.delt_b_s / 1000  # Radial clearance
+    d = ClapanModel.D_stem / 1000  # Stem diameter
+    L1 = ClapanModel.L1_b / 1000  # Length of section 1
+    L2 = ClapanModel.L2_b / 1000  # Length of section 2
+    L3 = ClapanModel.L3_b / 1000  # Length of section 3
 else:
-    r = SUBMODEL.r_inlet_DB / 1000
-    delt = SUBMODEL.delt_DB / 1000
-    d = SUBMODEL.D_stem_DB / 1000
-    L1 = SUBMODEL.L1_DB / 1000
-    L2 = SUBMODEL.L2_DB / 1000
-    L3 = SUBMODEL.L3_DB / 1000
+    r = ClapanModel.r_inlet_DB / 1000
+    delt = ClapanModel.delt_DB / 1000
+    d = ClapanModel.D_stem_DB / 1000
+    L1 = ClapanModel.L1_DB / 1000
+    L2 = ClapanModel.L2_DB / 1000
+    L3 = ClapanModel.L3_DB / 1000
 
-Z = SUBMODEL.Z_valve  # Number of valves
+Z = ClapanModel.Z_valve  # Number of valves
 k_prop = r / (delt * 2)  # Proportionality coefficient
 f = delt * pi * d  # Clearance area
 
@@ -88,13 +89,13 @@ KSI = ksi_calc(k_prop)
 # Определение параметров по участкам
 
 # Определение параметров пара участка 1
-if SUBMODEL.Type_calc == 2:
+if ClapanModel.Type_calc == 2:
     h_part1 = h_valve
-    G_part1 = SUBMODEL.G_fix1
+    G_part1 = ClapanModel.G_fix1
     h_part2 = h_valve
-    G_part2 = SUBMODEL.G_fix2
-    h_part3 = SUBMODEL.h_vozd
-    G_part3 = SUBMODEL.G_fix3
+    G_part2 = ClapanModel.G_fix2
+    h_part3 = ClapanModel.h_vozd
+    G_part3 = ClapanModel.G_fix3
 else:
     h_part1 = h_valve
     P1_part1 = p_valve * 98066.5
@@ -138,12 +139,12 @@ else:
         _Delta_part2 = Delta_part2 * 0.9
 
 # Определение параметров пара участка 3
-h_part3 = SUBMODEL.h_vozd
-P1_part3 = SUBMODEL.p_vozd * 98066.5
+h_part3 = ClapanModel.h_vozd
+P1_part3 = ClapanModel.p_vozd * 98066.5
 P2_part3 = p_ejector * 98066.5
-v_part3 = air_calc(SUBMODEL.t_vozd, 1)
-t_part3 = SUBMODEL.t_vozd
-din_vis_part3 = lambda_calc(SUBMODEL.t_vozd, 2)
+v_part3 = air_calc(ClapanModel.t_vozd, 1)
+t_part3 = ClapanModel.t_vozd
+din_vis_part3 = lambda_calc(ClapanModel.t_vozd, 2)
 kin_vis_part3 = v_part3 * din_vis_part3
 Re_part3 = (W_part3 * 2 * delt) / kin_vis_part3
 Lambda_part3 = lambda_calc(Re_part3)
@@ -172,7 +173,7 @@ x_deaerator = 1 if X1 > 1 else X1
 g_ejector = (G_part2 + G_part3) * Z
 if type_calc_SAM == 0:
     t_part2 = steamPH(p_ejector * 98066.5, h_part2 * 4186.8, 2)
-    t_ejector = (SUBMODEL.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
+    t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
     h_ejector = steamPT(p_ejector * 98066.5, t_ejector, 3) / 4186.8
 else:
     h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
@@ -188,53 +189,53 @@ g_valve = G_part1 * Z
 g_vozd = G_part3 * Z
 
 # Вывод переменных в свойства блока субмодели
-SUBMODEL.g_d = g_deaerator
-SUBMODEL.h_d = h_deaerator
-SUBMODEL.p_d = p_deaerator
-SUBMODEL.t_d = t_deaerator
-SUBMODEL.x_d = x_deaerator
+ClapanModel.g_d = g_deaerator
+ClapanModel.h_d = h_deaerator
+ClapanModel.p_d = p_deaerator
+ClapanModel.t_d = t_deaerator
+ClapanModel.x_d = x_deaerator
 
-SUBMODEL.g_e = g_ejector
-SUBMODEL.h_e = h_ejector
-SUBMODEL.p_e = p_ejector
-SUBMODEL.t_e = t_ejector
-SUBMODEL.x_e = x_ejector
+ClapanModel.g_e = g_ejector
+ClapanModel.h_e = h_ejector
+ClapanModel.p_e = p_ejector
+ClapanModel.t_e = t_ejector
+ClapanModel.x_e = x_ejector
 
-SUBMODEL.g_valve = g_valve
-SUBMODEL.h_valve = h_valve
-SUBMODEL.p_valve = p_valve
-SUBMODEL.t_valve = t_valve
+ClapanModel.g_valve = g_valve
+ClapanModel.h_valve = h_valve
+ClapanModel.p_valve = p_valve
+ClapanModel.t_valve = t_valve
 
-SUBMODEL.G_part1 = G_part1
-SUBMODEL.H_part1 = H_part1
-SUBMODEL.v_part1 = v_part1
-SUBMODEL.P1_part1 = P1_part1
-SUBMODEL.T1_part1 = T_part1
-SUBMODEL.P2_part1 = P2_part1
-SUBMODEL.Re_part1 = Re_part1
-SUBMODEL.w_part1 = _w_part1
+ClapanModel.G_part1 = G_part1
+ClapanModel.H_part1 = H_part1
+ClapanModel.v_part1 = v_part1
+ClapanModel.P1_part1 = P1_part1
+ClapanModel.T1_part1 = T_part1
+ClapanModel.P2_part1 = P2_part1
+ClapanModel.Re_part1 = Re_part1
+ClapanModel.w_part1 = _w_part1
 
-SUBMODEL.G_part2 = G_part2
-SUBMODEL.H_part2 = H_part2
-SUBMODEL.v_part2 = v_part2
-SUBMODEL.P1_part2 = P1_part2
-SUBMODEL.T1_part2 = t_part2_
-SUBMODEL.P2_part2 = P2_part2
-SUBMODEL.Re_part2 = Re_part2
-SUBMODEL.w_part2 = _w_part2
+ClapanModel.G_part2 = G_part2
+ClapanModel.H_part2 = H_part2
+ClapanModel.v_part2 = v_part2
+ClapanModel.P1_part2 = P1_part2
+ClapanModel.T1_part2 = t_part2_
+ClapanModel.P2_part2 = P2_part2
+ClapanModel.Re_part2 = Re_part2
+ClapanModel.w_part2 = _w_part2
 
-SUBMODEL.G_part3 = G_part3
-SUBMODEL.H_part3 = H_part3
-SUBMODEL.v_part3 = v_part3
-SUBMODEL.P1_part3 = P1_part3
-SUBMODEL.T1_part3 = T_part3
-SUBMODEL.P2_part3 = P2_part3
-SUBMODEL.Re_part3 = Re_part3
-SUBMODEL.w_part3 = _w_part3
+ClapanModel.G_part3 = G_part3
+ClapanModel.H_part3 = H_part3
+ClapanModel.v_part3 = v_part3
+ClapanModel.P1_part3 = P1_part3
+ClapanModel.T1_part3 = T_part3
+ClapanModel.P2_part3 = P2_part3
+ClapanModel.Re_part3 = Re_part3
+ClapanModel.w_part3 = _w_part3
 
-SUBMODEL.L1_Print = L1 * 1000
-SUBMODEL.L2_Print = L2 * 1000
-SUBMODEL.L3_Print = L3 * 1000
-SUBMODEL.D_Print = D * 1000
-SUBMODEL.delt_Print = delt * 1000
-SUBMODEL.f_zaz = f * 10 ** 6
+ClapanModel.L1_Print = L1 * 1000
+ClapanModel.L2_Print = L2 * 1000
+ClapanModel.L3_Print = L3 * 1000
+ClapanModel.D_Print = D * 1000
+ClapanModel.delt_Print = delt * 1000
+ClapanModel.f_zaz = f * 10 ** 6
