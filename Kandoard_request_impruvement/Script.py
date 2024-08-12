@@ -5,6 +5,7 @@ kanboard_url = "https://kanboard.utz.local"
 api_token = "d981edca8d7c33eb7ba45de4325db7d89affd272b7d9ef78101c29daa7dd"
 username = "lrshlyogin"
 
+
 def get_tasks(username):
     headers = {"Authorization": f"Bearer {api_token}", "Content-Type": "application/json"}
     params = {"assignee_username": username}
@@ -16,6 +17,7 @@ def get_tasks(username):
     except requests.RequestException as e:
         print(f"Ошибка запроса: {e}")
         return []
+
 
 tasks = get_tasks(username)
 
