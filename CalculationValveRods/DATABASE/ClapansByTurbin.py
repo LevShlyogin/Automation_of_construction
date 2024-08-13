@@ -1,4 +1,5 @@
 import psycopg2
+from prettytable import PrettyTable
 
 # Установите параметры подключения к базе данных
 db_config = {
@@ -32,9 +33,18 @@ try:
         print(f"Чертежи для турбины '{turbine_name}' не найдены.")
     else:
         print(f"Чертежи клапанов для турбины '{turbine_name}':")
-        for drawing in drawings:
-            drawing_number = drawing[0]
+        drawing_numbers = [drawing[0] for drawing in drawings]
+        print(", ".join(drawing_numbers))
 
+        # Создание таблицы
+        headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков", "Чертеж буксы",
+                   "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы", "Расчетный зазор",
+                   "Длина участка 1", "Длина участка 2", "Длина участка 3", "Длина участка 4", "Длина участка 5",
+                   "Радиус скругления"]
+        table = PrettyTable()
+        table.field_names = headers
+
+        for drawing_number in drawing_numbers:
             # SQL-запрос для получения данных о клапане из таблицы "Stock"
             query_get_valve_info = """
             SELECT * 
@@ -48,29 +58,10 @@ try:
 
             if valve_info:
                 for info in valve_info:
-                    # Вывод всей информации о клапане
-                    print("-------------")
-                    print(f"ID: {info[0]}")
-                    print(f"Источник: {info[1]}")
-                    print(f"Проверено (да/нет): {info[2]}")
-                    print(f"Проверяющий: {info[3]}")
-                    print(f"Тип клапана: {info[4]}")
-                    print(f"Чертеж клапана: {info[5]}")
-                    print(f"Количество участков: {info[6]}")
-                    print(f"Чертеж буксы: {info[7]}")
-                    print(f"Чертеж штока: {info[8]}")
-                    print(f"Диаметр штока (мм): {info[9]}")
-                    print(f"Точность изготовления штока (мм): {info[10]}")
-                    print(f"Точность изготовления буксы (мм): {info[11]}")
-                    print(f"Расчетный зазор (мм): {info[12]}")
-                    print(f"Длина участка 1 (мм): {info[13]}")
-                    print(f"Длина участка 2 (мм): {info[14]}")
-                    print(f"Длина участка 3 (мм): {info[15]}")
-                    print(f"Длина участка 4 (мм): {info[16]}")
-                    print(f"Длина участка 5 (мм): {info[17]}")
-                    print(f"Радиус скругления размер фаски (мм): {info[18]}")
-            else:
-                print(f"Данные для чертежа '{drawing_number}' не найдены.")
+                    # Убираем номер чертежа из данных о клапане
+                    table.add_row(info[0:5] + info[6:])
+
+        print(table)
 
 except psycopg2.Error as e:
     print(f"Ошибка базы данных: {e}")

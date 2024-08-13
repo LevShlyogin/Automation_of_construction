@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Refactoring Code">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="DB script fix">
+      <change afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
     </list>
@@ -12,6 +13,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <excluded-from-favorite>
@@ -142,7 +150,15 @@
       <option name="project" value="LOCAL" />
       <updated>1722422447116</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="DB script fix">
+      <option name="closed" value="true" />
+      <created>1723453818352</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1723453818352</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -195,6 +211,7 @@
     <MESSAGE value="Code Readable Up v2" />
     <MESSAGE value="Code Readable Up v3" />
     <MESSAGE value="README.md update v3" />
-    <option name="LAST_COMMIT_MESSAGE" value="README.md update v3" />
+    <MESSAGE value="DB script fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="DB script fix" />
   </component>
 </project>
