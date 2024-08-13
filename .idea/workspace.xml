@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Pretty output from DB">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New func and OOP">
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -167,7 +165,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723540196931</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="New func and OOP">
+      <option name="closed" value="true" />
+      <created>1723544642493</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1723544642493</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -222,6 +228,7 @@
     <MESSAGE value="README.md update v3" />
     <MESSAGE value="DB script fix" />
     <MESSAGE value="Pretty output from DB" />
-    <option name="LAST_COMMIT_MESSAGE" value="Pretty output from DB" />
+    <MESSAGE value="New func and OOP" />
+    <option name="LAST_COMMIT_MESSAGE" value="New func and OOP" />
   </component>
 </project>
