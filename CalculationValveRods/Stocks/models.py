@@ -1,0 +1,2 @@
+class ClapanModel:
+    pass
