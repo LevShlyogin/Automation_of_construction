@@ -135,30 +135,50 @@ def air_props_detection(P1, P2, v, din_vis, len_part, W=50):
 
 # Определение параметров пара участка 1
 if len_part1 is not None and len_part2 is not None:
-    h_part1 = enthalpy_steam
+    # h_part1 = enthalpy_steam
     P1_part1 = pressure_start_valve * 98066.5
     P2_part1 = pressure_deaerator * 98066.5
-    v_part1 = steamPH(P1_part1, h_part1 * 4186.8, 4)
-    t_part1 = steamPH(P1_part1, h_part1 * 4186.8, 2)
-    din_vis_part1 = steamPH(P1_part1, h_part1 * 4186.8, 6)
+    v_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 4)
+    # t_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 2)
+    din_vis_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 6)
     steam_props_detection(P1_part1, P2_part1, v_part1, din_vis_part1, len_part1)
+else:
+    # air_props_detection()
+    pass
 
 # Определение параметров пара участка 2
 if len_part2 is not None and len_part3 is not None:
-    h_part2 = enthalpy_steam
+    # h_part2 = enthalpy_steam
     # P1_part2 = pressure_start_valve * 98066.5
     # P2_part2 = pressure_deaerator * 98066.5
     # v_part2 = steamPH(P1_part2, h_part2 * 4186.8, 4)
     # t_part2 = steamPH(P1_part2, h_part2 * 4186.8, 2)
     # din_vis_part2 = steamPH(P1_part2, h_part2 * 4186.8, 6)
     # steam_props_detection(P1_part2, P2_part2, v_part2, din_vis_part2, len_part2)
+    pass
+else:
+    # air_props_detection()
+    pass
 
 # Определение параметров пара участка 3
-if len_part3 is not None:
+if len_part3 is not None and len_part4 is not None:
+    # steam_props_detection()
+    pass
+else:
+    # air_props_detection()
     pass
 
 # Определение параметров пара участка 4
-if len_part4 is not None:
+if len_part4 is not None and len_part5 is not None:
+    # steam_props_detection()
+    pass
+else:
+    # air_props_detection()
+    pass
+
+# Определние параметров воздуха при 5 участках
+if len_part5 is not None:
+    # air_props_detection()
     pass
 
 # Определение параметров пара последнего участка
