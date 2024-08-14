@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[project]
+name = "WSAProperties"
+version = "0.1.4"
+authors = [
+    { name="Mikhael", email="shofer2007@gmail.com" },
+    { name="Lev", email="ooooooorrrrr@gmail.com" }
+]
+description = "Package for calculating the properties of water/steam/air"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Issues = "https://t.me/cubebug"

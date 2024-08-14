@@ -5,6 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New func and OOP">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WSAProperties/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/WSAProperties/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,7 +38,7 @@
     </excluded-from-favorite>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="en-functions" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -59,19 +62,19 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.ClapansByTurbin.executor": "Run",
-    "Python.InputFromDBandUSER.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit"
-  }
-}]]></component>
+    "keyToString": {
+      "ASKED_ADD_EXTERNAL_FILES": "true",
+      "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+      "Python.ClapansByTurbin.executor": "Run",
+      "Python.InputFromDBandUSER.executor": "Run",
+      "Python.main.executor": "Run",
+      "RunOnceActivity.OpenProjectViewOnStart": "true",
+      "RunOnceActivity.ShowReadmeOnStart": "true",
+      "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+      "git-widget-placeholder": "main",
+      "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit"
+    }
+  }]]></component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\mabaturin\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="79e36c5e-d478-4b15-a303-02672a46c31b" reportId="VBtoPYGit/qodana/2024-07-31" />
@@ -83,6 +86,9 @@
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\WSAProperties" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src\WaterProperties" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -125,110 +131,3 @@
       <option name="project" value="LOCAL" />
       <updated>1722408278349</updated>
     </task>
-    <task id="LOCAL-00004" summary="Code Readable Up v2">
-      <option name="closed" value="true" />
-      <created>1722421787564</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1722421787564</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Code Readable Up v3">
-      <option name="closed" value="true" />
-      <created>1722422072771</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1722422072771</updated>
-    </task>
-    <task id="LOCAL-00006" summary="README.md update v3">
-      <option name="closed" value="true" />
-      <created>1722422447116</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1722422447116</updated>
-    </task>
-    <task id="LOCAL-00007" summary="DB script fix">
-      <option name="closed" value="true" />
-      <created>1723453818352</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1723453818352</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Pretty output from DB">
-      <option name="closed" value="true" />
-      <created>1723540196931</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1723540196931</updated>
-    </task>
-    <task id="LOCAL-00009" summary="New func and OOP">
-      <option name="closed" value="true" />
-      <created>1723544642493</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1723544642493</updated>
-    </task>
-    <option name="localTasksCounter" value="10" />
-    <servers />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="RECENT_FILTERS">
-      <map>
-        <entry key="Branch">
-          <value>
-            <list>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="HEAD" />
-                </option>
-              </RecentGroup>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="origin/master" />
-                </option>
-              </RecentGroup>
-            </list>
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="HEAD" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Init Commit" />
-    <MESSAGE value="Funcs translate to EN&#10;README.md updated" />
-    <MESSAGE value="Code Readable Up v2" />
-    <MESSAGE value="Code Readable Up v3" />
-    <MESSAGE value="README.md update v3" />
-    <MESSAGE value="DB script fix" />
-    <MESSAGE value="Pretty output from DB" />
-    <MESSAGE value="New func and OOP" />
-    <option name="LAST_COMMIT_MESSAGE" value="New func and OOP" />
-  </component>
-</project>

@@ -1,11 +1,19 @@
-from math import sqrt, exp, log
+from math import sqrt, exp, log, fabs
 
-# global N1, I1, J1  # I phase
-# global N02, J02, Nr2, Ir2, Jr2  # II phase
-# global N02m, Nr2m, Ir2m, Jr2m  # metastable-vapor region
-# global N3, I3, J3  # III phase
-# global N05, J05, Nr5, Ir5, Jr5  # V phase
-# global Vi0, VHi, Vi, Vj, VHij  # Viscosity
+from scipy.interpolate import interp1d
+
+''' Part Thermodynamical Properties of Water&Steam + RegionsAuto '''
+
+"""
+Variables description:
+N1, I1, J1               | I phase
+N02, J02, Nr2, Ir2, Jr2  | II phase
+N3, I3, J3               | III phase
+N02m, Nr2m, Ir2m, Jr2m   | metastable-vapor region
+N05, J05, Nr5, Ir5, Jr5  | V phase
+Vi0, VHi, Vi, Vj, VHij   | Viscosity
+"""
+
 non, dt, dtt, dtp, dp, dpp = 0, 1, 2, 3, 4, 5  # Триггеры функции энергии Гиббса
 R, Default_accuracy = 461.526, 3
 
@@ -78,27 +86,60 @@ def N_Update():
     return n1, n2, n3, n4, n5, n6, n7, n8, n9, n10
 
 
-def Region(t: float, p: float) -> int:
+def p4_T(T):
+    """function p4_T = p4_T(T) FUNC FROM pyXSteam
+
+    Section 8.1 The Saturation-Pressure Equation
+
+    Eq 30, Page 33
     """
-    Determines the region of water state based on given temperature (t) and pressure (p).
-    Returns an integer representing the region.
+    teta = T - 0.23855557567849 / (T - 650.17534844798)
+    a = teta ** 2 + 1167.0521452767 * teta - 724213.16703206
+    B = -17.073846940092 * teta ** 2 + 12020.82470247 * teta - 3232555.0322333
+    C = 14.91510861353 * teta ** 2 - 4823.2657361591 * teta + 405113.40542057
+    return (2 * C / (-B + (B ** 2 - 4 * a * C) ** 0.5)) ** 4
+
+
+def B23p_T(T):
+    """function B23p_T = B23p_T(T) FUNC FROM pyXSteam
+
+    Section 4.1 Boundary between region 2 and 3.
+
+    Release on the IAPWS Industrial formulation 1997 for the Thermodynamic Properties of Water and Steam 1997
+    Section 4 Auxiliary Equation for the Boundary between Regions 2 and 3
+
+    Eq 5, Page 5
     """
-    if (t <= 590) and (p <= 100):
-        pf = Border_Pressure(t)
-    ans = 0
-    if (590 < t) and (t <= 800) and (0 <= p) and (p <= 100):
-        ans = 2
-    elif (800 < t) and (t <= 2000) and (0 <= p) and (p <= 50):
-        ans = 5
-    elif (0 <= t) and (t <= 350) and (pf < p) and (p <= 100):
-        ans = 1
-    elif (350 < t) and (t <= 590) and (pf < p) and (p <= 100):
-        ans = 3
-    elif (0 <= t) and (t <= 590) and (0 <= p) and (p < pf):
-        ans = 2
-    elif (0 <= t) and (t <= 590) and (p == pf):
-        ans = 4
-    return ans
+    return 348.05185628969 - 1.1671859879975 * T + 1.0192970039326e-03 * (T ** 2)
+
+
+def region_pT(p, T):
+    """function region_pT = region_pT(p, T) FUNC FROM pyXSteam"""
+    if (T > 1073.15) and (p < 50.0) and (T < 2273.15) and (p > 0.000611):
+        region_pT_number = 5
+    elif (T <= 1073.15) and (T > 273.15) and (p <= 100) and (p > 0.000611):
+        if T > 623.15:
+            if p > B23p_T(T):
+                region_pT_number = 3
+                if T < 647.096:
+                    ps = p4_T(T)
+                    if fabs(p - ps) < 0.00001:
+                        region_pT_number = 4
+            else:
+                region_pT_number = 2
+        else:
+            ps = p4_T(T)
+            if fabs(p - ps) < 0.00001:
+                region_pT_number = 4
+            elif p > ps:
+                region_pT_number = 1
+            else:
+                region_pT_number = 2
+    else:
+        print("Temperature outside valid area")
+        region_pT_number = 0  # Error, Outside valid area
+
+    return region_pT_number
 
 
 def Density3(t: float, p: float, accuracy=None) -> float:
@@ -213,7 +254,7 @@ def Gibbs_Energy(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger in [1, 2, 4, 5, 21]:
         return JF(t, p, non, Trigger) * (t + 273.15) * R
@@ -228,7 +269,7 @@ def Specific_Volume(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return (t + 273.15) * R * JF(t, p, dp, Trigger) / 16530000
@@ -244,7 +285,7 @@ def Density(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return 1 / ((t + 273.15) * R * JF(t, p, dp, Trigger) / 16530000)
@@ -260,7 +301,7 @@ def Specific_Energy(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return R * (1386 * JF(t, p, dt, Trigger) - p / 16.53 * (t + 273.15) * JF(t, p, dp, Trigger))
@@ -279,7 +320,7 @@ def Specific_Entropy(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return R * (1386 / (t + 273.15) * JF(t, p, dt, Trigger) - JF(t, p, non, Trigger))
@@ -298,7 +339,7 @@ def Specific_Enthalpy(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return R * 1386 * JF(t, p, dt, Trigger)
@@ -317,7 +358,7 @@ def Heat_Capacity_Isobaric(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         return -R * (1386 / (t + 273.15)) ** 2 * JF(t, p, dtt, Trigger)
@@ -340,7 +381,7 @@ def Heat_Capacity_Isochoric(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         tf = 1386 / (t + 273.15)
@@ -365,7 +406,7 @@ def Speed_Sound(t: float, p: float, reg=None) -> float:
     Uses the JF function for calculation.
     Optional argument 'reg' determines the region of water state.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     if Trigger == 1:
         tf = 1386 / (t + 273.15)
@@ -462,7 +503,7 @@ def Viscosity(t: float, p: float, reg=None) -> float:
     - Utilizes helper functions and global coefficients (VHi, VHij, Vi, Vj) for calculations.
     - Converts temperature to Kelvin and normalizes parameters for calculations.
     """
-    Trigger = Region(t, p) if reg is None else reg
+    Trigger = region_pT(t, p) if reg is None else reg
 
     tf = (t + 273.15) / 647.096
     rof = Density(t, p, Trigger) / 322
@@ -696,3 +737,94 @@ def JF(t: float, p: float, Trigger: int, reg: int) -> float:
                 jf_ans = jf_ans + Nr5[i] * Ir5[i] * (Ir5[i] - 1) * pf ** (Ir5[i] - 2) * tf ** Jr5[i]
 
     return jf_ans
+
+
+''' Part Thermodynamical Properties of Air'''
+
+
+def air_calc(A, B):
+    """
+    Функция для расчета свойств воздуха.
+    Формулы выдают достоверные результаты при нормальном атмосферном давлении сухого воздуха (P=101325 Па)
+    в достаточно широком диапазоне температур 200…1500 К (-73…+1227 °С).
+
+    Параметры:
+    A (float): Температура воздуха в градусах Цельсия.
+    B (int): Индекс свойства воздуха (0 - плотность, 1 - объем, 2 - динамическая вязкость, 3 - кинематическая вязкость).
+
+    Возвращает:
+    float: Свойство воздуха.
+    """
+    # Расчет свойств воздуха
+    RO = 353.089 / (A + 273.15)
+    V = 1 / RO
+    Din_vis = (1.7162 + A * 4.8210 / 10 ** 2 - A ** 2 * 2.17419 / 10 ** 5 - A ** 3 * 7.0665 / 10 ** 9) / 10 ** 6
+    Kin_vis = (13.2 + 0.1 * A) / 10 ** 6
+
+    # Возврат свойства воздуха
+    return {0: RO, 1: V, 2: Din_vis, 3: Kin_vis}[B]
+
+
+''' Part Additional Funcs '''
+
+
+def lambda_calc(B):
+    """
+    Функция для расчета коэффициента трения.
+
+    Параметры:
+    B (float): Значение, по которому будет рассчитан коэффициент трения.
+
+    Возвращает:
+    float: Коэффициент трения.
+    """
+    # Матрица с данными для интерполяции
+    # Взята из РТМ 108.020.33-86 С.36 Табл.10
+    # "Коэффициенты сопротивления трения в зависимости от числа Рейнольдса"
+    matrix_lambda = [
+        [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200,
+         1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000,
+         4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 40000,
+         50000, 60000, 80000, 100000, 150000, 200000, 300000, 400000,
+         500000, 600000, 800000, 1000000, 1500000, 2000000, 3000000,
+         4000000, 5000000, 8000000, 10000000, 15000000, 20000000,
+         30000000, 60000000, 80000000, 100000000],
+        [0.640, 0.320, 0.213, 0.160, 0.128, 0.107, 0.092, 0.080, 0.071,
+         0.064, 0.058, 0.053, 0.049, 0.046, 0.043, 0.040, 0.038, 0.036,
+         0.034, 0.032, 0.034, 0.040, 0.040, 0.038, 0.036, 0.033, 0.032,
+         0.028, 0.026, 0.024, 0.022, 0.021, 0.020, 0.019, 0.018, 0.017,
+         0.016, 0.015, 0.014, 0.013, 0.013, 0.012, 0.012, 0.011, 0.011,
+         0.010, 0.010, 0.009, 0.009, 0.008, 0.008, 0.008, 0.007, 0.007,
+         0.006, 0.006]
+    ]
+
+    # Создание интерполятора
+    interpolator = interp1d(matrix_lambda[0], matrix_lambda[1], fill_value="extrapolate")
+
+    # Возврат коэффициента трения
+    return interpolator(B)
+
+
+def ksi_calc(A):
+    """
+    Функция для расчета коэффициента смягчения.
+
+    Параметры:
+    A (float): Значение, по которому будет рассчитан коэффициент смягчения.
+
+    Возвращает:
+    float: Коэффициент смягчения.
+    """
+    # Матрица с данными для интерполяции
+    # Взята из РТМ 108.020.33-86 С.36 Табл.11
+    # "Коэффициент смягчения входа в зависимости от отношения r/2δ"
+    matrix_ksi = [
+        [0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.20, 10.0],
+        [0.50, 0.43, 0.36, 0.31, 0.26, 0.22, 0.20, 0.15, 0.09, 0.06, 0.03, 0.03]
+    ]
+
+    # Создание интерполятора
+    interpolator = interp1d(matrix_ksi[0], matrix_ksi[1], fill_value="extrapolate")
+
+    # Возврат коэффициента смягчения
+    return interpolator(A)
