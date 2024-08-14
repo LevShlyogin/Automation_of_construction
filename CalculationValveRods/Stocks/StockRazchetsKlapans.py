@@ -4,9 +4,9 @@ from math import pi
 from models import ClapanModel
 
 # Input parameters
-Delta_part1, W_part1 = None, None
-Delta_part2, W_part2 = None, None
-Delta_part3, W_part3 = None, None
+Delta_part1, W_part1 = None, 50
+Delta_part2, W_part2 = None, 50
+Delta_part3, W_part3 = None, 50
 
 # Output parameters
 _Delta_part1, _W_part1 = None, None
@@ -117,6 +117,7 @@ else:
             _W_part1 -= max(0.001, Delta_part1)
             _Delta_part1 = Delta_part1 * 0.9
 
+
 # Определение параметров пара участка 2
 h_part2 = h_valve
 P1_part2 = p_deaerator * 98066.5
@@ -124,19 +125,19 @@ P2_part2 = p_ejector * 98066.5
 v_part2 = steamPH(P1_part2, h_part2 * 4186.8, 4)
 t_part2_ = steamPH(P1_part2, h_part2 * 4186.8, 2)
 din_vis_part2 = steamPH(P1_part2, h_part2 * 4186.8, 6)
-kin_vis_part2 = v_part2 * din_vis_part2
-Re_part2 = (W_part2 * 2 * delt) / kin_vis_part2
-Lambda_part2 = lambda_calc(Re_part2)
-ALFA_part2 = 1 / (1 + KSI + (0.5 * Lambda_part2 * L2) / delt) ** 0.5
-G_part2 = ALFA_part2 * f * ((P1_part2 ** 2 - P2_part2 ** 2) / (P1_part2 * v_part2)) ** 0.5 * 3.6
-DELT_W_part2 = W_part2 - v_part2 * G_part2 / (3.6 * f)
-if DELT_W_part2 <= 0.001:
-    _W_part2 += max(0.001, Delta_part2)
-    _Delta_part2 = Delta_part2
-else:
-    if DELT_W_part2 >= 0.001:
-        _W_part2 -= max(0.001, Delta_part2)
-        _Delta_part2 = Delta_part2 * 0.9
+def shit(P1, P2, v, din_vis, L, delt, f, W=50):
+    kin_vis = v * din_vis
+    while 0.001 < delta_speed or delta_speed < -0.001:
+        Re = (W * 2 * delt) / kin_vis
+        Lambda = lambda_calc(Re)
+        ALFA = 1 / (1 + KSI + (0.5 * Lambda * L) / delt) ** 0.5
+        G = ALFA * f * ((P1 ** 2 - P2 ** 2) / (P1 * v)) ** 0.5 * 3.6
+        delta_speed = W - v * G / (3.6 * f)
+        if delta_speed <= 0.001:
+            W += max(0.001, W)
+        elif delta_speed >= -0.001:
+            W-= max(0.001, W*0.9)
+    return G
 
 # Определение параметров пара участка 3
 h_part3 = ClapanModel.h_vozd
