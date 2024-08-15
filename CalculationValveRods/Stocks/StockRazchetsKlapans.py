@@ -86,6 +86,8 @@ len_part4 = ClapanModel.L4_DB / 1000 if ClapanModel.L4_DB is not None else None
 len_part5 = ClapanModel.L5_DB / 1000 if ClapanModel.L5_DB is not None else None
 
 count_valves = ClapanModel.Z_valve  # Number of valves
+count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5])
+Ps = [input() if i <= count_parts + 1 else None for i in range(6)]
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coefficient
 S = delta_clearance * pi * diameter_stock  # Clearance area
 
