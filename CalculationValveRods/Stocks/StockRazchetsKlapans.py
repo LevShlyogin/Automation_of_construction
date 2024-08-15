@@ -109,8 +109,7 @@ len_part5 = ClapanModel.L5_DB / 1000 if ClapanModel.L5_DB is not None else None
 
 count_valves = ClapanModel.Z_valve  # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-Ps = [input() if i <= count_parts + 1 else None for i in range(6)]
-print(count_parts, Ps)
+P1, P2, P3, P4, P5, P6 = [input() if i <= count_parts else None for i in range(6)]
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coefficient
 S = delta_clearance * pi * diameter_stock  # Clearance area
 
@@ -125,48 +124,79 @@ Defining parameters by parts
 if len_part1:
     if len_part2:
         h_part1 = enthalpy_steam
-        P1_part1 = pressure_start_valve * 98066.5
-        P2_part1 = pressure_deaerator * 98066.5
-        v_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 4)
-        t_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 2)
-        din_vis_part1 = steamPH(P1_part1, enthalpy_steam * 4186.8, 6)
-        part_props_detection(P1_part1, P2_part1, v_part1, din_vis_part1, len_part1)
+        v_part1 = steamPH(P1, h_part1 * 4186.8, 4)
+        t_part1 = steamPH(P1, h_part1 * 4186.8, 2)
+        din_vis_part1 = steamPH(P1, h_part1 * 4186.8, 6)
+        part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
     else:
-        # part_props_detection(P1_part1, P2_part1, v_part1, din_vis_part1, len_part1, last_part=True)
-        pass
+        h_part1 = ClapanModel.h_vozd
+        # P1_part1 = ClapanModel.p_vozd * 98066.5
+        # P2_part1 = pressure_ejector * 98066.5
+        v_part1 = air_calc(ClapanModel.t_vozd, 1)
+        t_part1 = ClapanModel.t_vozd
+        din_vis_part1 = lambda_calc(ClapanModel.t_vozd, 2)
+        part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1, last_part=True)
 
 # Определение параметров Участка 2
 if len_part2:
     if len_part3:
-        pass
+        h_part2 = enthalpy_steam
+        v_part2 = steamPH(P2, h_part2 * 4186.8, 4)
+        t_part2 = steamPH(P2, h_part2 * 4186.8, 2)
+        din_vis_part2 = steamPH(P2, h_part2 * 4186.8, 6)
+        part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
     else:
-        pass
+        h_part2 = ClapanModel.h_vozd
+        # P1_part2 = ClapanModel.p_vozd * 98066.5
+        # P2_part2 = pressure_ejector * 98066.5
+        v_part2 = air_calc(ClapanModel.t_vozd, 1)
+        t_part2 = ClapanModel.t_vozd
+        din_vis_part2 = lambda_calc(ClapanModel.t_vozd, 2)
+        part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2, last_part=True)
 
 # Определение параметров Участка 3
 if len_part3:
     if len_part4:
-        pass
+        h_part3 = enthalpy_steam
+        v_part3 = steamPH(P3, h_part3 * 4186.8, 4)
+        t_part3 = steamPH(P3, h_part3 * 4186.8, 2)
+        din_vis_part3 = steamPH(P3, h_part3 * 4186.8, 6)
+        part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
     else:
-        pass
+        h_part3 = ClapanModel.h_vozd
+        # P1_part3 = ClapanModel.p_vozd * 98066.5
+        # P2_part3 = pressure_ejector * 98066.5
+        v_part3 = air_calc(ClapanModel.t_vozd, 1)
+        t_part3 = ClapanModel.t_vozd
+        din_vis_part3 = lambda_calc(ClapanModel.t_vozd, 2)
+        part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3, last_part=True)
 
 # Определение параметров Участка 4
 if len_part4:
     if len_part5:
-        pass
+        h_part4 = enthalpy_steam
+        v_part4 = steamPH(P4, h_part4 * 4186.8, 4)
+        t_part4 = steamPH(P4, h_part4 * 4186.8, 2)
+        din_vis_part4 = steamPH(P4, h_part4 * 4186.8, 6)
+        part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
     else:
-        pass
+        h_part4 = ClapanModel.h_vozd
+        # P4_part4 = ClapanModel.p_vozd * 98066.5
+        # P5_part4 = pressure_ejector * 98066.5
+        v_part4 = air_calc(ClapanModel.t_vozd, 1)
+        t_part4 = ClapanModel.t_vozd
+        din_vis_part4 = lambda_calc(ClapanModel.t_vozd, 2)
+        part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4, last_part=True)
 
 # Определние параметров Участка 5
 if len_part5:
-    pass
-
-# Определение параметров пара последнего участка
-# h_part3 = ClapanModel.h_vozd
-# P1_part3 = ClapanModel.p_vozd * 98066.5
-# P2_part3 = pressure_ejector * 98066.5
-# v = air_calc(ClapanModel.t_vozd, 1)
-# t_part3 = ClapanModel.t_vozd
-# din_vis_part3 = lambda_calc(ClapanModel.t_vozd, 2)
+    h_part5 = ClapanModel.h_vozd
+    # P1_part5 = ClapanModel.p_vozd * 98066.5
+    # P2_part5 = pressure_ejector * 98066.5
+    v_part5 = air_calc(ClapanModel.t_vozd, 1)
+    t_part5 = ClapanModel.t_vozd
+    din_vis_part5 = lambda_calc(ClapanModel.t_vozd, 2)
+    part_props_detection(P5, P6, v_part5, din_vis_part5, len_part5, last_part=True)
 
 ''' 
 Determination of parameters by suction PART 
@@ -204,3 +234,5 @@ Variables OUTPUT PART
 
 G, h, t, p... bla bla bla
 '''
+
+print("FULL OUTPUT END")
