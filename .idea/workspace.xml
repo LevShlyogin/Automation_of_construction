@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New func&#10;BPs work finding">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Stocks Adaptation UPD">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -66,6 +65,7 @@
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Python.ClapansByTurbin.executor": "Run",
     "Python.InputFromDBandUSER.executor": "Run",
+    "Python.StockRazchetsKlapans.executor": "Run",
     "Python.main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -183,7 +183,23 @@
       <option name="project" value="LOCAL" />
       <updated>1723545073549</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Stocks Adaptation Added">
+      <option name="closed" value="true" />
+      <created>1723630722855</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1723630722855</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Stocks Adaptation UPD">
+      <option name="closed" value="true" />
+      <created>1723631224672</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1723631224672</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -240,6 +256,8 @@
     <MESSAGE value="Pretty output from DB" />
     <MESSAGE value="New func and OOP" />
     <MESSAGE value="New func&#10;BPs work finding" />
-    <option name="LAST_COMMIT_MESSAGE" value="New func&#10;BPs work finding" />
+    <MESSAGE value="Stocks Adaptation Added" />
+    <MESSAGE value="Stocks Adaptation UPD" />
+    <option name="LAST_COMMIT_MESSAGE" value="Stocks Adaptation UPD" />
   </component>
 </project>
