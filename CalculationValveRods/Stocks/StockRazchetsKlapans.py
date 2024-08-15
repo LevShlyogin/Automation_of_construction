@@ -140,7 +140,7 @@ def air_props_detection(P1, P2, v, din_vis, len_part, W=50):
 
 
 # Определение параметров пара участка 1
-if len_part1 is not None and len_part2 is not None:
+if len_part1 and len_part2:
     # h_part1 = enthalpy_steam
     P1_part1 = pressure_start_valve * 98066.5
     P2_part1 = pressure_deaerator * 98066.5
@@ -153,7 +153,7 @@ else:
     pass
 
 # Определение параметров пара участка 2
-if len_part2 is not None and len_part3 is not None:
+if len_part2 and len_part3:
     # h_part2 = enthalpy_steam
     # P1_part2 = pressure_start_valve * 98066.5
     # P2_part2 = pressure_deaerator * 98066.5
@@ -167,7 +167,7 @@ else:
     pass
 
 # Определение параметров пара участка 3
-if len_part3 is not None and len_part4 is not None:
+if len_part3 and len_part4:
     # steam_props_detection()
     pass
 else:
@@ -175,7 +175,7 @@ else:
     pass
 
 # Определение параметров пара участка 4
-if len_part4 is not None and len_part5 is not None:
+if len_part4 and len_part5:
     # steam_props_detection()
     pass
 else:
@@ -183,7 +183,7 @@ else:
     pass
 
 # Определние параметров воздуха при 5 участках
-if len_part5 is not None:
+if len_part5:
     # air_props_detection()
     pass
 
