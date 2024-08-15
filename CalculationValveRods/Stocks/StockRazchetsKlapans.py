@@ -99,6 +99,8 @@ KSI = ksi_calc(proportional_coef)
 
 # Функция для определения параметров пара участка
 def steam_props_detection(P1, P2, v, din_vis, len_part, W=50):
+    if P1 == P2:
+        P1 += 0.03
     kin_vis = v * din_vis
     delta_speed = 1
     while not (-0.001 < delta_speed < 0.001):
@@ -118,6 +120,8 @@ def steam_props_detection(P1, P2, v, din_vis, len_part, W=50):
 
 # Функция для определения параметров воздуха для последнего участка
 def air_props_detection(P1, P2, v, din_vis, len_part, W=50):
+    if P1 == P2:
+        P1 += 0.03
     kin_vis = v * din_vis
     delta_speed = 1
     while not (-0.001 < delta_speed < 0.001):
