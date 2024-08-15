@@ -206,23 +206,32 @@ Determination of parameters by suction PART
 # g_deaerator = (G_part1 - G_part2) * count_valves
 # h_deaerator = h_part2
 # t_deaerator = steamPH(pressure_deaerator * 98066.5, h_deaerator * 4186.8, 2)
-# X1 = (h_deaerator * 4186.8 - WaterPS(pressure_deaerator * 98066.5, 3)) / (
-#         SteamPS(pressure_deaerator * 98066.5, 3) - WaterPS(pressure_deaerator * 98066.5, 3))
-# x_deaerator = 1 if X1 > 1 else X1
+#
+# # X1 = (h_deaerator * 4186.8 - WaterPS(pressure_deaerator * 98066.5, 3)) / (
+# #         SteamPS(pressure_deaerator * 98066.5, 3) - WaterPS(pressure_deaerator * 98066.5, 3))
+# # x_deaerator = 1 if X1 > 1 else X1
 #
 # # Определение параметров отсоса в эжектор уплотнений
 # g_ejector = (G_part2 + G_part3) * count_valves
-# if type_calc_SAM == 0:
-#     t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)
-#     t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
-#     h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8
-# else:
-#     h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
-#     t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)
-#
-# X2 = (h_ejector * 4186.8 - WaterPS(pressure_ejector * 98066.5, 3)) / (
-#         SteamPS(pressure_ejector * 98066.5, 3) - WaterPS(pressure_ejector * 98066.5, 3))
-# x_ejector = 1 if X2 > 1 else X2
+
+notChosen_typeCalc = False
+while notChosen_typeCalc:
+    type_calc_SAM = int(input("Выберите способ вычисления: введите число 1 либо 2"))
+    if type_calc_SAM == 1:
+        # t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)
+        # t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
+        # h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8
+        notChosen_typeCalc = True
+    elif type_calc_SAM == 2:
+        # h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
+        # t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)
+        notChosen_typeCalc = True
+    else:
+        print("Ввод не распознан.")
+
+# # X2 = (h_ejector * 4186.8 - WaterPS(pressure_ejector * 98066.5, 3)) / (
+# #         SteamPS(pressure_ejector * 98066.5, 3) - WaterPS(pressure_ejector * 98066.5, 3))
+# # x_ejector = 1 if X2 > 1 else X2
 #
 # # Определение суммарного расхода пара на штока клапанов
 # g_valve = G_part1 * count_valves
