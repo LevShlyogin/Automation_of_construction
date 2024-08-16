@@ -137,7 +137,7 @@ if len_part1:
         # P2_part1 = pressure_ejector * 98066.5
         v_part1 = air_calc(ClapanModel.t_vozd, 1)
         t_part1 = ClapanModel.t_vozd
-        din_vis_part1 = lambda_calc(ClapanModel.t_vozd, 2)
+        din_vis_part1 = lambda_calc(ClapanModel.t_vozd)
         part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1, last_part=True)
 
 # Определение параметров Участка 2
@@ -154,7 +154,7 @@ if len_part2:
         # P2_part2 = pressure_ejector * 98066.5
         v_part2 = air_calc(ClapanModel.t_vozd, 1)
         t_part2 = ClapanModel.t_vozd
-        din_vis_part2 = lambda_calc(ClapanModel.t_vozd, 2)
+        din_vis_part2 = lambda_calc(ClapanModel.t_vozd)
         part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2, last_part=True)
 
 # Определение параметров Участка 3
@@ -171,7 +171,7 @@ if len_part3:
         # P2_part3 = pressure_ejector * 98066.5
         v_part3 = air_calc(ClapanModel.t_vozd, 1)
         t_part3 = ClapanModel.t_vozd
-        din_vis_part3 = lambda_calc(ClapanModel.t_vozd, 2)
+        din_vis_part3 = lambda_calc(ClapanModel.t_vozd)
         part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3, last_part=True)
 
 # Определение параметров Участка 4
@@ -188,7 +188,7 @@ if len_part4:
         # P5_part4 = pressure_ejector * 98066.5
         v_part4 = air_calc(ClapanModel.t_vozd, 1)
         t_part4 = ClapanModel.t_vozd
-        din_vis_part4 = lambda_calc(ClapanModel.t_vozd, 2)
+        din_vis_part4 = lambda_calc(ClapanModel.t_vozd)
         part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4, last_part=True)
 
 # Определние параметров Участка 5
@@ -198,7 +198,7 @@ if len_part5:
     # P2_part5 = pressure_ejector * 98066.5
     v_part5 = air_calc(ClapanModel.t_vozd, 1)
     t_part5 = ClapanModel.t_vozd
-    din_vis_part5 = lambda_calc(ClapanModel.t_vozd, 2)
+    din_vis_part5 = lambda_calc(ClapanModel.t_vozd)
     part_props_detection(P5, P6, v_part5, din_vis_part5, len_part5, last_part=True)
 
 ''' 
