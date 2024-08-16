@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Stocks Adaptation UPDv2">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="type_calc config add">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,7 +208,23 @@
       <option name="project" value="LOCAL" />
       <updated>1723711606309</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="G find complete">
+      <option name="closed" value="true" />
+      <created>1723715727146</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1723715727146</updated>
+    </task>
+    <task id="LOCAL-00015" summary="type_calc config add">
+      <option name="closed" value="true" />
+      <created>1723716773156</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1723716773156</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -267,6 +284,8 @@
     <MESSAGE value="Stocks Adaptation Added" />
     <MESSAGE value="Stocks Adaptation UPD" />
     <MESSAGE value="Stocks Adaptation UPDv2" />
-    <option name="LAST_COMMIT_MESSAGE" value="Stocks Adaptation UPDv2" />
+    <MESSAGE value="G find complete" />
+    <MESSAGE value="type_calc config add" />
+    <option name="LAST_COMMIT_MESSAGE" value="type_calc config add" />
   </component>
 </project>

@@ -1,5 +1,5 @@
 import psycopg2
-from prettytable import PrettyTable
+# from prettytable import PrettyTable
 
 # Установите параметры подключения к базе данных
 db_config = {
@@ -12,6 +12,8 @@ db_config = {
 
 
 def find_BP_clapans(turbine_name: str):
+    conn, cursor, drawing_numbers, valves_all_info = None, None, None, None
+
     try:
         # Подключение к базе данных
         conn = psycopg2.connect(**db_config)
@@ -35,13 +37,13 @@ def find_BP_clapans(turbine_name: str):
             drawing_numbers = [drawing[0] for drawing in drawings]
             print(", ".join(drawing_numbers))
 
-            # Создание таблицы
-            headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков",
-                       "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы",
-                       "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
-                       "Длина участка 4", "Длина участка 5", "Радиус скругления"]
-            table = PrettyTable()
-            table.field_names = headers
+            # # Создание таблицы
+            # headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков",
+            #            "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы",
+            #            "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
+            #            "Длина участка 4", "Длина участка 5", "Радиус скругления"]
+            # table = PrettyTable()
+            # table.field_names = headers
 
             valves_all_info = []
             for drawing_number in drawing_numbers:
@@ -58,11 +60,11 @@ def find_BP_clapans(turbine_name: str):
 
                 if valve_info:
                     for info in valve_info:
-                        # Убираем номер чертежа из данных о клапане
-                        table.add_row(info[0:5] + info[6:])
+                        # # Убираем номер чертежа из данных о клапане
+                        # table.add_row(info[0:5] + info[6:])
                         valves_all_info.append(info)
 
-            print(table)
+            # print(table)
 
     except psycopg2.Error as e:
         print(f"Ошибка базы данных: {e}")
@@ -72,4 +74,4 @@ def find_BP_clapans(turbine_name: str):
             cursor.close()
             conn.close()
 
-    return list(drawing_numbers), valves_all_info
+    return drawing_numbers, valves_all_info
