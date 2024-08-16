@@ -3,6 +3,7 @@ from scipy.interpolate import interp1d
 from math import pi
 from models import ClapanModel
 from WSAProperties import steamPT, steamPH  # Correct need
+from CalculationValveRods.InputFromUser import entry_to_DB
 
 '''
 Functions PART (additional + steam/air)
@@ -83,7 +84,7 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
 
 
 '''
-Variables PART
+Variables & INPUTs PART
 
 General geometric parameters
 radius_rounding                                       - Radius of inlet rounding or chamfer size
@@ -91,6 +92,8 @@ delta_clearance                                       - Radial clearance
 diameter_stock                                        - Stem diameter
 len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section (to meters)
 '''
+
+needed_BPs, BPs_info = entry_to_DB()
 
 temperature_start_valve = ClapanModel.T0
 pressure_start_valve = ClapanModel.P0
