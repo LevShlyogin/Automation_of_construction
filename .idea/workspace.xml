@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="DB variables connect&#10;support added">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
-    </list>
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Funcs del and import from our library" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -277,7 +274,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724048784147</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Funcs del and import from our library">
+      <option name="closed" value="true" />
+      <created>1724054036441</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1724054036441</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -342,6 +347,7 @@
     <MESSAGE value="entry to DB func add" />
     <MESSAGE value="entry to DB integration" />
     <MESSAGE value="DB variables connect&#10;support added" />
-    <option name="LAST_COMMIT_MESSAGE" value="DB variables connect&#10;support added" />
+    <MESSAGE value="Funcs del and import from our library" />
+    <option name="LAST_COMMIT_MESSAGE" value="Funcs del and import from our library" />
   </component>
 </project>

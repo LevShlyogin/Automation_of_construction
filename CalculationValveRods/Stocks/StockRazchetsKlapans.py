@@ -61,18 +61,18 @@ count_finded, needed_BPs, BPs_info = entry_to_DB()
 print(count_finded, needed_BPs, BPs_info)
 
 # Этого нет в таблице, из которой импортится
-temperature_start_DB = None
-pressure_start_DB = None
-pout1 = None
-pout2 = None
-h_air = None
-t_air = None
+temperature_start_DB = float(input())
+pressure_start_DB = float(input())
+pout1 = float(input())
+pout2 = float(input())
+h_air = float(input())
+t_air = float(input())
 
 pressure_deaerator = pout1
 pressure_ejector = pout2
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
-# enthalpy_steam = steamPT(pressure_start_valve * 98066.5, temperature_start_valve, 3) / 4186.8
+enthalpy_steam = steamPT(pressure_start_valve * 98066.5, temperature_start_valve, 3) / 4186.8
 
 radius_rounding_DB = BPs_info[11]        # Радиус скругления
 delta_clearance_DB = BPs_info[5]         # Расчетный зазор либо Точность изготовления (хз)
