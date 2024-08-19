@@ -1,5 +1,7 @@
+from itertools import count
+
 import psycopg2
-# from prettytable import PrettyTable
+from prettytable import PrettyTable
 
 # Установите параметры подключения к базе данных
 db_config = {
@@ -12,7 +14,7 @@ db_config = {
 
 
 def find_BP_clapans(turbine_name: str):
-    conn, cursor, drawing_numbers, valves_all_info = None, None, None, None
+    conn, cursor, drawing_numbers, valves_all_info, count_finded = None, None, None, None, None
 
     try:
         # Подключение к базе данных
@@ -29,6 +31,7 @@ def find_BP_clapans(turbine_name: str):
         # Выполнение первого запроса
         cursor.execute(query_get_drawings, (turbine_name,))
         drawings = cursor.fetchall()
+        count_finded = len(drawings)
 
         if not drawings:
             print(f"Чертежи для турбины '{turbine_name}' не найдены.")
@@ -37,13 +40,13 @@ def find_BP_clapans(turbine_name: str):
             drawing_numbers = [drawing[0] for drawing in drawings]
             print(", ".join(drawing_numbers))
 
-            # # Создание таблицы
-            # headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков",
-            #            "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы",
-            #            "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
-            #            "Длина участка 4", "Длина участка 5", "Радиус скругления"]
-            # table = PrettyTable()
-            # table.field_names = headers
+            # Создание таблицы
+            headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков",
+                       "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы",
+                       "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
+                       "Длина участка 4", "Длина участка 5", "Радиус скругления"]
+            table = PrettyTable()
+            table.field_names = headers
 
             valves_all_info = []
             for drawing_number in drawing_numbers:
@@ -60,11 +63,11 @@ def find_BP_clapans(turbine_name: str):
 
                 if valve_info:
                     for info in valve_info:
-                        # # Убираем номер чертежа из данных о клапане
-                        # table.add_row(info[0:5] + info[6:])
+                        # Убираем номер чертежа из данных о клапане
+                        table.add_row(info[0:5] + info[6:])
                         valves_all_info.append(info)
 
-            # print(table)
+            print(table)
 
     except psycopg2.Error as e:
         print(f"Ошибка базы данных: {e}")
@@ -74,4 +77,4 @@ def find_BP_clapans(turbine_name: str):
             cursor.close()
             conn.close()
 
-    return drawing_numbers, valves_all_info
+    return count_finded, drawing_numbers, valves_all_info
