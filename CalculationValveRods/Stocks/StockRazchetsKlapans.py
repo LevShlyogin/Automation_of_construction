@@ -2,8 +2,10 @@ import numpy as np
 from scipy.interpolate import interp1d
 from math import pi
 from seuif97 import *  # Correct need
+from WSAProperties import air_calc, ksi_calc, lambda_calc
+# Funcs to calculate friction resistance coefficient, inlet softening coefficient and air props
 
-from CalculationValveRods.InputFromUser import entry_to_DB
+from CalculationValveRods.InputFromUser import entry_to_DB # Func for import variables from DB
 # from models import *
 
 '''
@@ -12,47 +14,6 @@ Functions PART (additional + steam/air)
 
 steamPH = ph(1, 2, 3)
 steamPT = pt(1, 2, 3)
-
-# Function to calculate friction resistance coefficient
-def lambda_calc(B):
-    matrix_lambda = np.array([
-        [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200,
-         1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000,
-         4000, 5000, 6000, 8000, 10000, 15000, 20000, 30000, 40000,
-         50000, 60000, 80000, 100000, 150000, 200000, 300000, 400000,
-         500000, 600000, 800000, 1000000, 1500000, 2000000, 3000000,
-         4000000, 5000000, 8000000, 10000000, 15000000, 20000000,
-         30000000, 60000000, 80000000, 100000000],
-        [0.640, 0.320, 0.213, 0.160, 0.128, 0.107, 0.092, 0.080, 0.071,
-         0.064, 0.058, 0.053, 0.049, 0.046, 0.043, 0.040, 0.038, 0.036,
-         0.034, 0.032, 0.034, 0.040, 0.040, 0.038, 0.036, 0.033, 0.032,
-         0.028, 0.026, 0.024, 0.022, 0.021, 0.020, 0.019, 0.018, 0.017,
-         0.016, 0.015, 0.014, 0.013, 0.013, 0.012, 0.012, 0.011, 0.011,
-         0.010, 0.010, 0.009, 0.009, 0.008, 0.008, 0.008, 0.007, 0.007,
-         0.006, 0.006]
-    ])
-    f_interp = interp1d(matrix_lambda[0], matrix_lambda[1], fill_value="extrapolate")
-    return f_interp(B)
-
-
-# Function to calculate inlet softening coefficient
-def ksi_calc(A):
-    matrix_ksi = np.array([
-        [0.00, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.12, 0.16, 0.20, 10.0],
-        [0.50, 0.43, 0.36, 0.31, 0.26, 0.22, 0.20, 0.15, 0.09, 0.06, 0.03, 0.03]
-    ])
-    f_interp = interp1d(matrix_ksi[0], matrix_ksi[1], fill_value="extrapolate")
-    return f_interp(A)
-
-
-# Function to calculate air properties
-def air_calc(A, B):
-    RO = 353.089 / (A + 273.15)
-    V = 1 / RO
-    Din_vis = (1.7162 + A * 4.8210 / 10 ** 2 - A ** 2 * 2.17419 / 10 ** 5 - A ** 3 * 7.0665 / 10 ** 9) / 10 ** 6
-    Kin_vis = (13.2 + 0.1 * A) / 10 ** 6
-    return {0: RO, 1: V, 2: Din_vis, 3: Kin_vis}[B]
-
 
 # Вспомогательная функция для нахождения G пара, или же воздуха для последней части
 def G_find(last_part, ALFA, P_first, P_second, v):
@@ -135,7 +96,7 @@ len_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None
 
 count_valves = count_finded # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-P1, P2, P3, P4, P5, P6 = [input() if i <= count_parts else None for i in range(6)]
+P1, P2, P3, P4, P5, P6 = [input(f"Введите параметр P{i}: ") if i <= count_parts else None for i in range(1, 6)]
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coefficient
 S = delta_clearance * pi * diameter_stock  # Clearance area
 

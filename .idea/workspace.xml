@@ -4,11 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="entry to DB integration">
-      <change beforePath="$PROJECT_DIR$/.idea/VBtoPYGit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/VBtoPYGit.iml" afterDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="DB variables connect&#10;support added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -272,7 +269,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723802177986</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="DB variables connect&#10;support added">
+      <option name="closed" value="true" />
+      <created>1724048784147</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1724048784147</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -336,6 +341,7 @@
     <MESSAGE value="type_calc config add" />
     <MESSAGE value="entry to DB func add" />
     <MESSAGE value="entry to DB integration" />
-    <option name="LAST_COMMIT_MESSAGE" value="entry to DB integration" />
+    <MESSAGE value="DB variables connect&#10;support added" />
+    <option name="LAST_COMMIT_MESSAGE" value="DB variables connect&#10;support added" />
   </component>
 </project>
