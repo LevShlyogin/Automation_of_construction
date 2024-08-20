@@ -12,9 +12,6 @@ from CalculationValveRods.InputFromUser import entry_to_DB # Func for import var
 Functions PART (additional + steam/air)
 '''
 
-steamPH = ph(1, 2, 3)
-steamPT = pt(1, 2, 3)
-
 # Вспомогательная функция для нахождения G пара, или же воздуха для последней части
 def G_find(last_part, ALFA, P_first, P_second, v):
     if not last_part:
@@ -58,21 +55,21 @@ len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section 
 '''
 
 count_finded, needed_BPs, BPs_info = entry_to_DB()
-print(count_finded, needed_BPs, BPs_info)
 
 # Этого нет в таблице, из которой импортится
-temperature_start_DB = float(input())
-pressure_start_DB = float(input())
-pout1 = float(input())
-pout2 = float(input())
-h_air = float(input())
-t_air = float(input())
+print("\nОбнаружены недостающие параметры для подсчетов!")
+temperature_start_DB = float(input("Введите T0: "))
+pressure_start_DB = float(input("Введите P0: "))
+pout1 = float(input("Введите Pout1: "))
+pout2 = float(input("Введите Pout2: "))
+h_air = float(input("Введите h_air: "))
+t_air = float(input("Введите t_air: "))
 
 pressure_deaerator = pout1
 pressure_ejector = pout2
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
-enthalpy_steam = steamPT(pressure_start_valve * 98066.5, temperature_start_valve, 3) / 4186.8
+enthalpy_steam = pt(pressure_start_valve * 98066.5, temperature_start_valve, 3) / 4186.8
 
 radius_rounding_DB = BPs_info[11]        # Радиус скругления
 delta_clearance_DB = BPs_info[5]         # Расчетный зазор либо Точность изготовления (хз)
@@ -96,7 +93,7 @@ len_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None
 
 count_valves = count_finded # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-P1, P2, P3, P4, P5, P6 = [input(f"Введите параметр P{i}: ") if i <= count_parts else None for i in range(1, 6)]
+P1, P2, P3, P4, P5, P6 = [input(f"Введите параметр P{i}: ") if i <= count_parts else None for i in range(1, 7)]
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coefficient
 S = delta_clearance * pi * diameter_stock  # Clearance area
 
@@ -111,9 +108,9 @@ Defining parameters by parts
 if len_part1:
     if len_part2:
         h_part1 = enthalpy_steam
-        v_part1 = steamPH(P1, h_part1 * 4186.8, 4)
-        t_part1 = steamPH(P1, h_part1 * 4186.8, 2)
-        din_vis_part1 = steamPH(P1, h_part1 * 4186.8, 6)
+        v_part1 = ph(P1, h_part1 * 4186.8, 4)
+        t_part1 = ph(P1, h_part1 * 4186.8, 2)
+        din_vis_part1 = ph(P1, h_part1 * 4186.8, 6)
         part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
     else:
         h_part1 = h_air
@@ -128,9 +125,9 @@ if len_part1:
 if len_part2:
     if len_part3:
         h_part2 = enthalpy_steam
-        v_part2 = steamPH(P2, h_part2 * 4186.8, 4)
-        t_part2 = steamPH(P2, h_part2 * 4186.8, 2)
-        din_vis_part2 = steamPH(P2, h_part2 * 4186.8, 6)
+        v_part2 = ph(P2, h_part2 * 4186.8, 4)
+        t_part2 = ph(P2, h_part2 * 4186.8, 2)
+        din_vis_part2 = ph(P2, h_part2 * 4186.8, 6)
         part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
     else:
         h_part2 = h_air
@@ -145,9 +142,9 @@ if len_part2:
 if len_part3:
     if len_part4:
         h_part3 = enthalpy_steam
-        v_part3 = steamPH(P3, h_part3 * 4186.8, 4)
-        t_part3 = steamPH(P3, h_part3 * 4186.8, 2)
-        din_vis_part3 = steamPH(P3, h_part3 * 4186.8, 6)
+        v_part3 = ph(P3, h_part3 * 4186.8, 4)
+        t_part3 = ph(P3, h_part3 * 4186.8, 2)
+        din_vis_part3 = ph(P3, h_part3 * 4186.8, 6)
         part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
     else:
         h_part3 = h_air
@@ -162,9 +159,9 @@ if len_part3:
 if len_part4:
     if len_part5:
         h_part4 = enthalpy_steam
-        v_part4 = steamPH(P4, h_part4 * 4186.8, 4)
-        t_part4 = steamPH(P4, h_part4 * 4186.8, 2)
-        din_vis_part4 = steamPH(P4, h_part4 * 4186.8, 6)
+        v_part4 = ph(P4, h_part4 * 4186.8, 4)
+        t_part4 = ph(P4, h_part4 * 4186.8, 2)
+        din_vis_part4 = ph(P4, h_part4 * 4186.8, 6)
         part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
     else:
         h_part4 = h_air
