@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Funcs del and import from our library">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="ph &amp; pt add import">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +53,10 @@
     &quot;accountId&quot;: &quot;ab5edeb9-b024-4705-a883-3e3e5859f1c5&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$USER_HOME$/AppData/Local/Programs/Python/Python312/Lib/ctypes/__init__.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/.venv/Lib/site-packages/seuif97/__init__.py" root0="SKIP_INSPECTION" />
+  </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
@@ -294,7 +296,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724063524468</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="ph &amp; pt add import">
+      <option name="closed" value="true" />
+      <created>1724130117147</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1724130117147</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -360,6 +370,7 @@
     <MESSAGE value="entry to DB integration" />
     <MESSAGE value="DB variables connect&#10;support added" />
     <MESSAGE value="Funcs del and import from our library" />
-    <option name="LAST_COMMIT_MESSAGE" value="Funcs del and import from our library" />
+    <MESSAGE value="ph &amp; pt add import" />
+    <option name="LAST_COMMIT_MESSAGE" value="ph &amp; pt add import" />
   </component>
 </project>
