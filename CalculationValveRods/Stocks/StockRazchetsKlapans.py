@@ -45,7 +45,6 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
     return G
 
 
-# Функция для прекращения работы программы при некорректных данных
 def exit_err(error_text="Неизвестная ошибка"):
     """
     Функция для прекращения работы программы при некорректных данных
