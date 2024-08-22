@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="ph &amp; pt add import">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +82,7 @@
     "Python.ClapansByTurbin.executor": "Run",
     "Python.InputFromDBandUSER.executor": "Run",
     "Python.InputFromUser.executor": "Run",
-    "Python.StockRazchetsKlapans.executor": "Run",
+    "Python.StockRazchetsKlapans.executor": "Debug",
     "Python.main.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -304,7 +305,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724130117147</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="ph &amp; pt add import">
+      <option name="closed" value="true" />
+      <created>1724149536683</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1724149536683</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -338,7 +347,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/STOCKS-update" />
+                        <option value="STOCKS-update" />
                       </list>
                     </value>
                   </entry>
@@ -372,5 +381,16 @@
     <MESSAGE value="Funcs del and import from our library" />
     <MESSAGE value="ph &amp; pt add import" />
     <option name="LAST_COMMIT_MESSAGE" value="ph &amp; pt add import" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py</url>
+          <line>138</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
