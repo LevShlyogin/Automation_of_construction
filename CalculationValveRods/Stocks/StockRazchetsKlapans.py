@@ -5,6 +5,8 @@ from seuif97 import *  # SteamPH and SteamPT (ph and pt)
 from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate fric resist, softening coef and air props
 from CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
 from typing import Tuple  # CleanCoding
+from sys import exit
+from time import sleep
 
 '''
 Functions PART (additional + steam/air)
@@ -42,6 +44,15 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
     G = G_find(last_part, ALFA, P_first, P_second, v)
     return G
 
+
+# Функция для прекращения работы программы при некорректных данных
+def exit_err(error_text="Неизвестная ошибка"):
+    """
+    Функция для прекращения работы программы при некорректных данных
+    """
+    print(error_text)
+    sleep(3)
+    exit()
 
 '''
 Variables & INPUTs PART
@@ -85,8 +96,8 @@ len_part5_DB = BPs_info[10]  # Длина участка 5
 radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else None
 delta_clearance = delta_clearance_DB / 1000 if delta_clearance_DB is not None else None
 diameter_stock = diameter_stock_DB / 1000 if diameter_stock_DB is not None else None
-len_part1 = len_part1_DB / 1000 if len_part1_DB is not None else None
-len_part2 = len_part2_DB / 1000 if len_part2_DB is not None else None
+len_part1 = len_part1_DB / 1000 if len_part1_DB is not None else exit_err("Нет данных об участке 1")
+len_part2 = len_part2_DB / 1000 if len_part2_DB is not None else exit_err("Нет данных об участке 2")
 len_part3 = len_part3_DB / 1000 if len_part3_DB is not None else None
 len_part4 = len_part4_DB / 1000 if len_part4_DB is not None else None
 len_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None
@@ -113,12 +124,6 @@ if len_part1:
         t_part1 = ph(P1, h_part1 * 4186.8, 1)
         din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)
         part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
-    else:
-        h_part1 = h_air
-        t_part1 = t_air
-        v_part1 = air_calc(t_part1, 1)
-        din_vis_part1 = lambda_calc(t_part1)
-        part_props_detection(P1, 1.03, v_part1, din_vis_part1, len_part1, last_part=True)
 
 # Props find for area 2
 if len_part2:
@@ -128,12 +133,6 @@ if len_part2:
         t_part2 = ph(P2, h_part2 * 4186.8, 1)
         din_vis_part2 = ph(P2, h_part2 * 4186.8, 24)
         part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
-    else:
-        h_part2 = h_air
-        t_part2 = t_air
-        v_part2 = air_calc(t_part2, 1)
-        din_vis_part2 = lambda_calc(t_part2)
-        part_props_detection(P2, 1.03, v_part2, din_vis_part2, len_part2, last_part=True)
 
 # Props find for area 3
 if len_part3:
@@ -268,7 +267,7 @@ def calculate_steam_venting(G1: float, G2: float, h_part2: float, G_part3: float
     deaerator_params = deaerator_options(G1, G2, h_part2, pressure_deaerator, count_valves)
 
     ejector_params = []
-    if count_valves > 3:
+    if count_valves == 3:
         ejector_params.append(ejector_options(G1, G2, h_part2, G_part3, h_part3, G_part4,
                                               h_part4, pressure_ejector, count_valves))
     if count_valves > 4:
