@@ -83,6 +83,18 @@ def convert_pressure_to_mpa(pressure):
     return mpa_pressure
 
 
+def kkal_to_kdj_kg(kkal):
+  """Перевод килокалорий (kkal) в килоджоули на килограмм (kJ/kg).
+
+  Args:
+    kkal: Количество килокалорий в веществе.
+
+  Returns:
+    Количество килоджоулей на килограмм (kJ/kg).
+  """
+  return kkal * 4.184 / 1000  # 1 ккал = 4.184 kJ, делим на 1000 для kJ/kg
+
+
 '''
 Variables & INPUTs PART
 
@@ -102,11 +114,9 @@ pressure_start_DB = 130 # float(input("Введите P0: "))
 h_air = 40 # float(input("Введите h_air: "))
 t_air = 40 # float(input("Введите t_air: "))
 
-p_deaerator = P1  # Add from database
-p_ejector = pout2  # Add from database
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
-enthalpy_steam = pt(pressure_start_valve * 98066.5, temperature_start_valve, 4) / 4186.8
+enthalpy_steam = kkal_to_kdj_kg(pt(pressure_start_valve, temperature_start_valve, 4))
 
 radius_rounding_DB = BPs_info[11]  # Радиус скругления
 delta_clearance_DB = BPs_info[5]  # Расчетный зазор либо Точность изготовления (хз)
@@ -137,6 +147,9 @@ P1, P2, P3, P4, P5, P6 = 6, 0.97, 0.97, None, None, None # [float(input(f"Вве
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
 S = delta_clearance * pi * diameter_stock  # Clearance area
 
+p_deaerator = P1
+p_ejector = P2
+
 # Calculate inlet softening coefficient (same for all sections)
 KSI = ksi_calc(proportional_coef)
 
@@ -151,9 +164,9 @@ h_part1, h_part2, h_part3, h_part4, h_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 if len_part1:
     if len_part2:
         h_part1 = enthalpy_steam
-        v_part1 = ph(P1 * 0.0980665, h_part1 * 4186.8, 3)
-        t_part1 = ph(P1 * 0.0980665, h_part1 * 4186.8, 1)
-        din_vis_part1 = ph(P1 * 98066.5, h_part1 * 4186.8, 24)
+        v_part1 = ph(P1, h_part1 * 4186.8, 3)
+        t_part1 = ph(P1, h_part1 * 4186.8, 1)
+        din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)
         G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
 
 # Props find for area 2
