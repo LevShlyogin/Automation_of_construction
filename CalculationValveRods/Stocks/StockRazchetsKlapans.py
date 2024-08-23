@@ -54,6 +54,35 @@ def exit_err(error_text="Неизвестная ошибка"):
     exit()
 
 
+def convert_pressure_to_mpa(pressure):
+    """Преобразует давление в МПа из различных единиц измерения.
+
+      Returns:
+        Давление в МПа, или сообщение об ошибке при неверном выборе единиц.
+      """
+    # Словарь для хранения коэффициентов перевода в МПа
+    conversion_factors = {
+        1: 1e-6,# Паскаль в МПа
+        2: 1e-3,# кПа в МПа
+        3: 0.0980665,# кгс/см² в МПа
+        4: 0.101325,# техническая атмосфера в МПа
+        5: 0.1,# бар в МПа
+        6: 0.101325# физическая атмосфера в МПа
+    }
+    # Выводим меню выбора единиц измерения
+    print("Выберите единицы измерения:", "1 - Па", "2 - кПа", "3 - кгс/см²", "4 - атм (техническая атмосфера)",
+          "5 - бар", "6 - атм (физическая атмосфера)", sep='\n')
+    # Запрашиваем выбор единиц измерения
+    unit = int(input("Введите номер единицы измерения: "))
+    # Проверяем, что выбор пользователя валиден
+    if unit not in conversion_factors:
+        return exit_err("Неверный выбор единицы измерения.")
+    # Выполняем конвертацию
+    mpa_pressure = pressure * conversion_factors[unit]
+    # Возвращаем результат
+    return mpa_pressure
+
+
 '''
 Variables & INPUTs PART
 
@@ -68,14 +97,12 @@ count_finded, needed_BPs, BPs_info = entry_to_DB()
 
 # Этого нет в таблице, из которой импортится
 print("\nОбнаружены недостающие параметры для подсчетов!")
-temperature_start_DB = float(input("Введите T0: "))
-pressure_start_DB = float(input("Введите P0: "))
-pout1 = float(input("Введите Pout1: "))
-pout2 = float(input("Введите Pout2: "))
-h_air = float(input("Введите h_air: "))
-t_air = float(input("Введите t_air: "))
+temperature_start_DB = 555 # float(input("Введите T0: "))
+pressure_start_DB = 130 # float(input("Введите P0: "))
+h_air = 40 # float(input("Введите h_air: "))
+t_air = 40 # float(input("Введите t_air: "))
 
-p_deaerator = pout1  # Add from database
+p_deaerator = P1  # Add from database
 p_ejector = pout2  # Add from database
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
@@ -105,7 +132,7 @@ len_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None
 
 count_valves = count_finded  # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-P1, P2, P3, P4, P5, P6 = [float(input(f"Введите параметр P{i}: ")) if i <= count_parts else None for i in range(1, 7)]
+P1, P2, P3, P4, P5, P6 = 6, 0.97, 0.97, None, None, None # [float(input(f"Введите параметр P{i}: ")) if i <= count_parts else None for i in range(1, 7)]
 # Maybe P will need to be converted, that is, multiplied by 98066.5
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
 S = delta_clearance * pi * diameter_stock  # Clearance area
@@ -124,9 +151,9 @@ h_part1, h_part2, h_part3, h_part4, h_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 if len_part1:
     if len_part2:
         h_part1 = enthalpy_steam
-        v_part1 = ph(P1, h_part1 * 4186.8, 3)
-        t_part1 = ph(P1, h_part1 * 4186.8, 1)
-        din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)
+        v_part1 = ph(P1 * 0.0980665, h_part1 * 4186.8, 3)
+        t_part1 = ph(P1 * 0.0980665, h_part1 * 4186.8, 1)
+        din_vis_part1 = ph(P1 * 98066.5, h_part1 * 4186.8, 24)
         G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
 
 # Props find for area 2
