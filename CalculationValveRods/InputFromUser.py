@@ -10,7 +10,8 @@ def entry_to_DB() -> [int, str, []]:
             break
 
     while True:
-        print(f"Найдено {count_finded} чертеж(а/ей): {", ".join(BPs)}")
+        trash = ", ".join(BPs)
+        print(f"Найдено {count_finded} чертеж(а/ей): {trash}")
         needed_BPs = input("Введите интересующий вас чертеж: ")
         if needed_BPs in BPs:
             BPsNeededInfo = BPs_infos[BPs.index(needed_BPs)]

@@ -75,8 +75,8 @@ pout2 = float(input("Введите Pout2: "))
 h_air = float(input("Введите h_air: "))
 t_air = float(input("Введите t_air: "))
 
-pressure_deaerator = pout1 # Add from database
-pressure_ejector = pout2 # Add from database
+p_deaerator = pout1  # Add from database
+p_ejector = pout2  # Add from database
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
 enthalpy_steam = pt(pressure_start_valve * 98066.5, temperature_start_valve, 4) / 4186.8
@@ -123,7 +123,7 @@ if len_part1:
         v_part1 = ph(P1, h_part1 * 4186.8, 3)
         t_part1 = ph(P1, h_part1 * 4186.8, 1)
         din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)
-        G1_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
+        G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
 
 # Props find for area 2
 if len_part2:
@@ -132,7 +132,7 @@ if len_part2:
         v_part2 = ph(P2, h_part2 * 4186.8, 3)
         t_part2 = ph(P2, h_part2 * 4186.8, 1)
         din_vis_part2 = ph(P2, h_part2 * 4186.8, 24)
-        G2_part2 = part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
+        G_part2 = part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
 
 # Props find for area 3
 if len_part3:
@@ -141,13 +141,13 @@ if len_part3:
         v_part3 = ph(P3, h_part3 * 4186.8, 3)
         t_part3 = ph(P3, h_part3 * 4186.8, 1)
         din_vis_part3 = ph(P3, h_part3 * 4186.8, 24)
-        G3_part3 = part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
+        G_part3 = part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
     else:
         h_part3 = h_air
         t_part3 = t_air
         v_part3 = air_calc(t_part3, 1)
         din_vis_part3 = lambda_calc(t_part3)
-        G3_part3 = part_props_detection(P3, 1.03, v_part3, din_vis_part3, len_part3, last_part=True)
+        G_part3 = part_props_detection(P3, 1.03, v_part3, din_vis_part3, len_part3, last_part=True)
 
 # Props find for area 4
 if len_part4:
@@ -156,13 +156,13 @@ if len_part4:
         v_part4 = ph(P4, h_part4 * 4186.8, 3)
         t_part4 = ph(P4, h_part4 * 4186.8, 1)
         din_vis_part4 = ph(P4, h_part4 * 4186.8, 24)
-        G4_part4 = part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
+        G_part4 = part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
     else:
         h_part4 = h_air
         t_part4 = t_air
         v_part4 = air_calc(t_part4, 1)
         din_vis_part4 = lambda_calc(t_part4)
-        G4_part4 = part_props_detection(P4, 1.03, v_part4, din_vis_part4, len_part4, last_part=True)
+        G_part4 = part_props_detection(P4, 1.03, v_part4, din_vis_part4, len_part4, last_part=True)
 
 # Props find for area 5
 if len_part5:
@@ -170,7 +170,7 @@ if len_part5:
     t_part5 = t_air
     v_part5 = air_calc(t_part5, 1)
     din_vis_part5 = lambda_calc(t_part5)
-    G5_part5 = part_props_detection(P5, 1.03, v_part5, din_vis_part5, len_part5, last_part=True)
+    G_part5 = part_props_detection(P5, 1.03, v_part5, din_vis_part5, len_part5, last_part=True)
 
 ''' 
 Determination of parameters by suction PART 
@@ -178,119 +178,111 @@ Determination of parameters by suction PART
 
 
 # Определение параметров отсоса в деаэратор
-def deaerator_options(G1_part1: float, G2_part2: float, h_part2: float, pressure_deaerator: float, count_valves: int) \
-        -> Tuple[float, float, float, float]:
+def deaerator_options(h_part2: float, p_deaerator: float, count_valves: int, G_part1: float, G_part2: float,
+                      G_part3: float, G_part4: float) -> Tuple[float, float, float, float]:
     """
     Рассчитывает параметры отсоса в деаэратор.
 
     Args:
-        G1_part1: Расход пара на первой секции.
-        G2_part2: Расход пара на второй секции.
+        G_part1: Расход пара на первой секции.
+        G_part2: Расход пара на второй секции.
+        G_part3: Расход пара на третьей секции.
+        G_part4: Расход пара на четвёртой секции.
         h_part2: Энтальпия пара на второй секции.
-        pressure_deaerator: Давление в деаэраторе.
+        p_deaerator: Давление в деаэраторе.
         count_valves: Количество секций клапана.
 
     Returns:
         Кортеж из расхода, температуры, давления и энтальпии пара в деаэраторе.
     """
-    g_deaerator = (G1_part1 - G2_part2) * count_valves
-    h_deaerator = h_part2
-    t_deaerator = ph(pressure_deaerator * 98066.5, h_deaerator * 4186.8, 1)
-    return g_deaerator, t_deaerator, pressure_deaerator, h_deaerator
+    if count_parts == 3:
+        g_deaerator = (G_part1 - G_part2) * count_valves
+        h_deaerator = h_part2
+        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+    elif count_parts == 4:
+        g_deaerator = (G_part1 - G_part2 - G_part3) * count_valves
+        h_deaerator = h_part2
+        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+    elif count_parts == 5:
+        g_deaerator = (G_part1 - G_part2 - G_part3 - G_part4) * count_valves
+        h_deaerator = h_part2
+        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+    else:
+        raise exit_err("Неверное количество секций клапана.")
+    return g_deaerator, t_deaerator, p_deaerator, h_deaerator
 
 
 # Определение параметров отсоса в эжектор уплотнений
-def ejector_options(G2_part2: float, h_part2: float, G_part3: float,
-                    h_part3: float, G_part4: float, h_part4: float, pressure_ejector: float,
-                    count_parts: int) -> Tuple[float, float, float, float]:
+def ejector_options(G_part2: float, h_part2: float, G_part3: float,
+                    h_part3: float, p_ejector: float,
+                    count_parts: int, count_valves: int, G_part4=0.0, h_part4=0.0, G_part5=0.0, h_part5=0.0) -> Tuple[
+    float, float, float, float]:
     """
     Рассчитывает параметры отсоса в эжектор уплотнений.
 
     Args:
-        G1: Расход пара на первой секции.
-        G2_part2: Расход пара на второй секции.
+        G_part2: Расход пара на второй секции.
         h_part2: Энтальпия пара на второй секции.
         G_part3: Расход пара на третьей секции.
         h_part3: Энтальпия пара на третьей секции.
         G_part4: Расход пара на четвертой секции (если есть).
         h_part4: Энтальпия пара на четвертой секции (если есть).
-        pressure_ejector: Давление в эжекторе.
+        p_ejector: Давление в эжекторе.
         count_parts: Количество секций клапана.
+        count_valves: Количество клапанов.
 
     Returns:
         Кортеж из расхода, температуры, давления и энтальпии пара в эжекторе.
     """
     if count_parts == 3:
         # Один отсос в эжектор
-        g_ejector = G2_part2 + G_part3
-        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3) / (G2_part2 + G_part3)
-        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)
-        return g_ejector, t_ejector, pressure_ejector, h_ejector
+        g_ejector = (G_part2 + G_part3) * count_valves
+        h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
+        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        return g_ejector, t_ejector, p_ejector, h_ejector
     elif count_parts == 4:
         # Два отсоса в эжектор
-        g_ejector = G2_part2 + G_part3 + G_part4
-        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3 + h_part4 * G_part4) / (G2_part2 + G_part3 + G_part4)
-        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)
-        return g_ejector, t_ejector, pressure_ejector, h_ejector
+        g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
+        g_second_suction = G_part3 - G_part4  # Расход смеси во второй отсос в деаэратор.
+        # Энтальпия смеси во втором отсосе в деаэратор.
+        h_second_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
+        g_ejector = (g_first_suction + g_second_suction) * count_valves
+        # Энтальпия в первом отсосе в деаэратор равна энтальпии на втором участке
+        h_ejector = (g_second_suction * h_second_suction + g_first_suction * h_part2) / (
+                g_second_suction + g_second_suction)
+        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        return g_ejector, t_ejector, p_ejector, h_ejector
     elif count_parts == 5:
         # Три отсоса в эжектор
-        g_ejector = G2_part2 + G_part3 + G_part4
-        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3 + h_part4 * G_part4) / (G2_part2 + G_part3 + G_part4)
-        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)
-        return g_ejector, t_ejector, pressure_ejector, h_ejector
+        g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
+        g_second_suction = G_part3 - G_part4  # Расход пара во второй отсос в деаэратор.
+        g_third_suction = G_part4 + G_part5  # Расход смеси в третий отсос в деаэратор.
+        # Энтальпия смеси в третьем отсосе в деаэратор.
+        h_third_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
+        g_ejector = (g_first_suction + g_second_suction + g_third_suction) * count_valves
+        # Энтальпия в первом и втором отсосах в деаэратор равна энтальпии на втором участке
+        h_ejector = ((g_third_suction * h_third_suction + g_second_suction * h_part2 + g_first_suction * h_part2)
+                     / (g_third_suction + g_second_suction + g_second_suction))
+        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        return g_ejector, t_ejector, p_ejector, h_ejector
     else:
-        raise ValueError("Неверное количество секций клапана.")
+        raise exit_err("Неверное количество секций клапана.")
 
 
-# Основная функция для расчета параметров отсоса
-def calculate_steam_venting(G1: float, G2: float, h_part2: float, G_part3: float, h_part3: float, G_part4: float,
-                            h_part4: float, pressure_deaerator: float, pressure_ejector: float, count_valves: int) \
-        -> Tuple[Tuple[float, float, float, float], list[Tuple[float, float, float, float]]]:
-    """
-    Рассчитывает параметры отсоса пара для всех секций клапана.
-
-    Args:
-        G1: Расход пара на первой секции.
-        G2: Расход пара на второй секции.
-        h_part2: Энтальпия пара на второй секции.
-        G_part3: Расход пара на третьей секции.
-        h_part3: Энтальпия пара на третьей секции.
-        G_part4: Расход пара на четвертой секции (если есть).
-        h_part4: Энтальпия пара на четвертой секции (если есть).
-        pressure_deaerator: Давление в деаэраторе.
-        pressure_ejector: Давление в эжекторе.
-        count_valves: Количество секций клапана.
-
-    Returns:
-        Кортеж, содержащий параметры отсоса в деаэратор и список параметров отсоса в эжектор для каждой секции.
-    """
-    deaerator_params = deaerator_options(G1, G2, h_part2, pressure_deaerator, count_valves)
-
-    ejector_params = []
-    if count_valves > 3:
-        ejector_params.append(ejector_options(G1, G2, h_part2, G_part3, h_part3, G_part4,
-                                              h_part4, pressure_ejector, count_valves))
-    if count_valves > 4:
-        ejector_params.append(ejector_options(G1, G2, h_part2, G_part3, h_part3, G_part4,
-                                              h_part4, pressure_ejector, count_valves))
-
-    return deaerator_params, ejector_params
-
-
-notChosen_typeCalc = False
-while notChosen_typeCalc:
-    type_calc_SAM = int(input("Выберите способ вычисления: введите число 1 либо 2"))
-    if type_calc_SAM == 1:
-        # t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)
-        # t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
-        # h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8
-        notChosen_typeCalc = True
-    elif type_calc_SAM == 2:
-        # h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
-        # t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)
-        notChosen_typeCalc = True
-    else:
-        print("Ввод не распознан.")
+# notChosen_typeCalc = False
+# while notChosen_typeCalc:
+#     type_calc_SAM = int(input("Выберите способ вычисления: введите число 1 либо 2"))
+#     if type_calc_SAM == 1:
+#         # t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)
+#         # t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
+#         # h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8
+#         notChosen_typeCalc = True
+#     elif type_calc_SAM == 2:
+#         # h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
+#         # t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)
+#         notChosen_typeCalc = True
+#     else:
+#         print("Ввод не распознан.")
 
 # # Определение суммарного расхода пара на штока клапанов
 # g_valve = G_part1 * count_valves
