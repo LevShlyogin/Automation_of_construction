@@ -14,7 +14,8 @@ db_config = {
 
 
 def find_BP_clapans(turbine_name: str):
-    conn, cursor, drawing_numbers, valves_all_info, count_finded = None, None, None, None, None
+    conn, cursor, drawing_numbers, valves_all_info = None, None, None, None
+    count_found, BP_by_ID, ID_and_name = None, [], {}
 
     try:
         # Подключение к базе данных
@@ -31,24 +32,27 @@ def find_BP_clapans(turbine_name: str):
         # Выполнение первого запроса
         cursor.execute(query_get_drawings, (turbine_name,))
         drawings = cursor.fetchall()
-        count_finded = len(drawings)
+
+        count_found = len(drawings)
 
         if not drawings:
             print(f"Чертежи для турбины '{turbine_name}' не найдены.")
         else:
-            print(f"Чертежи клапанов для турбины '{turbine_name}':")
             drawing_numbers = [drawing[0] for drawing in drawings]
-            print(", ".join(drawing_numbers))
+            trash = ", ".join(drawing_numbers)
+            print(f"Чертежи клапанов для турбины '{turbine_name}': {trash}")
 
             # Создание таблицы
-            headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Количество участков",
-                       "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока", "Точность буксы",
-                       "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
+            headers = ["ID", "Источник", "Проверено", "Проверяющий", "Тип клапана", "Чертеж клапана",
+                       "Количество участков", "Чертеж буксы", "Чертеж штока", "Диаметр штока", "Точность штока",
+                       "Точность буксы", "Расчетный зазор", "Длина участка 1", "Длина участка 2", "Длина участка 3",
                        "Длина участка 4", "Длина участка 5", "Радиус скругления"]
             table = PrettyTable()
             table.field_names = headers
 
             valves_all_info = []
+            counter = 1
+
             for drawing_number in drawing_numbers:
                 # SQL-запрос для получения данных о клапане из таблицы "Stock"
                 query_get_valve_info = """
@@ -63,9 +67,13 @@ def find_BP_clapans(turbine_name: str):
 
                 if valve_info:
                     for info in valve_info:
+                        info = [int(info[0]), *info[1::]]
+                        BP_by_ID.append(info[0])
+                        ID_and_name[info[0]] = info[5]
                         # Убираем номер чертежа из данных о клапане
-                        table.add_row(info[0:5] + info[6:])
+                        table.add_row(info)
                         valves_all_info.append(info)
+                        counter += 1
 
             print(table)
 
@@ -77,4 +85,4 @@ def find_BP_clapans(turbine_name: str):
             cursor.close()
             conn.close()
 
-    return count_finded, drawing_numbers, valves_all_info
+    return count_found, valves_all_info, BP_by_ID, ID_and_name

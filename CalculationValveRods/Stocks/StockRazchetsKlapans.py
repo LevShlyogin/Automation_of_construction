@@ -25,7 +25,9 @@ def G_find(last_part, ALFA, P_first, P_second, v):
 
 
 # Функция для определения параметров пара участка
-def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=False, W=50):
+def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=False, W=50):
+    P_first *= 10.197162
+    P_second *= 10.197162
     if P_first == P_second:
         P_first += 0.03
     kin_vis = v * din_vis
@@ -49,6 +51,10 @@ def exit_err(error_text="Неизвестная ошибка"):
     """
     Функция для прекращения работы программы при некорректных данных
     """
+    if "Нет данных" in error_text:
+        print(error_text)
+        inp = float(input("Введите данные: "))
+        return inp
     print(error_text)
     sleep(3)
     exit()
@@ -73,7 +79,9 @@ def convert_pressure_to_mpa(pressure):
     print("Выберите единицы измерения:", "1 - Па", "2 - кПа", "3 - кгс/см²", "4 - атм (техническая атмосфера)",
           "5 - бар", "6 - атм (физическая атмосфера)", sep='\n')
     # Запрашиваем выбор единиц измерения
-    unit = int(input("Введите номер единицы измерения: "))
+    unit = 3
+    # unit = int(input("Введите номер единицы измерения: "))
+
     # Проверяем, что выбор пользователя валиден
     if unit not in conversion_factors:
         return exit_err("Неверный выбор единицы измерения.")
@@ -110,39 +118,40 @@ count_finded, needed_BPs, BPs_info = entry_to_DB()
 # Этого нет в таблице, из которой импортится
 print("\nОбнаружены недостающие параметры для подсчетов!")
 temperature_start_DB = 555 # float(input("Введите T0: "))
-pressure_start_DB = 130 # float(input("Введите P0: "))
-h_air = 40 # float(input("Введите h_air: "))
+pressure_start_DB = convert_pressure_to_mpa(130) # float(input("Введите P0: "))
 t_air = 40 # float(input("Введите t_air: "))
+
+h_air = t_air * 1.006
 
 temperature_start_valve = temperature_start_DB
 pressure_start_valve = pressure_start_DB
-enthalpy_steam = kkal_to_kdj_kg(pt(pressure_start_valve, temperature_start_valve, 4))
+enthalpy_steam = pt2h(pressure_start_valve, temperature_start_valve)
 
-radius_rounding_DB = BPs_info[11]  # Радиус скругления
-delta_clearance_DB = BPs_info[5]  # Расчетный зазор либо Точность изготовления (хз)
-diameter_stock_DB = BPs_info[2]  # Диаметр штока
-len_part1_DB = BPs_info[6]  # Длина участка 1
-len_part2_DB = BPs_info[7]  # Длина участка 2
-len_part3_DB = BPs_info[8]  # Длина участка 3
-len_part4_DB = BPs_info[9]  # Длина участка 4
-len_part5_DB = BPs_info[10]  # Длина участка 5
+radius_rounding_DB = BPs_info[11]   # Радиус скругления
+delta_clearance_DB = BPs_info[5]    # Расчетный зазор либо Точность изготовления (хз)
+diameter_stock_DB = BPs_info[2]     # Диаметр штока
+len_part1_DB = BPs_info[6]          # Длина участка 1
+len_part2_DB = BPs_info[7]          # Длина участка 2
+len_part3_DB = BPs_info[8]          # Длина участка 3
+len_part4_DB = BPs_info[9]          # Длина участка 4
+len_part5_DB = BPs_info[10]         # Длина участка 5
 
 # print(radius_rounding_DB, delta_clearance_DB, diameter_stock_DB,
 #       len_part1_DB, len_part2_DB, len_part3_DB, len_part4_DB, len_part5_DB)
 
 radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else exit_err(
     "Нет данных о радиусе скругления")
-delta_clearance = delta_clearance_DB / 1000 if delta_clearance_DB is not None else exit_err("Нет данных о зазоре")
-diameter_stock = diameter_stock_DB / 1000 if diameter_stock_DB is not None else exit_err("Нет данных о диаметре штока")
-len_part1 = len_part1_DB / 1000 if len_part1_DB is not None else exit_err("Нет данных об участке 1")
-len_part2 = len_part2_DB / 1000 if len_part2_DB is not None else exit_err("Нет данных об участке 2")
-len_part3 = len_part3_DB / 1000 if len_part3_DB is not None else None
-len_part4 = len_part4_DB / 1000 if len_part4_DB is not None else None
-len_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None
+delta_clearance = float(delta_clearance_DB) / 1000 if delta_clearance_DB is not None else exit_err("Нет данных о зазоре")
+diameter_stock = float(diameter_stock_DB) / 1000 if diameter_stock_DB is not None else exit_err("Нет данных о диаметре штока")
+len_part1 = float(len_part1_DB) / 1000 if len_part1_DB is not None else exit_err("Нет данных об участке 1")
+len_part2 = float(len_part2_DB) / 1000 if len_part2_DB is not None else exit_err("Нет данных об участке 2")
+len_part3 = float(len_part3_DB) / 1000 if len_part3_DB is not None else None
+len_part4 = float(len_part4_DB) / 1000 if len_part4_DB is not None else None
+len_part5 = float(len_part5_DB) / 1000 if len_part5_DB is not None else None
 
 count_valves = count_finded  # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-P1, P2, P3, P4, P5, P6 = 6, 0.97, 0.97, None, None, None # [float(input(f"Введите параметр P{i}: ")) if i <= count_parts else None for i in range(1, 7)]
+P1, P2, P3, P4, P5 = [convert_pressure_to_mpa(float(input(f"Введите параметр P{i}: "))) if i <= count_parts else 0.0 for i in range(1, 6)]
 # Maybe P will need to be converted, that is, multiplied by 98066.5
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
 S = delta_clearance * pi * diameter_stock  # Clearance area
@@ -158,48 +167,49 @@ Defining parameters by parts
 '''
 
 G_part1, G_part2, G_part3, G_part4, G_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
+t_part1, t_part2, t_part3, t_part4, t_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 h_part1, h_part2, h_part3, h_part4, h_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 
 # Props find for area 1
 if len_part1:
     if len_part2:
         h_part1 = enthalpy_steam
-        v_part1 = ph(P1, h_part1 * 4186.8, 3)
-        t_part1 = ph(P1, h_part1 * 4186.8, 1)
-        din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)
+        v_part1 = ph2v(P1, h_part1)
+        t_part1 = ph2t(P1, h_part1)
+        din_vis_part1 = ph(P1, h_part1, 24)
         G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
 
 # Props find for area 2
 if len_part2:
     if len_part3:
         h_part2 = enthalpy_steam
-        v_part2 = ph(P2, h_part2 * 4186.8, 3)
-        t_part2 = ph(P2, h_part2 * 4186.8, 1)
-        din_vis_part2 = ph(P2, h_part2 * 4186.8, 24)
+        v_part2 = ph(P2, h_part2, 3)
+        t_part2 = ph(P2, h_part2, 1)
+        din_vis_part2 = ph(P2, h_part2, 24)
         G_part2 = part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
 
 # Props find for area 3
 if len_part3:
     if len_part4:
         h_part3 = enthalpy_steam
-        v_part3 = ph(P3, h_part3 * 4186.8, 3)
-        t_part3 = ph(P3, h_part3 * 4186.8, 1)
-        din_vis_part3 = ph(P3, h_part3 * 4186.8, 24)
+        v_part3 = ph(P3, h_part3, 3)
+        t_part3 = ph(P3, h_part3, 1)
+        din_vis_part3 = ph(P3, h_part3, 24)
         G_part3 = part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
     else:
         h_part3 = h_air
         t_part3 = t_air
         v_part3 = air_calc(t_part3, 1)
         din_vis_part3 = lambda_calc(t_part3)
-        G_part3 = part_props_detection(P3, 1.03, v_part3, din_vis_part3, len_part3, last_part=True)
+        G_part3 = part_props_detection(P3, 0.1013, v_part3, din_vis_part3, len_part3, last_part=True)
 
 # Props find for area 4
 if len_part4:
     if len_part5:
         h_part4 = enthalpy_steam
-        v_part4 = ph(P4, h_part4 * 4186.8, 3)
-        t_part4 = ph(P4, h_part4 * 4186.8, 1)
-        din_vis_part4 = ph(P4, h_part4 * 4186.8, 24)
+        v_part4 = ph(P4, h_part4, 3)
+        t_part4 = ph(P4, h_part4, 1)
+        din_vis_part4 = ph(P4, h_part4, 24)
         G_part4 = part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
     else:
         h_part4 = h_air
@@ -244,15 +254,15 @@ def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h
     if count_parts == 3:
         g_deaerator = (G_part1 - G_part2) * count_valves
         h_deaerator = h_part2
-        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+        t_deaerator = ph(p_deaerator, h_deaerator, 1)
     elif count_parts == 4:
         g_deaerator = (G_part1 - G_part2 - G_part3) * count_valves
         h_deaerator = h_part2
-        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+        t_deaerator = ph(p_deaerator, h_deaerator, 1)
     elif count_parts == 5:
         g_deaerator = (G_part1 - G_part2 - G_part3 - G_part4) * count_valves
         h_deaerator = h_part2
-        t_deaerator = ph(p_deaerator * 98066.5, h_deaerator * 4186.8, 1)
+        t_deaerator = ph(p_deaerator, h_deaerator, 1)
     else:
         exit_err("Неверное количество секций клапана.")
 
@@ -286,7 +296,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         # Один отсос в эжектор
         g_ejector = (G_part2 + G_part3) * count_valves
         h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
-        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        t_ejector = ph(p_ejector, h_ejector, 1)
     elif count_parts == 4:
         # Два отсоса в эжектор
         g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
@@ -297,7 +307,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         # Энтальпия в первом отсосе в деаэратор равна энтальпии на втором участке
         h_ejector = (g_second_suction * h_second_suction + g_first_suction * h_part2) / (
                 g_second_suction + g_second_suction)
-        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        t_ejector = ph(p_ejector, h_ejector, 1)
     elif count_parts == 5:
         # Три отсоса в эжектор
         g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
@@ -309,7 +319,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         # Энтальпия в первом и втором отсосах в деаэратор равна энтальпии на втором участке
         h_ejector = ((g_third_suction * h_third_suction + g_second_suction * h_part2 + g_first_suction * h_part2)
                      / (g_third_suction + g_second_suction + g_second_suction))
-        t_ejector = ph(p_ejector * 98066.5, h_ejector * 4186.8, 1)
+        t_ejector = ph(p_ejector, h_ejector, 1)
     else:
         exit_err("Неверное количество секций клапана.")
 
@@ -321,25 +331,10 @@ g_deaerator, t_deaerator, p_deaerator, h_deaerator = deaerator_options(p_deaerat
 g_ejector, t_ejector, p_ejector, h_ejector = ejector_options(p_ejector, count_parts, count_valves, G_part2, h_part2,
                                                              G_part3, h_part3, G_part4, h_part4, G_part5, h_part5)
 
-# notChosen_typeCalc = False
-# while notChosen_typeCalc:
-#     type_calc_SAM = int(input("Выберите способ вычисления: введите число 1 либо 2"))
-#     if type_calc_SAM == 1:
-#         # t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)
-#         # t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)
-#         # h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8
-#         notChosen_typeCalc = True
-#     elif type_calc_SAM == 2:
-#         # h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
-#         # t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)
-#         notChosen_typeCalc = True
-#     else:
-#         print("Ввод не распознан.")
-
-# # Определение суммарного расхода пара на штока клапанов
-# g_valve = G_part1 * count_valves
-# # Определение суммарного расхода воздуха
-# g_vozd = G_part3 * count_valves
+# Определение суммарного расхода пара на штока клапанов
+g_valve = G_part1 * count_valves
+# Определение суммарного расхода воздуха
+g_vozd = G_part3 * count_valves
 
 ''' 
 Variables OUTPUT PART 
@@ -348,6 +343,9 @@ G, h, t, p... bla bla bla
 '''
 
 print(f"Gi: {G_part1, G_part2, G_part3, G_part4, G_part5}")
+print(f"Pi: {P1, P2, P3, P4, P5}")
+print(f"Ti: {t_part1, t_part2, t_part3, t_part4, t_part5}")
 print(f"Hi: {h_part1, h_part2, h_part3, h_part4, h_part5}")
+print(f"G_steam: {g_valve} | G_air: {g_vozd}")
 print(f"daerator props: {g_deaerator, t_deaerator, p_deaerator, h_deaerator}")
 print(f"ejector props: {g_ejector, t_ejector, p_ejector, h_ejector}")
