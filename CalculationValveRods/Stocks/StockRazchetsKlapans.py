@@ -34,6 +34,7 @@ def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=Fal
     print(f"Кинематическая вязкость: {kin_vis}")
 
     delta_speed = 1
+    print(P_first, P_second, v, din_vis, len_part)
     while not (-0.001 < delta_speed < 0.001):
         Re = (W * 2 * delta_clearance) / kin_vis
         ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5

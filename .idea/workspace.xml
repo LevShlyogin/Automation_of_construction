@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Refactor and Fixing code" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New package version">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,23 +75,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.ClapansByTurbin.executor": "Run",
-    "Python.InputFromDBandUSER.executor": "Run",
-    "Python.InputFromUser.executor": "Run",
-    "Python.StockRazchetsKlapans.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "STOCKS-update",
-    "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit",
-    "settings.editor.selected.configurable": "preferences.lookFeel"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Python.ClapansByTurbin.executor&quot;: &quot;Run&quot;,
+    &quot;Python.InputFromDBandUSER.executor&quot;: &quot;Run&quot;,
+    &quot;Python.InputFromUser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.StockRazchetsKlapans.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;STOCKS-update&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mabaturin/PycharmProjects/VBtoPYGit&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
-}]]></component>
+}</component>
   <component name="QodanaReportsService">
     <option name="descriptions">
       <ReportDescription localRun="true" path="C:\Users\mabaturin\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="79e36c5e-d478-4b15-a303-02672a46c31b" reportId="VBtoPYGit/qodana/2024-07-31" />
@@ -386,6 +389,7 @@
     <MESSAGE value="Funcs del and import from our library" />
     <MESSAGE value="ph &amp; pt add import" />
     <MESSAGE value="Refactor and Fixing code" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor and Fixing code" />
+    <MESSAGE value="New package version" />
+    <option name="LAST_COMMIT_MESSAGE" value="New package version" />
   </component>
 </project>
