@@ -31,6 +31,8 @@ def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=Fal
     if P_first == P_second:
         P_first += 0.03
     kin_vis = v * din_vis
+    print(f"Кинематическая вязкость: {kin_vis}")
+
     delta_speed = 1
     while not (-0.001 < delta_speed < 0.001):
         Re = (W * 2 * delta_clearance) / kin_vis
@@ -44,6 +46,7 @@ def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=Fal
     Re = (W * 2 * delta_clearance) / kin_vis
     ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5
     G = G_find(last_part, ALFA, P_first, P_second, v)
+
     return G
 
 
@@ -117,15 +120,9 @@ count_finded, needed_BPs, BPs_info = entry_to_DB()
 
 # Этого нет в таблице, из которой импортится
 print("\nОбнаружены недостающие параметры для подсчетов!")
-temperature_start_DB = 555 # float(input("Введите T0: "))
-pressure_start_DB = convert_pressure_to_mpa(130) # float(input("Введите P0: "))
-t_air = 40 # float(input("Введите t_air: "))
-
+temperature_start_DB = float(input("Введите T0: "))
+t_air = float(input("Введите t_air: "))
 h_air = t_air * 1.006
-
-temperature_start_valve = temperature_start_DB
-pressure_start_valve = pressure_start_DB
-enthalpy_steam = pt2h(pressure_start_valve, temperature_start_valve)
 
 radius_rounding_DB = BPs_info[11]   # Радиус скругления
 delta_clearance_DB = BPs_info[5]    # Расчетный зазор либо Точность изготовления (хз)
@@ -152,12 +149,13 @@ len_part5 = float(len_part5_DB) / 1000 if len_part5_DB is not None else None
 count_valves = count_finded  # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
 P1, P2, P3, P4, P5 = [convert_pressure_to_mpa(float(input(f"Введите параметр P{i}: "))) if i <= count_parts else 0.0 for i in range(1, 6)]
-# Maybe P will need to be converted, that is, multiplied by 98066.5
+p_deaerator = P1
+p_ejector = P2
+
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
 S = delta_clearance * pi * diameter_stock  # Clearance area
 
-p_deaerator = P1
-p_ejector = P2
+enthalpy_steam = pt2h(P1, temperature_start_DB)
 
 # Calculate inlet softening coefficient (same for all sections)
 KSI = ksi_calc(proportional_coef)
@@ -178,6 +176,8 @@ if len_part1:
         t_part1 = ph2t(P1, h_part1)
         din_vis_part1 = ph(P1, h_part1, 24)
         G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
+        print(f"Динамическая вязкость: {din_vis_part1}")
+        print(f"Удельный объём: {v_part1}")
 
 # Props find for area 2
 if len_part2:
@@ -216,7 +216,7 @@ if len_part4:
         t_part4 = t_air
         v_part4 = air_calc(t_part4, 1)
         din_vis_part4 = lambda_calc(t_part4)
-        G_part4 = part_props_detection(P4, 1.03, v_part4, din_vis_part4, len_part4, last_part=True)
+        G_part4 = part_props_detection(P4, 0.1013, v_part4, din_vis_part4, len_part4, last_part=True)
 
 # Props find for area 5
 if len_part5:
@@ -224,7 +224,7 @@ if len_part5:
     t_part5 = t_air
     v_part5 = air_calc(t_part5, 1)
     din_vis_part5 = lambda_calc(t_part5)
-    G_part5 = part_props_detection(P5, 1.03, v_part5, din_vis_part5, len_part5, last_part=True)
+    G_part5 = part_props_detection(P5, 0.1013, v_part5, din_vis_part5, len_part5, last_part=True)
 
 ''' 
 Determination of parameters by suction PART 
