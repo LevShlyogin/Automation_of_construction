@@ -31,9 +31,8 @@ def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=Fal
     if P_first == P_second:
         P_first += 0.03
     kin_vis = v * din_vis
-    print(f"Кинематическая вязкость: {kin_vis}")
-
     delta_speed = 1
+    iters = 0
     while not (-0.001 < delta_speed < 0.001):
         Re = (W * 2 * delta_clearance) / kin_vis
         ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5
@@ -43,10 +42,11 @@ def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=Fal
             W += max(0.001, W)
         elif delta_speed >= 0.001:
             W -= max(0.001, W * 0.9)
+        iters += 1
     Re = (W * 2 * delta_clearance) / kin_vis
     ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5
     G = G_find(last_part, ALFA, P_first, P_second, v)
-
+    print(iters)
     return G
 
 
@@ -146,7 +146,7 @@ len_part3 = float(len_part3_DB) / 1000 if len_part3_DB is not None else None
 len_part4 = float(len_part4_DB) / 1000 if len_part4_DB is not None else None
 len_part5 = float(len_part5_DB) / 1000 if len_part5_DB is not None else None
 
-count_valves = count_finded  # Number of valves
+count_valves = count_finded  # Number of valves0
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
 P1, P2, P3, P4, P5 = [convert_pressure_to_mpa(float(input(f"Введите параметр P{i}: "))) if i <= count_parts else 0.0 for i in range(1, 6)]
 p_deaerator = P1
