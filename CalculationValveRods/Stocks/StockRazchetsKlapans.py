@@ -8,6 +8,7 @@ from typing import Tuple  # CleanCoding
 from sys import exit
 from time import sleep
 
+
 '''
 Functions PART (additional + steam/air)
 '''
@@ -15,38 +16,65 @@ Functions PART (additional + steam/air)
 
 # Вспомогательная функция для нахождения G пара, или же воздуха для последней части
 def G_find(last_part, ALFA, P_first, P_second, v):
+    """
+        Вычисляет значение G в зависимости от типа среды (пар или воздух)
+        и входных параметров.
+
+        Args:
+            last_part (bool): Флаг, указывающий, является ли текущий участок последним.
+            ALFA (float): Коэффициент, зависящий от числа Рейнольдса и геометрии.
+            P_first (float): Давление в начале участка (в Паскалях).
+            P_second (float): Давление в конце участка (в Паскалях).
+            v (float): Скорость потока (в м/с).
+
+        Returns:
+            float: Значение G.
+        """
+    G = ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6
     if last_part:
-        # Определение параметров воздуха последнего участка
-        G = max(0.001, ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6)
-    else:
-        # Определение параметров пара от первого до предпоследнего участка
-        G = ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6
+        G = max(0.001, G) # Для последнего участка G не может быть меньше 0.001
     return G
 
 
-# Функция для определения параметров пара участка
-def part_props_detection(P_first , P_second, v, din_vis, len_part, last_part=False, W=50):
-    P_first *= 10.197162
-    P_second *= 10.197162
+def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=False, W_min=1, W_max=1000):
+    """
+        Определяет параметры пара/воздуха участка с использованием бинарного поиска.
+
+        Args:
+            P_first (float): Давление в начале участка (в бар).
+            P_second (float): Давление в конце участка (в бар).
+            v (float): Удельный объём (в м^3/кг).
+            din_vis (float): Кинематическая вязкость (в м^2/с).
+            len_part (float): Длина участка (в м).
+            last_part (bool, optional): Флаг, указывающий, является ли текущий участок последним. Defaults to False.
+            W_min (float, optional): Минимальное значение скорости потока (в м/с). Defaults to 1.
+            W_max (float, optional): Максимальное значение скорости потока (в м/с). Defaults to 1000.
+
+        Returns:
+            float: Значение G.
+        """
+    P_first *= 10 ** 6 # Преобразование давления из бар в Паскали
+    P_second *= 10 ** 6 # Преобразование давления из бар в Паскали
     if P_first == P_second:
-        P_first += 0.03
-    kin_vis = v * din_vis
-    print(f"Кинематическая вязкость: {kin_vis}")
+        P_first += 0.03 # Корректировка давления, если оно одинаково
+    kin_vis = v * din_vis # Вычисление кинематической вязкости
 
-    delta_speed = 1
-    while not (-0.001 < delta_speed < 0.001):
-        Re = (W * 2 * delta_clearance) / kin_vis
-        ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5
-        G = G_find(last_part, ALFA, P_first, P_second, v)
-        delta_speed = W - v * G / (3.6 * S)
-        if delta_speed <= 0.001:
-            W += max(0.001, W)
-        elif delta_speed >= 0.001:
-            W -= max(0.001, W * 0.9)
-    Re = (W * 2 * delta_clearance) / kin_vis
-    ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5
-    G = G_find(last_part, ALFA, P_first, P_second, v)
+    while W_max - W_min > 0.001: # Цикл бинарного поиска
+        W_mid = (W_min + W_max) / 2 # Вычисление середины диапазона
+        Re = (W_mid * 2 * delta_clearance) / kin_vis # Вычисление числа Рейнольдса
+        ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5 # Вычисление коэффициента ALFA
+        G = G_find(last_part, ALFA, P_first, P_second, v) # Вычисление G
+        delta_speed = W_mid - v * G / (3.6 * S) # Вычисление разности скоростей
 
+        if delta_speed > 0:
+            W_max = W_mid # Сужение диапазона поиска
+        else:
+            W_min = W_mid # Сужение диапазона поиска
+
+    W_result = (W_min + W_max) / 2 # Получение приближенного значения W
+    Re = (W_result * 2 * delta_clearance) / kin_vis # Вычисление числа Рейнольдса
+    ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5 # Вычисление коэффициента ALFA
+    G = G_find(last_part, ALFA, P_first, P_second, v) # Вычисление G
     return G
 
 
@@ -116,25 +144,24 @@ diameter_stock                                        - Stem diameter
 len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section (to meters)
 '''
 
-count_finded, needed_BPs, BPs_info = entry_to_DB()
+
+count_finded, needed_BPs, BPs_info = entry_to_DB() #Колличество клапанов должно запрашиваться
 
 # Этого нет в таблице, из которой импортится
 print("\nОбнаружены недостающие параметры для подсчетов!")
 temperature_start_DB = float(input("Введите T0: "))
 t_air = float(input("Введите t_air: "))
-h_air = t_air * 1.006
+h_air = t_air * 1.006 #Для расчёта энтальпии воздуха
+count_valves = int(input("Введите количество клапанов: "))  # Number of valves
 
 radius_rounding_DB = BPs_info[11]   # Радиус скругления
-delta_clearance_DB = BPs_info[5]    # Расчетный зазор либо Точность изготовления (хз)
+delta_clearance_DB = BPs_info[5]    # Расчетный зазор (нужно сделать поле в БД расчётным)
 diameter_stock_DB = BPs_info[2]     # Диаметр штока
 len_part1_DB = BPs_info[6]          # Длина участка 1
 len_part2_DB = BPs_info[7]          # Длина участка 2
 len_part3_DB = BPs_info[8]          # Длина участка 3
 len_part4_DB = BPs_info[9]          # Длина участка 4
 len_part5_DB = BPs_info[10]         # Длина участка 5
-
-# print(radius_rounding_DB, delta_clearance_DB, diameter_stock_DB,
-#       len_part1_DB, len_part2_DB, len_part3_DB, len_part4_DB, len_part5_DB)
 
 radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else exit_err(
     "Нет данных о радиусе скругления")
@@ -146,11 +173,9 @@ len_part3 = float(len_part3_DB) / 1000 if len_part3_DB is not None else None
 len_part4 = float(len_part4_DB) / 1000 if len_part4_DB is not None else None
 len_part5 = float(len_part5_DB) / 1000 if len_part5_DB is not None else None
 
-count_valves = count_finded  # Number of valves
 count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
 P1, P2, P3, P4, P5 = [convert_pressure_to_mpa(float(input(f"Введите параметр P{i}: "))) if i <= count_parts else 0.0 for i in range(1, 6)]
-p_deaerator = P1
-p_ejector = P2
+p_deaerator = P2
 
 proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
 S = delta_clearance * pi * diameter_stock  # Clearance area
@@ -160,9 +185,11 @@ enthalpy_steam = pt2h(P1, temperature_start_DB)
 # Calculate inlet softening coefficient (same for all sections)
 KSI = ksi_calc(proportional_coef)
 
+
 ''' 
 Defining parameters by parts
 '''
+
 
 G_part1, G_part2, G_part3, G_part4, G_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 t_part1, t_part2, t_part3, t_part4, t_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
@@ -176,55 +203,76 @@ if len_part1:
         t_part1 = ph2t(P1, h_part1)
         din_vis_part1 = ph(P1, h_part1, 24)
         G_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)
-        print(f"Динамическая вязкость: {din_vis_part1}")
-        print(f"Удельный объём: {v_part1}")
 
 # Props find for area 2
 if len_part2:
+    #If parts of valve more than 2
     if len_part3:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part2 = enthalpy_steam
         v_part2 = ph(P2, h_part2, 3)
         t_part2 = ph(P2, h_part2, 1)
         din_vis_part2 = ph(P2, h_part2, 24)
-        G_part2 = part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)
+        G_part2 = part_props_detection(P2, p_ejector, v_part2, din_vis_part2, len_part2)
+    # If parts of valve is 2
+    else:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
+        # Recalculate properties for part 1
+        h_part1 = enthalpy_steam
+        v_part1 = ph2v(P1, h_part1)
+        t_part1 = ph2t(P1, h_part1)
+        din_vis_part1 = ph(P1, h_part1, 24)
+        G_part1 = part_props_detection(P1, p_ejector, v_part1, din_vis_part1, len_part1)
+        # Calculate properties for part 2
+        h_part2 = h_air
+        t_part2 = t_air
+        v_part2 = air_calc(t_part2, 1)
+        din_vis_part2 = air_calc(t_part2, 2)
+        G_part2 = part_props_detection(0.1013, p_ejector, v_part2, din_vis_part2, len_part2, last_part=True)
 
 # Props find for area 3
 if len_part3:
     if len_part4:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part3 = enthalpy_steam
         v_part3 = ph(P3, h_part3, 3)
         t_part3 = ph(P3, h_part3, 1)
         din_vis_part3 = ph(P3, h_part3, 24)
-        G_part3 = part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)
+        G_part3 = part_props_detection(P3, p_ejector, v_part3, din_vis_part3, len_part3)
     else:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part3 = h_air
         t_part3 = t_air
         v_part3 = air_calc(t_part3, 1)
-        din_vis_part3 = lambda_calc(t_part3)
-        G_part3 = part_props_detection(P3, 0.1013, v_part3, din_vis_part3, len_part3, last_part=True)
+        din_vis_part3 = air_calc(t_part3, 2)
+        G_part3 = part_props_detection(0.1013, p_ejector, v_part3, din_vis_part3, len_part3, last_part=True)
 
 # Props find for area 4
 if len_part4:
     if len_part5:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part4 = enthalpy_steam
         v_part4 = ph(P4, h_part4, 3)
         t_part4 = ph(P4, h_part4, 1)
         din_vis_part4 = ph(P4, h_part4, 24)
-        G_part4 = part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)
+        G_part4 = part_props_detection(P4, p_ejector, v_part4, din_vis_part4, len_part4)
     else:
+        p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part4 = h_air
         t_part4 = t_air
         v_part4 = air_calc(t_part4, 1)
-        din_vis_part4 = lambda_calc(t_part4)
-        G_part4 = part_props_detection(P4, 0.1013, v_part4, din_vis_part4, len_part4, last_part=True)
+        din_vis_part4 = air_calc(t_part4, 2)
+        G_part4 = part_props_detection(0.1013, p_ejector, v_part4, din_vis_part4, len_part4, last_part=True)
 
 # Props find for area 5
 if len_part5:
+    p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
     h_part5 = h_air
     t_part5 = t_air
     v_part5 = air_calc(t_part5, 1)
-    din_vis_part5 = lambda_calc(t_part5)
-    G_part5 = part_props_detection(P5, 0.1013, v_part5, din_vis_part5, len_part5, last_part=True)
+    din_vis_part5 = air_calc(t_part5, 2)
+    G_part5 = part_props_detection(0.1013, p_ejector, v_part5, din_vis_part5, len_part5, last_part=True)
+
 
 ''' 
 Determination of parameters by suction PART 
@@ -250,18 +298,15 @@ def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h
     Returns:
         Кортеж из расхода, температуры, давления и энтальпии пара в деаэраторе.
     """
-    g_deaerator, t_deaerator, h_deaerator = 0.0, 0.0, 0.0
+    g_deaerator, t_deaerator, h_deaerator = 0.0, 0.0, h_part2
     if count_parts == 3:
         g_deaerator = (G_part1 - G_part2) * count_valves
-        h_deaerator = h_part2
         t_deaerator = ph(p_deaerator, h_deaerator, 1)
     elif count_parts == 4:
         g_deaerator = (G_part1 - G_part2 - G_part3) * count_valves
-        h_deaerator = h_part2
         t_deaerator = ph(p_deaerator, h_deaerator, 1)
     elif count_parts == 5:
         g_deaerator = (G_part1 - G_part2 - G_part3 - G_part4) * count_valves
-        h_deaerator = h_part2
         t_deaerator = ph(p_deaerator, h_deaerator, 1)
     else:
         exit_err("Неверное количество секций клапана.")
@@ -343,9 +388,8 @@ G, h, t, p... bla bla bla
 '''
 
 print(f"Gi: {G_part1, G_part2, G_part3, G_part4, G_part5}")
-print(f"Pi: {P1, P2, P3, P4, P5}")
+print(f"Pi_in: {P1, P2, P3, P4, P5}")
 print(f"Ti: {t_part1, t_part2, t_part3, t_part4, t_part5}")
 print(f"Hi: {h_part1, h_part2, h_part3, h_part4, h_part5}")
-print(f"G_steam: {g_valve} | G_air: {g_vozd}")
 print(f"daerator props: {g_deaerator, t_deaerator, p_deaerator, h_deaerator}")
 print(f"ejector props: {g_ejector, t_ejector, p_ejector, h_ejector}")

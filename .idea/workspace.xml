@@ -5,6 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New package version">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_08_2024_9_15_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_08_2024_9_15__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
@@ -51,7 +54,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/LevShlyogin/ML_automation_of_construction.git&quot;,
-    &quot;accountId&quot;: &quot;ab5edeb9-b024-4705-a883-3e3e5859f1c5&quot;
+    &quot;accountId&quot;: &quot;b8cc79c8-31e9-4a02-b2fa-652283067332&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -62,7 +65,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="CurrentFile" />
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -75,28 +78,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Python.ClapansByTurbin.executor&quot;: &quot;Run&quot;,
-    &quot;Python.InputFromDBandUSER.executor&quot;: &quot;Run&quot;,
-    &quot;Python.InputFromUser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.StockRazchetsKlapans.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;STOCKS-update&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/mabaturin/PycharmProjects/VBtoPYGit&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Python.ClapansByTurbin.executor": "Run",
+    "Python.InputFromDBandUSER.executor": "Run",
+    "Python.InputFromUser.executor": "Run",
+    "Python.StockRazchetsKlapans.executor": "Run",
+    "Python.main.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "STOCKS-update",
+    "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
-}</component>
-  <component name="QodanaReportsService">
-    <option name="descriptions">
-      <ReportDescription localRun="true" path="C:\Users\mabaturin\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="79e36c5e-d478-4b15-a303-02672a46c31b" reportId="VBtoPYGit/qodana/2024-07-31" />
-    </option>
-  </component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
@@ -391,5 +389,16 @@
     <MESSAGE value="Refactor and Fixing code" />
     <MESSAGE value="New package version" />
     <option name="LAST_COMMIT_MESSAGE" value="New package version" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py</url>
+          <line>340</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
