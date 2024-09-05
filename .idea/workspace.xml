@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="New package version">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_08_2024_9_15_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_08_2024_9_15__Changes_.xml" beforeDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Fixed mistakes, refactored functions G_find and part_props_detection">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
@@ -65,7 +62,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
@@ -319,7 +316,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724321542272</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Fixed mistakes, refactored functions G_find and part_props_detection">
+      <option name="closed" value="true" />
+      <created>1725441746217</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1725441746217</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -388,17 +393,7 @@
     <MESSAGE value="ph &amp; pt add import" />
     <MESSAGE value="Refactor and Fixing code" />
     <MESSAGE value="New package version" />
-    <option name="LAST_COMMIT_MESSAGE" value="New package version" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py</url>
-          <line>340</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="Fixed mistakes, refactored functions G_find and part_props_detection" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed mistakes, refactored functions G_find and part_props_detection" />
   </component>
 </project>

@@ -53,10 +53,10 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
         Returns:
             float: Значение G.
         """
+    if P_first == P_second:
+        P_first += 0.003 # Корректировка давления, если оно одинаково
     P_first *= 10 ** 6 # Преобразование давления из бар в Паскали
     P_second *= 10 ** 6 # Преобразование давления из бар в Паскали
-    if P_first == P_second:
-        P_first += 0.03 # Корректировка давления, если оно одинаково
     kin_vis = v * din_vis # Вычисление кинематической вязкости
 
     while W_max - W_min > 0.001: # Цикл бинарного поиска
@@ -337,33 +337,37 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
     """
 
     g_ejector, t_ejector, h_ejector = 0.0, 0.0, 0.0
-    if count_parts == 3:
+    if count_parts == 2:
+        g_ejector = (G_part2 + G_part1) * count_valves
+        h_ejector = (h_part2 * G_part2 + h_part1 * G_part1) / (G_part2 + G_part1)
+        t_ejector = ph(p_ejector, h_ejector, 1)
+    elif count_parts == 3:
         # Один отсос в эжектор
         g_ejector = (G_part2 + G_part3) * count_valves
         h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
         t_ejector = ph(p_ejector, h_ejector, 1)
     elif count_parts == 4:
         # Два отсоса в эжектор
-        g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
-        g_second_suction = G_part3 - G_part4  # Расход смеси во второй отсос в деаэратор.
+        g_first_suction = (G_part2 - G_part3 - G_part4) * count_valves# Расход пара в первый отсос в деаэратор.
+        g_second_suction = abs(G_part3 - G_part4) * count_valves  # Расход смеси во второй отсос в деаэратор.
         # Энтальпия смеси во втором отсосе в деаэратор.
         h_second_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
-        g_ejector = (g_first_suction + g_second_suction) * count_valves
+        g_ejector = g_first_suction + g_second_suction
         # Энтальпия в первом отсосе в деаэратор равна энтальпии на втором участке
         h_ejector = (g_second_suction * h_second_suction + g_first_suction * h_part2) / (
-                g_second_suction + g_second_suction)
+                g_second_suction + g_first_suction)
         t_ejector = ph(p_ejector, h_ejector, 1)
     elif count_parts == 5:
         # Три отсоса в эжектор
         g_first_suction = G_part2 - G_part3 - G_part4  # Расход пара в первый отсос в деаэратор.
-        g_second_suction = G_part3 - G_part4  # Расход пара во второй отсос в деаэратор.
+        g_second_suction = abs(G_part3 - G_part4)  # Расход пара во второй отсос в деаэратор.
         g_third_suction = G_part4 + G_part5  # Расход смеси в третий отсос в деаэратор.
         # Энтальпия смеси в третьем отсосе в деаэратор.
         h_third_suction = (h_part5 * G_part5 + h_part4 * G_part4) / (G_part5 + G_part4)
         g_ejector = (g_first_suction + g_second_suction + g_third_suction) * count_valves
         # Энтальпия в первом и втором отсосах в деаэратор равна энтальпии на втором участке
         h_ejector = ((g_third_suction * h_third_suction + g_second_suction * h_part2 + g_first_suction * h_part2)
-                     / (g_third_suction + g_second_suction + g_second_suction))
+                     / (g_third_suction + g_second_suction + g_first_suction))
         t_ejector = ph(p_ejector, h_ejector, 1)
     else:
         exit_err("Неверное количество секций клапана.")

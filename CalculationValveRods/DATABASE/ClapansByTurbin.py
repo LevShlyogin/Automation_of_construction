@@ -38,7 +38,7 @@ def find_BP_clapans(turbine_name: str):
         if not drawings:
             print(f"Чертежи для турбины '{turbine_name}' не найдены.")
         else:
-            drawing_numbers = [drawing[0] for drawing in drawings]
+            drawing_numbers = [drawing[0] for drawing in drawings if drawing[0] is not None]
             trash = ", ".join(drawing_numbers)
             print(f"Чертежи клапанов для турбины '{turbine_name}': {trash}")
 
