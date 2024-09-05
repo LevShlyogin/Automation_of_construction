@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Fixed mistakes in ejector_options and part_props_detection functions">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="The functions have been moved to the appropriate area">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,8 +55,7 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$USER_HOME$/AppData/Local/Programs/Python/Python312/Lib/ctypes/__init__.py" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/.venv/Lib/site-packages/seuif97/__init__.py" root0="SKIP_INSPECTION" />
+    <setting file="file://$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -331,7 +331,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725512275451</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="The functions have been moved to the appropriate area">
+      <option name="closed" value="true" />
+      <created>1725512746711</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1725512746711</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -402,6 +410,7 @@
     <MESSAGE value="New package version" />
     <MESSAGE value="Fixed mistakes, refactored functions G_find and part_props_detection" />
     <MESSAGE value="Fixed mistakes in ejector_options and part_props_detection functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed mistakes in ejector_options and part_props_detection functions" />
+    <MESSAGE value="The functions have been moved to the appropriate area" />
+    <option name="LAST_COMMIT_MESSAGE" value="The functions have been moved to the appropriate area" />
   </component>
 </project>

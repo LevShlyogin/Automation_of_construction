@@ -1,6 +1,6 @@
 from math import pi
 from seuif97 import *  # SteamPH and SteamPT (ph and pt)
-from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate fric resist, softening coef and air props
+from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate friction resist, softening coefficient and air props
 from CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
 from typing import Tuple  # CleanCoding
 from sys import exit
@@ -27,12 +27,11 @@ def G_find(last_part, ALFA, P_first, P_second, v):
 
         Returns:
             float: Значение G.
-        """
+    """
     G = ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6
     if last_part:
         G = max(0.001, G) # Для последнего участка G не может быть меньше 0.001
     return G
-
 
 def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=False, W_min=1, W_max=1000):
     """
@@ -50,7 +49,7 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
 
         Returns:
             float: Значение G.
-        """
+    """
     if P_first == P_second:
         P_first += 0.003 # Корректировка давления, если оно одинаково
     P_first *= 10 ** 6 # Преобразование давления из бар в Паскали
@@ -75,12 +74,11 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
     G = G_find(last_part, ALFA, P_first, P_second, v) # Вычисление G
     return G
 
-
 def exit_err(error_text="Неизвестная ошибка"):
     """
-    Функция для прекращения работы программы при некорректных данных
+        Функция для прекращения работы программы при некорректных данных
     """
-    if "Нет данных" in error_text:
+    if "Нет данных о" in error_text:
         print(error_text)
         inp = float(input("Введите данные: "))
         return inp
@@ -88,13 +86,13 @@ def exit_err(error_text="Неизвестная ошибка"):
     sleep(3)
     exit()
 
-
 def convert_pressure_to_mpa(pressure):
-    """Преобразует давление в МПа из различных единиц измерения.
+    """
+        Преобразует давление в МПа из различных единиц измерения.
 
-      Returns:
-        Давление в МПа, или сообщение об ошибке при неверном выборе единиц.
-      """
+        Returns:
+            Давление в МПа, или сообщение об ошибке при неверном выборе единиц.
+    """
     # Словарь для хранения коэффициентов перевода в МПа
     conversion_factors = {
         1: 1e-6,# Паскаль в МПа
@@ -119,37 +117,36 @@ def convert_pressure_to_mpa(pressure):
     # Возвращаем результат
     return mpa_pressure
 
+def kKal_to_kJ_kg(kKal):
+    """
+        Перевод килокалорий (kKal) в килоджоули на килограмм (kJ/kg).
 
-def kkal_to_kdj_kg(kkal):
-  """Перевод килокалорий (kkal) в килоджоули на килограмм (kJ/kg).
+        Args:
+            kKal: Количество килокалорий в веществе.
 
-  Args:
-    kkal: Количество килокалорий в веществе.
-
-  Returns:
-    Количество килоджоулей на килограмм (kJ/kg).
-  """
-  return kkal * 4.184 / 1000  # 1 ккал = 4.184 kJ, делим на 1000 для kJ/kg
-
+        Returns:
+            Количество килоджоулей на килограмм (kJ/kg).
+    """
+    return kKal * 4.184 / 1000  # 1 ккал = 4.184 kJ, делим на 1000 для kJ/kg
 
 # Определение параметров отсоса в деаэратор
 def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h_part2: float, G_part1: float,
                       G_part2: float, G_part3: float, G_part4: float) -> Tuple[float, float, float, float]:
     """
-    Рассчитывает параметры отсоса в деаэратор.
+        Рассчитывает параметры отсоса в деаэратор.
 
-    Args:
-        G_part1: Расход пара на первой секции.
-        G_part2: Расход пара на второй секции.
-        G_part3: Расход пара на третьей секции.
-        G_part4: Расход пара на четвёртой секции.
-        h_part2: Энтальпия пара на второй секции.
-        p_deaerator: Давление в деаэраторе.
-        count_valves: Количество клапанов.
-        count_parts: Количество секций клапана.
+        Args:
+            G_part1: Расход пара на первой секции.
+            G_part2: Расход пара на второй секции.
+            G_part3: Расход пара на третьей секции.
+            G_part4: Расход пара на четвёртой секции.
+            h_part2: Энтальпия пара на второй секции.
+            p_deaerator: Давление в деаэраторе.
+            count_valves: Количество клапанов.
+            count_parts: Количество секций клапана.
 
-    Returns:
-        Кортеж из расхода, температуры, давления и энтальпии пара в деаэраторе.
+        Returns:
+            Кортеж из расхода, температуры, давления и энтальпии пара в деаэраторе.
     """
     g_deaerator, t_deaerator, h_deaerator = 0.0, 0.0, h_part2
     if count_parts == 3:
@@ -166,29 +163,27 @@ def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h
 
     return g_deaerator, t_deaerator, p_deaerator, h_deaerator
 
-
 # Определение параметров отсоса в эжектор уплотнений
 def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_part2: float, h_part2: float,
                     G_part3: float, h_part3: float, G_part4=0.0, h_part4=0.0, G_part5=0.0, h_part5=0.0) -> Tuple[
     float, float, float, float]:
     """
-    Рассчитывает параметры отсоса в эжектор уплотнений.
+        Рассчитывает параметры отсоса в эжектор уплотнений.
 
-    Args:
-        G_part2: Расход пара на второй секции.
-        h_part2: Энтальпия пара на второй секции.
-        G_part3: Расход пара на третьей секции.
-        h_part3: Энтальпия пара на третьей секции.
-        G_part4: Расход пара на четвертой секции (если есть).
-        h_part4: Энтальпия пара на четвертой секции (если есть).
-        p_ejector: Давление в эжекторе.
-        count_parts: Количество секций клапана.
-        count_valves: Количество клапанов.
+        Args:
+            G_part2: Расход пара на второй секции.
+            h_part2: Энтальпия пара на второй секции.
+            G_part3: Расход пара на третьей секции.
+            h_part3: Энтальпия пара на третьей секции.
+            G_part4: Расход пара на четвертой секции (если есть).
+            h_part4: Энтальпия пара на четвертой секции (если есть).
+            p_ejector: Давление в эжекторе.
+            count_parts: Количество секций клапана.
+            count_valves: Количество клапанов.
 
-    Returns:
-        Кортеж из расхода, температуры, давления и энтальпии пара в эжекторе.
+        Returns:
+            Кортеж из расхода, температуры, давления и энтальпии пара в эжекторе.
     """
-
     g_ejector, t_ejector, h_ejector = 0.0, 0.0, 0.0
     if count_parts == 2:
         g_ejector = (G_part2 + G_part1) * count_valves
@@ -227,8 +222,46 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
 
     return g_ejector, t_ejector, p_ejector, h_ejector
 
+def get_float_input(prompt):
+    """
+        Получает вещественное число от пользователя с обработкой ошибок.
+    """
+    while True:
+        try:
+            return float(input(prompt))
+        except ValueError:
+            print("Пожалуйста, введите корректное число.")
+
+def get_int_input(prompt):
+    """
+        Получает целое число от пользователя с обработкой ошибок.
+    """
+    while True:
+        try:
+            return int(input(prompt))
+        except ValueError:
+            print("Пожалуйста, введите корректное целое число.")
+
+def convert_to_meters(value, description):
+    """
+        Конвертирует значение в метры, с обработкой отсутствующих данных.
+    """
+    if value is not None:
+        return float(value) / 1000
+    else:
+        exit_err(f"Нет данных о {description}")
+
+def get_pressure_input(index, count_parts):
+    """
+        Получает давление от пользователя и преобразует его в МПа.
+    """
+    if index <= count_parts:
+        return convert_pressure_to_mpa(get_float_input(f"Введите параметр P{index}: "))
+    return 0.0
+
+
 '''
-Variables & INPUTs PART
+Variables & inputs PART
 
 General geometric parameters
 radius_rounding                                       - Radius of inlet rounding or chamfer size
@@ -238,45 +271,43 @@ len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section 
 '''
 
 
-count_finded, needed_BPs, BPs_info = entry_to_DB() #Колличество клапанов должно запрашиваться
+count_finded, needed_BPs, BPs_info = entry_to_DB()
 
-# Этого нет в таблице, из которой импортится
+# Этого нет в таблице, из которой импортируется
 print("\nОбнаружены недостающие параметры для подсчетов!")
-temperature_start_DB = float(input("Введите T0: "))
-t_air = float(input("Введите t_air: "))
-h_air = t_air * 1.006 #Для расчёта энтальпии воздуха
-count_valves = int(input("Введите количество клапанов: "))  # Number of valves
+temperature_start_DB = get_float_input("Введите T0: ")
+t_air = get_float_input("Введите t_air: ")
+h_air = t_air * 1.006  # Для расчёта энтальпии воздуха
+count_valves = get_int_input("Введите количество клапанов: ")  # Number of valves
 
-radius_rounding_DB = BPs_info[11]   # Радиус скругления
-delta_clearance_DB = BPs_info[5]    # Расчетный зазор (нужно сделать поле в БД расчётным)
-diameter_stock_DB = BPs_info[2]     # Диаметр штока
-len_part1_DB = BPs_info[6]          # Длина участка 1
-len_part2_DB = BPs_info[7]          # Длина участка 2
-len_part3_DB = BPs_info[8]          # Длина участка 3
-len_part4_DB = BPs_info[9]          # Длина участка 4
-len_part5_DB = BPs_info[10]         # Длина участка 5
+# Извлечение данных из BPs_info с проверкой
+radius_rounding_DB = BPs_info[11]  # Радиус скругления
+delta_clearance_DB = BPs_info[5]   # Расчетный зазор
+diameter_stock_DB = BPs_info[2]    # Диаметр штока
+len_parts_DB = BPs_info[6:11]      # Длины участков
 
-radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else exit_err(
-    "Нет данных о радиусе скругления")
-delta_clearance = float(delta_clearance_DB) / 1000 if delta_clearance_DB is not None else exit_err("Нет данных о зазоре")
-diameter_stock = float(diameter_stock_DB) / 1000 if diameter_stock_DB is not None else exit_err("Нет данных о диаметре штока")
-len_part1 = float(len_part1_DB) / 1000 if len_part1_DB is not None else exit_err("Нет данных об участке 1")
-len_part2 = float(len_part2_DB) / 1000 if len_part2_DB is not None else exit_err("Нет данных об участке 2")
-len_part3 = float(len_part3_DB) / 1000 if len_part3_DB is not None else None
-len_part4 = float(len_part4_DB) / 1000 if len_part4_DB is not None else None
-len_part5 = float(len_part5_DB) / 1000 if len_part5_DB is not None else None
+# Конвертация данных
+radius_rounding = convert_to_meters(radius_rounding_DB, "радиусе скругления")
+delta_clearance = convert_to_meters(delta_clearance_DB, "зазоре")
+diameter_stock = convert_to_meters(diameter_stock_DB, "диаметре штока")
+len_parts = [convert_to_meters(length,  f"участке {i+1}") for i, length in enumerate(len_parts_DB)]
 
-count_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])
-P1, P2, P3, P4, P5 = [convert_pressure_to_mpa(float(input(f"Введите параметр P{i}: "))) if i <= count_parts else 0.0 for i in range(1, 6)]
+# Подсчет количества непустых участков
+count_parts = sum(1 for length in len_parts if length is not None)
+
+# Получение параметров давления
+P_values = [get_pressure_input(i, count_parts) for i in range(1, 6)]
+P1, P2, P3, P4, P5 = P_values
 p_deaerator = P2
 
-proportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff
-S = delta_clearance * pi * diameter_stock  # Clearance area
+# Получение параметров длин участков
+len_part1, len_part2, len_part3, len_part4, len_part5 = len_parts
 
+# Расчёты
+proportional_coef = radius_rounding / (delta_clearance * 2)  # Коэффициент пропорциональности
+S = delta_clearance * pi * diameter_stock  # Площадь зазора
 enthalpy_steam = pt2h(P1, temperature_start_DB)
-
-# Calculate inlet softening coefficient (same for all sections)
-KSI = ksi_calc(proportional_coef)
+KSI = ksi_calc(proportional_coef)  # Расчет коэффициента
 
 
 ''' 
@@ -284,6 +315,7 @@ Defining parameters by parts
 '''
 
 
+p_ejector = 0.0
 G_part1, G_part2, G_part3, G_part4, G_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 t_part1, t_part2, t_part3, t_part4, t_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
 h_part1, h_part2, h_part3, h_part4, h_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
@@ -377,10 +409,11 @@ g_deaerator, t_deaerator, p_deaerator, h_deaerator = deaerator_options(p_deaerat
 g_ejector, t_ejector, p_ejector, h_ejector = ejector_options(p_ejector, count_parts, count_valves, G_part2, h_part2,
                                                              G_part3, h_part3, G_part4, h_part4, G_part5, h_part5)
 
-# Определение суммарного расхода пара на штока клапанов
+# Определение суммарного расхода пара на штоки клапанов
 g_valve = G_part1 * count_valves
 # Определение суммарного расхода воздуха
 g_vozd = G_part3 * count_valves
+
 
 ''' 
 Variables OUTPUT PART 
@@ -388,9 +421,10 @@ Variables OUTPUT PART
 G, h, t, p... bla bla bla
 '''
 
+
 print(f"Gi: {G_part1, G_part2, G_part3, G_part4, G_part5}")
 print(f"Pi_in: {P1, P2, P3, P4, P5}")
 print(f"Ti: {t_part1, t_part2, t_part3, t_part4, t_part5}")
 print(f"Hi: {h_part1, h_part2, h_part3, h_part4, h_part5}")
-print(f"daerator props: {g_deaerator, t_deaerator, p_deaerator, h_deaerator}")
+print(f"deaerator props: {g_deaerator, t_deaerator, p_deaerator, h_deaerator}")
 print(f"ejector props: {g_ejector, t_ejector, p_ejector, h_ejector}")
