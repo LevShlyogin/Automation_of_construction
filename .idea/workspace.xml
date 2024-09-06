@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="The functions have been moved to the appropriate area">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Have been added new functions, Variables &amp; inputs PART refactored">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
     </list>
@@ -339,7 +339,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725512746711</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Have been added new functions, Variables &amp; inputs PART refactored">
+      <option name="closed" value="true" />
+      <created>1725519699756</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1725519699756</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -411,6 +419,7 @@
     <MESSAGE value="Fixed mistakes, refactored functions G_find and part_props_detection" />
     <MESSAGE value="Fixed mistakes in ejector_options and part_props_detection functions" />
     <MESSAGE value="The functions have been moved to the appropriate area" />
-    <option name="LAST_COMMIT_MESSAGE" value="The functions have been moved to the appropriate area" />
+    <MESSAGE value="Have been added new functions, Variables &amp; inputs PART refactored" />
+    <option name="LAST_COMMIT_MESSAGE" value="Have been added new functions, Variables &amp; inputs PART refactored" />
   </component>
 </project>

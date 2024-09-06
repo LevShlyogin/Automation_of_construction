@@ -6,11 +6,9 @@ from typing import Tuple  # CleanCoding
 from sys import exit
 from time import sleep
 
-
 '''
 Functions PART (additional + steam/air)
 '''
-
 
 # Вспомогательная функция для нахождения G пара, или же воздуха для последней части
 def G_find(last_part, ALFA, P_first, P_second, v):
@@ -114,7 +112,6 @@ def convert_pressure_to_mpa(pressure):
         return exit_err("Неверный выбор единицы измерения.")
     # Выполняем конвертацию
     mpa_pressure = pressure * conversion_factors[unit]
-    # Возвращаем результат
     return mpa_pressure
 
 def kKal_to_kJ_kg(kKal):
@@ -160,7 +157,6 @@ def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h
         t_deaerator = ph(p_deaerator, h_deaerator, 1)
     else:
         exit_err("Неверное количество секций клапана.")
-
     return g_deaerator, t_deaerator, p_deaerator, h_deaerator
 
 # Определение параметров отсоса в эжектор уплотнений
@@ -176,6 +172,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
             G_part3: Расход пара на третьей секции.
             h_part3: Энтальпия пара на третьей секции.
             G_part4: Расход пара на четвертой секции (если есть).
+            G_part5: Расход пара на пятой секции (если есть).
             h_part4: Энтальпия пара на четвертой секции (если есть).
             p_ejector: Давление в эжекторе.
             count_parts: Количество секций клапана.
@@ -219,7 +216,6 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         t_ejector = ph(p_ejector, h_ejector, 1)
     else:
         exit_err("Неверное количество секций клапана.")
-
     return g_ejector, t_ejector, p_ejector, h_ejector
 
 def get_float_input(prompt):
@@ -259,17 +255,14 @@ def get_pressure_input(index, count_parts):
         return convert_pressure_to_mpa(get_float_input(f"Введите параметр P{index}: "))
     return 0.0
 
-
 '''
 Variables & inputs PART
-
 General geometric parameters
 radius_rounding                                       - Radius of inlet rounding or chamfer size
 delta_clearance                                       - Radial clearance
 diameter_stock                                        - Stem diameter
 len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section (to meters)
 '''
-
 
 count_finded, needed_BPs, BPs_info = entry_to_DB()
 
@@ -309,11 +302,9 @@ S = delta_clearance * pi * diameter_stock  # Площадь зазора
 enthalpy_steam = pt2h(P1, temperature_start_DB)
 KSI = ksi_calc(proportional_coef)  # Расчет коэффициента
 
-
 ''' 
 Defining parameters by parts
 '''
-
 
 p_ejector = 0.0
 G_part1, G_part2, G_part3, G_part4, G_part5 = 0.0, 0.0, 0.0, 0.0, 0.0
@@ -398,11 +389,9 @@ if len_part5:
     din_vis_part5 = air_calc(t_part5, 2)
     G_part5 = part_props_detection(0.1013, p_ejector, v_part5, din_vis_part5, len_part5, last_part=True)
 
-
 ''' 
 Determination of parameters by suction PART 
 '''
-
 
 g_deaerator, t_deaerator, p_deaerator, h_deaerator = deaerator_options(p_deaerator, count_parts, count_valves,
                                                                        h_part2, G_part1, G_part2, G_part3, G_part4)
@@ -414,13 +403,10 @@ g_valve = G_part1 * count_valves
 # Определение суммарного расхода воздуха
 g_vozd = G_part3 * count_valves
 
-
 ''' 
 Variables OUTPUT PART 
-
 G, h, t, p... bla bla bla
 '''
-
 
 print(f"Gi: {G_part1, G_part2, G_part3, G_part4, G_part5}")
 print(f"Pi_in: {P1, P2, P3, P4, P5}")
