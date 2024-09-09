@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="README.md rewrite">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="More commentaries">
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/Table_Base.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/Table_Base.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/Table_Capacitors.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/Table_Capacitors.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/Table_MP.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/Table_MP.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/Table_PadsOUP.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/Table_PadsOUP.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/Table_Stock.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/Table_Stock.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/database.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/TestingCalcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/Расчет штоков клапанов.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StocksCalculationSwift.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,6 +102,8 @@
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mabaturin\PycharmProjects\ML_automation_of_construction\CalculationValveRods\DATABASE" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\ML_automation_of_construction\CalculationValveRods\DATABASE\BackupDB" />
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
     </key>
   </component>
@@ -357,7 +363,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725908738338</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="More commentaries">
+      <option name="closed" value="true" />
+      <created>1725910421738</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1725910421738</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -405,7 +419,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Code Readable Up v2" />
     <MESSAGE value="Code Readable Up v3" />
     <MESSAGE value="README.md update v3" />
     <MESSAGE value="DB script fix" />
@@ -430,6 +443,7 @@
     <MESSAGE value="Have been added new functions, Variables &amp; inputs PART refactored" />
     <MESSAGE value="Readme fix" />
     <MESSAGE value="README.md rewrite" />
-    <option name="LAST_COMMIT_MESSAGE" value="README.md rewrite" />
+    <MESSAGE value="More commentaries" />
+    <option name="LAST_COMMIT_MESSAGE" value="More commentaries" />
   </component>
 </project>
