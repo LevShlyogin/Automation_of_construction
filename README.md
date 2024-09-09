@@ -4,6 +4,8 @@ WaterProperties. ML Automation of construction
 Introduction
 ---------------
 
+#### The library is currently under development
+
 This library is a collection of functions for calculating various thermodynamic properties of water and steam. The library is based on the international formulation IAPWS (International Association for the Properties of Water and Steam) and allows for the calculation of properties of water and steam over a wide range of temperatures and pressures.
 
 ![SchemeWork.png](SchemeWork.png)
@@ -15,11 +17,11 @@ Which is written in the Visual Basic programming language.
 Quick Guide
 ---------------
 
-Install library, use the `pip install WaterProperties` construct.\
+Install library, use the `pip install WSAProperties` construct.\
 Using the library is as simple and convenient as possible:
 
-First, import everything or needed functions from the library (use the `from WaterProperties import *` construct).\
-Second, you can use any function from the library (use the `WaterProperties.Any_Function` construct).
+First, import everything or needed functions from the library (use the `from WSAProperties import *` construct).\
+Second, you can use any function from the library (use the `WSAProperties import any_function` construct).
 
 ### Example Usage
 

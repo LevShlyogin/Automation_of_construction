@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Readme fix">
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="README.md rewrite">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/ClapansByTurbin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromUser.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -346,7 +349,15 @@
       <option name="project" value="LOCAL" />
       <updated>1725519699756</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="README.md rewrite">
+      <option name="closed" value="true" />
+      <created>1725908738338</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1725908738338</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -394,7 +405,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Funcs translate to EN&#10;README.md updated" />
     <MESSAGE value="Code Readable Up v2" />
     <MESSAGE value="Code Readable Up v3" />
     <MESSAGE value="README.md update v3" />
@@ -419,6 +429,7 @@
     <MESSAGE value="The functions have been moved to the appropriate area" />
     <MESSAGE value="Have been added new functions, Variables &amp; inputs PART refactored" />
     <MESSAGE value="Readme fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="Readme fix" />
+    <MESSAGE value="README.md rewrite" />
+    <option name="LAST_COMMIT_MESSAGE" value="README.md rewrite" />
   </component>
 </project>
