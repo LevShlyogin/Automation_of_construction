@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Have been added new functions, Variables &amp; inputs PART refactored">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StockRazchetsKlapans.py" afterDir="false" />
+    <list default="true" id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="Readme fix">
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,23 +73,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "Python.ClapansByTurbin.executor": "Run",
-    "Python.InputFromDBandUSER.executor": "Run",
-    "Python.InputFromUser.executor": "Run",
-    "Python.StockRazchetsKlapans.executor": "Run",
-    "Python.main.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "STOCKS-update",
-    "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Python.ClapansByTurbin.executor&quot;: &quot;Run&quot;,
+    &quot;Python.InputFromDBandUSER.executor&quot;: &quot;Run&quot;,
+    &quot;Python.InputFromUser.executor&quot;: &quot;Run&quot;,
+    &quot;Python.StockRazchetsKlapans.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;STOCKS-update&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mabaturin/PycharmProjects/VBtoPYGit&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
@@ -395,7 +394,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Init Commit" />
     <MESSAGE value="Funcs translate to EN&#10;README.md updated" />
     <MESSAGE value="Code Readable Up v2" />
     <MESSAGE value="Code Readable Up v3" />
@@ -420,6 +418,7 @@
     <MESSAGE value="Fixed mistakes in ejector_options and part_props_detection functions" />
     <MESSAGE value="The functions have been moved to the appropriate area" />
     <MESSAGE value="Have been added new functions, Variables &amp; inputs PART refactored" />
-    <option name="LAST_COMMIT_MESSAGE" value="Have been added new functions, Variables &amp; inputs PART refactored" />
+    <MESSAGE value="Readme fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Readme fix" />
   </component>
 </project>

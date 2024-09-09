@@ -24,17 +24,17 @@ Second, you can use any function from the library (use the `WaterProperties.Any_
 ### Example Usage
 
 ```python
-import WaterProperties
+import WSAProperties
 
 t = 25  # temperature in degrees Celsius
 p = 101325  # pressure in Pascals
 
 # calculate the density of water
-density = WaterProperties.Density(t, p)
+density = WSAProperties.Density(t, p)
 print("Density of water:", density, "kg/m^3")
 
 # calculate the specific entropy of water
-entropy = WaterProperties.Specific_Entropy(t, p)
+entropy = WSAProperties.Specific_Entropy(t, p)
 print("Specific entropy of water:", entropy, "J/kg·K")
 ```
 
