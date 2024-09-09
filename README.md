@@ -71,7 +71,7 @@ The part of water and steam in library includes the following functions:
 * `Viscosity(t, p)`
 * `Density_MI(t, p)`
 * `Specific_Enthalpy_MI(t, p)`
-* `JF(t, p, Trigger, reg)`\
+* `JF(t, p, Trigger, reg)`
 
 #### _Air Part_
 Library also have formuls and thermal properties calculations for air:
