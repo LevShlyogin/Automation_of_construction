@@ -4,6 +4,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+'''
+У меня есть репозиторий от старых наработок с регистрацией, 
+реализованной на FastAPI, можно его использовать как базу 
+для авторизации пользователей
+'''
+
 # Настройка CORS, если потребуется
 app.add_middleware(
     CORSMiddleware,
