@@ -2,7 +2,22 @@ from fastapi import FastAPI
 from backend.api.endpoints import router as api_router
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(
+    title="WebWSACalculator",
+    description="This is backend for calculator",
+    summary="UTZ team developers community.",
+    version="0.0.1",
+    terms_of_service="http://example.com/terms/",
+    contact={
+        "name": "Deadpoolio the Amazing",
+        "url": "http://x-force.example.com/contact/",
+        "email": "dp@x-force.example.com",
+    },
+    license_info={
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+    },
+)
 
 '''
 У меня есть репозиторий от старых наработок с регистрацией, 
