@@ -1,0 +1,4 @@
+WSAProperties~=0.2
+seuif97==1.2.0
+psycopg2~=2.9.9
+prettytable~=3.11.0
