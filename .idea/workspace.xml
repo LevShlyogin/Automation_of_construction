@@ -13,6 +13,10 @@
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/DATABASE/database.sql" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/DATABASE/BackupDB/database.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/TestingCalcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CalculationValveRods/Stocks/Расчет штоков клапанов.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/Stocks/StocksCalculationSwift.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/WSAProperties/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/WSAProperties/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" beforeDir="false" afterPath="$PROJECT_DIR$/CalculationValveRods/InputFromDBandUSER.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,34 +73,25 @@
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 0
-}</component>
-  <component name="ProjectId" id="2k00rd9s8ZX6XVd4n4GfR81jFas" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
-    <ConfirmationsSetting value="2" id="Add" />
+  <component name="PropertiesComponent"><![CDATA[{
+    "keyToString": {
+      "ASKED_ADD_EXTERNAL_FILES": "true",
+      "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+      "Python.ClapansByTurbin.executor": "Run",
+      "Python.InputFromDBandUSER.executor": "Run",
+      "Python.main.executor": "Run",
+      "RunOnceActivity.OpenProjectViewOnStart": "true",
+      "RunOnceActivity.ShowReadmeOnStart": "true",
+      "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+      "git-widget-placeholder": "main",
+      "last_opened_file_path": "C:/Users/mabaturin/PycharmProjects/VBtoPYGit"
+    }
+  }]]></component>
+  <component name="QodanaReportsService">
+    <option name="descriptions">
+      <ReportDescription localRun="true" path="C:\Users\mabaturin\AppData\Local\Temp\qodana_output\qodana.sarif.json" reportGuid="79e36c5e-d478-4b15-a303-02672a46c31b" reportId="VBtoPYGit/qodana/2024-07-31" />
+    </option>
   </component>
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Python.ClapansByTurbin.executor&quot;: &quot;Run&quot;,
-    &quot;Python.InputFromDBandUSER.executor&quot;: &quot;Run&quot;,
-    &quot;Python.InputFromUser.executor&quot;: &quot;Run&quot;,
-    &quot;Python.StockRazchetsKlapans.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;STOCKS-update&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/mabaturin/PycharmProjects/VBtoPYGit&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
-  }
-}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
@@ -105,6 +100,9 @@
       <recent name="C:\Users\mabaturin\PycharmProjects\ML_automation_of_construction\CalculationValveRods\DATABASE" />
       <recent name="C:\Users\mabaturin\PycharmProjects\ML_automation_of_construction\CalculationValveRods\DATABASE\BackupDB" />
       <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\WSAProperties" />
+      <recent name="C:\Users\mabaturin\PycharmProjects\VBtoPYGit\src\WaterProperties" />
     </key>
   </component>
   <component name="SharedIndexes">
@@ -114,336 +112,4 @@
       </set>
     </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="282a55df-a21d-4144-a9b6-66b39e914cbd" name="Changes" comment="" />
-      <created>1722405386293</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1722405386293</updated>
-    </task>
-    <task id="LOCAL-00001" summary="Init Commit">
-      <option name="closed" value="true" />
-      <created>1722405890550</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1722405890550</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Init Commit">
-      <option name="closed" value="true" />
-      <created>1722406835926</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1722406835926</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Funcs translate to EN&#10;README.md updated">
-      <option name="closed" value="true" />
-      <created>1722408278349</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1722408278349</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Code Readable Up v2">
-      <option name="closed" value="true" />
-      <created>1722421787564</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1722421787564</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Code Readable Up v3">
-      <option name="closed" value="true" />
-      <created>1722422072771</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1722422072771</updated>
-    </task>
-    <task id="LOCAL-00006" summary="README.md update v3">
-      <option name="closed" value="true" />
-      <created>1722422447116</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1722422447116</updated>
-    </task>
-    <task id="LOCAL-00007" summary="DB script fix">
-      <option name="closed" value="true" />
-      <created>1723453818352</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1723453818352</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Pretty output from DB">
-      <option name="closed" value="true" />
-      <created>1723540196931</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1723540196931</updated>
-    </task>
-    <task id="LOCAL-00009" summary="New func and OOP">
-      <option name="closed" value="true" />
-      <created>1723544642493</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1723544642493</updated>
-    </task>
-    <task id="LOCAL-00010" summary="New func&#10;BPs work finding">
-      <option name="closed" value="true" />
-      <created>1723545073549</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1723545073549</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Stocks Adaptation Added">
-      <option name="closed" value="true" />
-      <created>1723630722855</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1723630722855</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Stocks Adaptation UPD">
-      <option name="closed" value="true" />
-      <created>1723631224672</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1723631224672</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Stocks Adaptation UPDv2">
-      <option name="closed" value="true" />
-      <created>1723711606309</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1723711606309</updated>
-    </task>
-    <task id="LOCAL-00014" summary="G find complete">
-      <option name="closed" value="true" />
-      <created>1723715727146</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1723715727146</updated>
-    </task>
-    <task id="LOCAL-00015" summary="type_calc config add">
-      <option name="closed" value="true" />
-      <created>1723716773156</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1723716773156</updated>
-    </task>
-    <task id="LOCAL-00016" summary="entry to DB func add">
-      <option name="closed" value="true" />
-      <created>1723779606181</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1723779606181</updated>
-    </task>
-    <task id="LOCAL-00017" summary="entry to DB func add">
-      <option name="closed" value="true" />
-      <created>1723779648803</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1723779648803</updated>
-    </task>
-    <task id="LOCAL-00018" summary="entry to DB integration">
-      <option name="closed" value="true" />
-      <created>1723800423759</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1723800423759</updated>
-    </task>
-    <task id="LOCAL-00019" summary="entry to DB integration">
-      <option name="closed" value="true" />
-      <created>1723802177986</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1723802177986</updated>
-    </task>
-    <task id="LOCAL-00020" summary="DB variables connect&#10;support added">
-      <option name="closed" value="true" />
-      <created>1724048784147</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1724048784147</updated>
-    </task>
-    <task id="LOCAL-00021" summary="Funcs del and import from our library">
-      <option name="closed" value="true" />
-      <created>1724054036441</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1724054036441</updated>
-    </task>
-    <task id="LOCAL-00022" summary="Funcs del and import from our library">
-      <option name="closed" value="true" />
-      <created>1724063524468</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1724063524468</updated>
-    </task>
-    <task id="LOCAL-00023" summary="ph &amp; pt add import">
-      <option name="closed" value="true" />
-      <created>1724130117147</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1724130117147</updated>
-    </task>
-    <task id="LOCAL-00024" summary="ph &amp; pt add import">
-      <option name="closed" value="true" />
-      <created>1724149536683</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1724149536683</updated>
-    </task>
-    <task id="LOCAL-00025" summary="Refactor and Fixing code">
-      <option name="closed" value="true" />
-      <created>1724321542272</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1724321542272</updated>
-    </task>
-    <task id="LOCAL-00026" summary="Fixed mistakes, refactored functions G_find and part_props_detection">
-      <option name="closed" value="true" />
-      <created>1725441746217</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1725441746217</updated>
-    </task>
-    <task id="LOCAL-00027" summary="Fixed mistakes in ejector_options and part_props_detection functions">
-      <option name="closed" value="true" />
-      <created>1725512275451</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1725512275451</updated>
-    </task>
-    <task id="LOCAL-00028" summary="The functions have been moved to the appropriate area">
-      <option name="closed" value="true" />
-      <created>1725512746711</created>
-      <option name="number" value="00028" />
-      <option name="presentableId" value="LOCAL-00028" />
-      <option name="project" value="LOCAL" />
-      <updated>1725512746711</updated>
-    </task>
-    <task id="LOCAL-00029" summary="Have been added new functions, Variables &amp; inputs PART refactored">
-      <option name="closed" value="true" />
-      <created>1725519699756</created>
-      <option name="number" value="00029" />
-      <option name="presentableId" value="LOCAL-00029" />
-      <option name="project" value="LOCAL" />
-      <updated>1725519699756</updated>
-    </task>
-    <task id="LOCAL-00030" summary="README.md rewrite">
-      <option name="closed" value="true" />
-      <created>1725908738338</created>
-      <option name="number" value="00030" />
-      <option name="presentableId" value="LOCAL-00030" />
-      <option name="project" value="LOCAL" />
-      <updated>1725908738338</updated>
-    </task>
-    <task id="LOCAL-00031" summary="More commentaries">
-      <option name="closed" value="true" />
-      <created>1725910421738</created>
-      <option name="number" value="00031" />
-      <option name="presentableId" value="LOCAL-00031" />
-      <option name="project" value="LOCAL" />
-      <updated>1725910421738</updated>
-    </task>
-    <option name="localTasksCounter" value="32" />
-    <servers />
-  </component>
-  <component name="Vcs.Log.Tabs.Properties">
-    <option name="RECENT_FILTERS">
-      <map>
-        <entry key="Branch">
-          <value>
-            <list>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="HEAD" />
-                </option>
-              </RecentGroup>
-              <RecentGroup>
-                <option name="FILTER_VALUES">
-                  <option value="origin/master" />
-                </option>
-              </RecentGroup>
-            </list>
-          </value>
-        </entry>
-      </map>
-    </option>
-    <option name="TAB_STATES">
-      <map>
-        <entry key="MAIN">
-          <value>
-            <State>
-              <option name="FILTERS">
-                <map>
-                  <entry key="branch">
-                    <value>
-                      <list>
-                        <option value="STOCKS-update" />
-                      </list>
-                    </value>
-                  </entry>
-                </map>
-              </option>
-            </State>
-          </value>
-        </entry>
-      </map>
-    </option>
-  </component>
-  <component name="VcsManagerConfiguration">
-    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="Code Readable Up v3" />
-    <MESSAGE value="README.md update v3" />
-    <MESSAGE value="DB script fix" />
-    <MESSAGE value="Pretty output from DB" />
-    <MESSAGE value="New func and OOP" />
-    <MESSAGE value="New func&#10;BPs work finding" />
-    <MESSAGE value="Stocks Adaptation Added" />
-    <MESSAGE value="Stocks Adaptation UPD" />
-    <MESSAGE value="Stocks Adaptation UPDv2" />
-    <MESSAGE value="G find complete" />
-    <MESSAGE value="type_calc config add" />
-    <MESSAGE value="entry to DB func add" />
-    <MESSAGE value="entry to DB integration" />
-    <MESSAGE value="DB variables connect&#10;support added" />
-    <MESSAGE value="Funcs del and import from our library" />
-    <MESSAGE value="ph &amp; pt add import" />
-    <MESSAGE value="Refactor and Fixing code" />
-    <MESSAGE value="New package version" />
-    <MESSAGE value="Fixed mistakes, refactored functions G_find and part_props_detection" />
-    <MESSAGE value="Fixed mistakes in ejector_options and part_props_detection functions" />
-    <MESSAGE value="The functions have been moved to the appropriate area" />
-    <MESSAGE value="Have been added new functions, Variables &amp; inputs PART refactored" />
-    <MESSAGE value="Readme fix" />
-    <MESSAGE value="README.md rewrite" />
-    <MESSAGE value="More commentaries" />
-    <option name="LAST_COMMIT_MESSAGE" value="More commentaries" />
-  </component>
-</project>
+  <component name="SpellCheckerSettings" RuntimeDictionaries
