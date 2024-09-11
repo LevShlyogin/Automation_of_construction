@@ -1,30 +1,69 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-
-from backend.models.turbine import TurbineParameters
-from backend.services.calculations import calculate_efficiency
+from sqlalchemy.orm import Session
+from CalculationValveRods.Stocks.StockRazchetsKlapans import *
 
 router = APIRouter()
 
-# @router.post("/calculate/")
-# def calculate_turbine_properties(parameters: TurbineParameters):
-#     try:
-#         efficiency = calculate_efficiency(parameters)
-#         return {"efficiency": efficiency}
-#     except ZeroDivisionError:
-#         raise HTTPException(status_code=400, detail="Flow rate must not be zero.")
+@router.get("/turbine/{turbine_id}")
+async def get_turbine(turbine_id: int):
+    # db: Session = Depends(get_db)
+    # turbine = db.query(Turbine).filter(Turbine.id == turbine_id).first()
+    # if not turbine:
+    #     raise HTTPException(status_code=404, detail="Турбина не найдена")
+    # return turbine
+    return "TURBINE_TEMPLATE_ACCEPT"
 
-# Тестовый GET эндпоинт
-@router.get("/test-get")
-def test_get():
-    return {"message": "This is a test GET endpoint"}
+@router.get("/turbine/{turbine_id}/shaft/{shaft_id}")
+async def get_shaft(turbine_id: int, shaft_id: int):
+    # db: Session = Depends(get_db)
+    # shaft = db.query(Shaft).filter(Shaft.id == shaft_id, Shaft.turbine_id == turbine_id).first()
+    # if not shaft:
+    #     raise HTTPException(status_code=404, detail="Шток не найден")
+    # return shaft
+    return "STOCK_TEMPLATE_ACCEPT"
 
-# Модель для тестового POST эндпоинта
-class TestData(BaseModel):
-    name: str
-    value: int
 
-# Тестовый POST эндпоинт
-@router.post("/test-post")
-def test_post(data: TestData):
-    return {"message": f"Received data with name: {data.name} and value: {data.value}"}
+class TurbineUpdate(BaseModel):
+    power: float | None = None
+    efficiency: float | None = None
+    # другие параметры...
+
+
+@router.post("/turbine/{turbine_id}/input")
+async def update_turbine_data(turbine_id: int, data: TurbineUpdate):
+    # db: Session = Depends(get_db)
+    # turbine = db.query(Turbine).filter(Turbine.id == turbine_id).first()
+    # if not turbine:
+    #     raise HTTPException(status_code=404, detail="Турбина не найдена")
+    #
+    # if data.power:
+    #     turbine.power = data.power
+    # if data.efficiency:
+    #     turbine.efficiency = data.efficiency
+    # # обновить другие поля...
+    #
+    # db.commit()
+    # return turbine
+    return "DATA_TURBINE_INPUT_ACCEPT"
+
+
+@router.post("/turbine/{turbine_id}/calculate")
+async def calculate_turbine(turbine_id: int):
+    # db: Session = Depends(get_db)
+    # turbine = db.query(Turbine).filter(Turbine.id == turbine_id).first()
+    # if not turbine:
+    #     raise HTTPException(status_code=404, detail="Турбина не найдена")
+    #
+    # # Пример вызова функции расчета
+    # results = calculate_turbine_params(turbine)
+    return "ACCEPT_CALCULATE_TURBINE_PARAMS"
+
+    # return {
+    #     "Gi": results.Gi,
+    #     "Pi_in": results.Pi_in,
+    #     "Ti": results.Ti,
+    #     "Hi": results.Hi,
+    #     "deaerator_props": results.deaerator_props,
+    #     "ejector_props": results.ejector_props
+    # }
