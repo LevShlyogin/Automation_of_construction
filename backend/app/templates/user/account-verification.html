@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+    <title>Активация аккаунта</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .email-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 16px;
+        }
+        .button {
+            color: #fff;
+            background-color: #007BFF;
+            border-color: #007BFF;
+            border-radius: .25rem;
+            text-decoration: none;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h1>Добро пожаловать в {{ app_name }}!</h1>
+        <p>Спасибо за регистрацию. Пожалуйста, активируйте свою учетную запись, введя в приложение код ниже</p>
+        <p>{{ activate_code }}</p>
+        <p>Спасибо что выбираете нас!</p>
+        <p>С наилучшими пожеланиями,<br>{{ app_name }}</p>
+    </div>
+</body>
+</html>
