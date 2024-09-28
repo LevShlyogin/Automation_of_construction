@@ -1,93 +1,135 @@
-WaterProperties. ML Automation of construction
-===============
+# Проект автоматизации расчёта штоков клапанов
 
-Introduction
----------------
+## Описание проекта
 
-This library is a collection of functions for calculating various thermodynamic properties of water and steam. The library is based on the international formulation IAPWS (International Association for the Properties of Water and Steam) and allows for the calculation of properties of water and steam over a wide range of temperatures and pressures.
+Проект представляет собой веб-приложение, предназначенное для автоматизации расчётов штоков клапанов на основе данных из базы данных и введённых пользователем параметров. Программа выполняет поиск чертежей клапанов по названию турбины, анализирует данные о клапанах и рассчитывает параметры пара и воздуха для каждого участка клапана. Проект использует базу данных PostgreSQL для хранения информации о турбинах и чертежах, а также библиотеки для работы с таблицами и выполнения термодинамических расчётов.
 
-![SchemeWork.png](https://habrastorage.org/r/w1560/getpro/habr/upload_files/b71/af3/fda/b71af3fda61c88ee3a6f3d3e6149554b.jpg)
+## Функциональность
 
-The module also is based on the following article:\
-[Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)\
-Which is written in the Visual Basic programming language.
+- Поиск чертежей клапанов по названию турбины.
+- Вывод информации о найденных чертежах.
+- Расчёт параметров пара и воздуха для каждого участка клапана на основе введённых данных.
+- Поддержка расчётов для различных типов турбин и клапанов с разным количеством участков.
+- Автоматизированный подсчёт расходов пара для клапанов и воздуха.
 
-Quick Guide
----------------
+## Структура проекта
 
-Install library, use the `pip install WSAProperties` construct.\
-Using the library is as simple and convenient as possible:
+Проект состоит из следующих основных компонентов:
 
-First, import everything or needed functions from the library (use the `from WSAProperties import *` construct).\
-Second, you can use any function from the library (use the `WSAProperties.Any_Function` construct).
+1. **Основной модуль расчётов** — содержит функции для выполнения ввода данных и расчётов.
+2. **База данных** — хранит информацию о чертежах и турбинах.
+3. **Функции для работы с паром и воздухом** — используют библиотеки для выполнения термодинамических расчётов.
+4. **Интерфейс пользователя** — взаимодействие с пользователем через консоль.
 
-### Example Usage
+### Структура директорий
 
-```python
-import WSAProperties
+- `CalculationValveRods/`
+  - `DATABASE/`
+    - `ClapansByTurbin.py` — модуль для работы с базой данных чертежей и клапанов.
+  - `Stocks/`
+    - `StockRazchetsKlapans` — модуль для расчета всех параметров штока.
+  - `InputFromUser.py` — модуль для ввода данных и взаимодействия с пользователем.
+  - `WSAProperties` и `seuif97` — библиотеки для расчёта коэффициентов и свойств воздуха.
+  - `README.md` — описание проекта.
+  - `requirements.txt` - требуемые библиотеки для работы проекта.
 
-t = 25  # temperature in degrees Celsius
-p = 101325  # pressure in Pascals
+## Установка
 
-# calculate the density of water
-density = WSAProperties.Density(t, p)
-print("Density of water:", density, "kg/m^3")
+### Предварительные требования:
 
-# calculate the specific entropy of water
-entropy = WSAProperties.Specific_Entropy(t, p)
-print("Specific entropy of water:", entropy, "J/kg·K")
+- Python 3.8 и выше
+- PostgreSQL
+- Виртуальное окружение (рекомендуется)
+
+### Шаги установки:
+
+**1. Клонирование репозитория**
+
+   ```bash
+   git clone <URL репозитория>
+   cd <название репозитория>
+   ```
+   
+#### **2. Создание и активация виртуального окружения**
+   - python -m venv venv
+   - Linux: source venv/bin/activate | Windows: venv\Scripts\activate
+
+#### **3. Установка зависимостей**
+   - pip install -r requirements.txt
+
+#### **4. Настройка базы данных** 
+- Убедитесь, что у вас **установлен PostgreSQL**. 
+- **Настройте базу данных** с нужными таблицами и данными. 
+- **Конфигурация подключения** к базе данных находится в файле ClapansByTurbin.py
+
+```Python
+db_config = {
+    'dbname': 'postgres',
+    'user': 'postgres',
+    'password': 'ваш_пароль',
+    'host': 'localhost',
+    'port': '5432'
+}
 ```
+Вам нужно обновить эти параметры в соответствии с вашей конфигурацией базы данных.
 
-### Functions
+### **Текущий пользовательский процесс**
+- Введите название турбины, для которой вы хотите найти чертежи клапанов.
+- Выберите ID чертежа из предложенного списка.
+- Введите необходимые параметры (давление, температура, количество клапанов и т.д.), чтобы запустить расчёты.
+- Программа выведет результаты расчётов для каждого участка клапана, а также параметры отсосов в деаэратор и эжектор уплотнений.
 
-The purpose of each of the functions is contained directly in the name.
+### Основные модули и функции
+1. ClapansByTurbin.py
+Модуль для работы с базой данных. Основная функция — find_BP_clapans(turbine_name):
 
-#### _Water and steam part_
-The part of water and steam in library includes the following functions:
+Выполняет SQL-запрос для поиска чертежей клапанов, связанных с турбиной.
+Возвращает количество найденных чертежей, информацию о клапанах и ID чертежей.
+2. InputFromUser.py
+Модуль для взаимодействия с пользователем. Основная функция — entry_to_DB():
 
-* `Region(t, p)`
-* `Density3(t, p)`
-* `Helmholtz_Energy(t, ro)`
-* `Pressure3(t, ro)`
-* `Specific_Energy3(t, ro)`
-* `Specific_Entropy3(t, ro)`
-* `Specific_Enthalpy3(t, ro)`
-* `Heat_Isobary3(t, ro)`
-* `Heat_Isochorny3(t, ro)`
-* `Sound_Speed3(t, ro)`
-* `Gibbs_Energy(t, p)`
-* `Specific_Volume(t, p)`
-* `Density(t, p)`
-* `Specific_Energy(t, p)`
-* `Specific_Entropy(t, p)`
-* `Specific_Enthalpy(t, p)`
-* `Heat_Capacity_Isobaric(t, p)`
-* `Heat_Capacity_Isochoric(t, p)`
-* `Speed_Sound(t, p)`
-* `Saturation_Temperature(p)`
-* `Saturation_Pressure(t)`
-* `Border_Temperature(p)`
-* `Border_Pressure(t)`
-* `Viscosity(t, p)`
-* `Density_MI(t, p)`
-* `Specific_Enthalpy_MI(t, p)`
-* `JF(t, p, Trigger, reg)`
+Запрашивает у пользователя название турбины.
+Позволяет выбрать интересующий чертеж из списка.
+Возвращает данные для дальнейших расчётов.
+3. WSAProperties.py
+Модуль для расчёта свойств воздуха и коэффициентов:
 
-#### _Air Part_
-Library also have formuls and thermal properties calculations for air:
-* `air_calc(A, B)`
+air_calc(t_air) — возвращает свойства воздуха (например, энтальпию) при заданной температуре.
+ksi_calc(proportional_coef) — рассчитывает коэффициент сопротивления.
+4. Основные функции расчётов
+part_props_detection() — выполняет расчёт параметров пара/воздуха для каждого участка клапана.
+deaerator_options() — рассчитывает параметры отсоса в деаэратор.
+ejector_options() — рассчитывает параметры отсоса в эжектор уплотнений.
 
-#### _Additional Funcs Part_
-These functions are rarely used and do not belong to one of the W/S/A.\
-They are needed to determine the additional features:
-* `lambda_calc(B)`
-* `ksi_calc(A)`
 
-References
---------------
+### **Пример использования**
 
-* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)
-* [IAPWS](http://www.iapws.org/)
-* [IAPWS Documentation](http://www.iapws.org/relguide/IAPWS-95.html)
+- Выберите турбину, например: Turbine A
+- Выберите ID чертежа: 1234
+- Введите параметры, такие как давление и температура.
+- Программа выведет результаты расчёта, например:
+  ```Python
+  Gi: (1000.0, 900.0, 800.0, 700.0, 600.0)
+  Pi_in: (10.0, 9.0, 8.0, 7.0, 6.0)
+  Ti: (300.0, 290.0, 280.0, 270.0, 260.0)
+  Hi: (2800.0, 2700.0, 2600.0, 2500.0, 2400.0)
+  deaerator props: (500.0, 150.0, 0.1, 850.0)
+  ejector props: (100.0, 80.0, 0.2, 700.0)
+  ```
 
-#### Mikhail and Lev's DevTeam
+### **Зависимости**
+
+Проект использует следующие сторонние библиотеки:
+- psycopg2 — для работы с базой данных PostgreSQL.
+- PrettyTable — для форматирования и отображения таблиц.
+- seuif97 — для термодинамических расчётов свойств пара.
+
+#### Зависимости указаны в файле _requirements.txt._
+
+### Лицензия
+Подробности смотрите в файле LICENSE.
+
+### Контакты
+Если у вас есть вопросы или предложения, пожалуйста, свяжитесь с нами по электронной почте: ooooooorrrrr@gmail.com или shofer2007@gmail.com.
+
+### SKBT DevTeam (Mikhail, Lev and Pavel)
