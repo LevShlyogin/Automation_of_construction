@@ -35,7 +35,7 @@ import StockSelection from '../components/Calculator/StockSelection';
 const CalculatorPage = () => {
   return (
 	<div>
-  	<h1>Calculator Page</h1>
+  	<h1>Калькулятор</h1>
   	<TurbineSearch />
   	<StockSelection />
 	</div>
@@ -43,4 +43,3 @@ const CalculatorPage = () => {
 };
 
 export default CalculatorPage;
-

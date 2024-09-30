@@ -41,17 +41,15 @@
 // }
 
 
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-// import Layout from '../components/Common/Layout';
-import CalculatorPage from './calculator'; // Ваш компонент для рендеринга страницы калькулятора
+import { Route, Routes } from 'react-router-dom';
+import CalculatorPage from './calculator'; // Импортируйте ваш компонент для рендеринга страницы калькулятора
 
 const LayoutRoutes = () => {
   return (
-	<Router>
-  	<Routes>
-      	<Route path="/calculator" element={<CalculatorPage />} />
-  	</Routes>
-	</Router>
+	<Routes>
+  	<Route path="/calculator" element={<CalculatorPage />} />
+  	{/* Здесь можно добавить другие маршруты, если нужно */}
+	</Routes>
   );
 };
 
