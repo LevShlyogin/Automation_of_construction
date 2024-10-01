@@ -47,7 +47,7 @@ import CalculatorPage from './calculator'; // Импортируйте ваш к
 const LayoutRoutes = () => {
   return (
 	<Routes>
-  	<Route path="/calculator" element={<CalculatorPage />} />
+  	<Route path="/" element={<CalculatorPage />} />
   	{/* Здесь можно добавить другие маршруты, если нужно */}
 	</Routes>
   );
