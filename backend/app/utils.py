@@ -9,7 +9,7 @@ import jwt
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
 
-from app.core.config import settings
+from backend.app.core.config import settings
 
 
 @dataclass

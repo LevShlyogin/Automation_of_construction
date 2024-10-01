@@ -1,7 +1,7 @@
 from math import pi
 from seuif97 import *  # SteamPH and SteamPT (ph and pt)
 from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate friction resist, softening coefficient and air props
-from calculations.database.userInput import entry_to_DB  # Func for import variables from DB
+from backend.calculations.database.userInput import entry_to_DB  # Func for import variables from DB
 from typing import Tuple  # CleanCoding
 from sys import exit
 from time import sleep
