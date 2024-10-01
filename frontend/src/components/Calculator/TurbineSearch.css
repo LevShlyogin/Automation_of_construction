@@ -42,7 +42,6 @@ body {
 
 .turbine-item:hover {
     background-color: #e5e5e5;
-    color: #4CAF50; /* Цвет текста при наведении */
     transform: translateY(-5px); /* Эффект поднятия */
 }
 

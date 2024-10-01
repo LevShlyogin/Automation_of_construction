@@ -19,17 +19,23 @@
 
 
 .stock-item {
-  padding: 15px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #ffffff;
+    cursor: pointer;
+    transition: transform 0.25s ease, background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    height: 35px;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 
 .stock-item:hover {
-  background-color: #f1f1f1;
-  color: #4CAF50;
+    background-color: #e5e5e5;
+    transform: translateY(-5px); /* Эффект поднятия */
 }
