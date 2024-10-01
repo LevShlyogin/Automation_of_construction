@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
+import AboutPage from '../components/OtherPages/AboutPage';
+import HelpPage from '../components/OtherPages/HelpPage';
 import './CalculatorPage.css'; // Подключаем стили
 
 const CalculatorPage: React.FC = () => {
