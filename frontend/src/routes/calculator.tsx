@@ -3,16 +3,19 @@ import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
 import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
 import StockInputPage from '../components/Calculator/StockInputPage';
+import ResultsPage from '../components/Calculator/ResultsPage';
 import './CalculatorPage.css';
 
 const CalculatorPage: React.FC = () => {
   const [selectedTurbine, setSelectedTurbine] = useState(null);
   const [selectedStock, setSelectedStock] = useState<string | null>(null);
   const [isRecalculation, setIsRecalculation] = useState(false);
+  const [isResultPage, setIsResultPage] = useState(false); // Добавляем состояние для перехода на страницу результатов
 
   const handleTurbineSelect = (turbine) => {
 	setSelectedTurbine(turbine);
 	setSelectedStock(null);
+	setIsResultPage(false); // Сброс страницы результатов при новом поиске
   };
 
   const handleStockSelect = (stock) => {
@@ -22,13 +25,25 @@ const CalculatorPage: React.FC = () => {
   const handleRecalculate = (recalculate: boolean) => {
 	setIsRecalculation(recalculate);
 	if (!recalculate) {
-  	setSelectedStock(null);
+  	setIsResultPage(true); // Переход на страницу результатов при нажатии "Нет"
+	} else {
+  	setSelectedStock(null); // Очищаем шток для повторного ввода
 	}
   };
 
-  const handleSubmit = () => {
-	// Логика отправки формы
-	console.log('Данные отправлены');
+  const handleSubmit = (data) => {
+	// Проверяем и отправляем данные
+	if (validateInputs(data)) {
+  	console.log('Данные отправлены');
+  	setIsResultPage(true); // Переход на страницу результатов
+	} else {
+  	alert('Пожалуйста, заполните все поля корректно.');
+	}
+  };
+
+  const validateInputs = (data) => {
+	// Проверяем, что все поля содержат числа
+	return Object.values(data).every(value => !isNaN(parseFloat(value)));
   };
 
   return (
@@ -44,7 +59,9 @@ const CalculatorPage: React.FC = () => {
   	</header>
 
   	<main className="main-content">
-    	{!selectedTurbine ? (
+    	{isResultPage ? (
+      	<ResultsPage stockId={selectedStock} />
+    	) : !selectedTurbine ? (
       	<TurbineSearch onSelectTurbine={handleTurbineSelect} />
     	) : !selectedStock ? (
       	<StockSelection turbine={selectedTurbine} onSelectStock={handleStockSelect} />
