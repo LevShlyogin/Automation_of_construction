@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
-import AboutPage from '../components/OtherPages/AboutPage';
-import HelpPage from '../components/OtherPages/HelpPage';
-import './CalculatorPage.css'; // Подключаем стили
+import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
+import StockInputPage from '../components/Calculator/StockInputPage';
+import './CalculatorPage.css';
 
 const CalculatorPage: React.FC = () => {
   const [selectedTurbine, setSelectedTurbine] = useState(null);
-  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedStock, setSelectedStock] = useState<string | null>(null);
+  const [isRecalculation, setIsRecalculation] = useState(false);
 
   const handleTurbineSelect = (turbine) => {
 	setSelectedTurbine(turbine);
@@ -16,6 +17,18 @@ const CalculatorPage: React.FC = () => {
 
   const handleStockSelect = (stock) => {
 	setSelectedStock(stock);
+  };
+
+  const handleRecalculate = (recalculate: boolean) => {
+	setIsRecalculation(recalculate);
+	if (!recalculate) {
+  	setSelectedStock(null);
+	}
+  };
+
+  const handleSubmit = () => {
+	// Логика отправки формы
+	console.log('Данные отправлены');
   };
 
   return (
@@ -33,8 +46,12 @@ const CalculatorPage: React.FC = () => {
   	<main className="main-content">
     	{!selectedTurbine ? (
       	<TurbineSearch onSelectTurbine={handleTurbineSelect} />
-    	) : (
+    	) : !selectedStock ? (
       	<StockSelection turbine={selectedTurbine} onSelectStock={handleStockSelect} />
+    	) : !isRecalculation ? (
+      	<EarlyCalculationPage stockId={selectedStock} onRecalculate={handleRecalculate} />
+    	) : (
+      	<StockInputPage stockId={selectedStock} onSubmit={handleSubmit} />
     	)}
   	</main>
 

@@ -16,16 +16,6 @@ body {
     margin-bottom: 20px;
 }
 
-.search-input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 250px;
-    color: #333; /* Цвет текста */
-    background-color: #fff; /* Цвет поля ввода */
-}
-
 .turbine-item {
     padding: 15px;
     margin: 10px 0;
@@ -80,6 +70,8 @@ body {
     border: 1px solid #ccc;
     border-radius: 10px;
     width: 250px;
+    color: #333;
+    background-color: #fff;
 }
 
 .search-button {
