@@ -1,0 +1,60 @@
+.calculation-results-page {
+  text-align: center;
+  margin-top: 20px;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.results-table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 80%;
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.results-table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.results-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.buttons {
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+  font-size: 16px;
+}
+
+.btn.green {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn.blue {
+  background-color: #007bff;
+  color: white;
+}
+
+.save-status {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #4caf50; /* Зеленый цвет для успешного сохранения */
+}
