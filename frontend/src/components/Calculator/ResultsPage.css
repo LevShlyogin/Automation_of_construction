@@ -44,17 +44,19 @@ h2 {
 }
 
 .btn-green-excel {
-  background-color: #28a745;
-  color: white;
-  width: auto;
-  border-radius: 10px;
+    background-color: #28a745;
+    color: white;
+    width: 200px;
+    border-radius: 10px;
+    height: 50px;
 }
 
 .btn-blue-db {
-  background-color: #007bff;
-  color: white;
-  width: auto;
-  border-radius: 10px;
+    background-color: #007bff;
+    color: white;
+    width: 200px;
+    border-radius: 10px;
+    height: 50px;
 }
 
 .save-status {
