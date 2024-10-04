@@ -112,3 +112,55 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
+
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class Turbine(Base):
+    __tablename__ = 'Base'  # Имя таблицы в базе данных
+
+    id = Column(Integer, primary_key=True, index=True)
+    turbin_name = Column(String, nullable=False, unique=True, index=True)  # Название турбины должно быть уникальным
+
+    # Связь с клапанами
+    valves = relationship("Valve", back_populates="turbine")
+
+    def __repr__(self):
+        return f"<Turbine(turbin_name='{self.turbin_name}')>"
+
+class Valve(Base):
+    __tablename__ = 'Stock'  # Имя таблицы в базе данных
+
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String, nullable=True)
+    verified = Column(Boolean, nullable=True)
+    verifier = Column(String, nullable=True)
+    valve_type = Column(String, nullable=True)
+    valve_drawing = Column(String, nullable=False, unique=True, index=True)  # Чертеж клапана должен быть уникальным
+    section_count = Column(Integer, nullable=True)
+    bushing_drawing = Column(String, nullable=True)
+    rod_drawing = Column(String, nullable=True)
+    rod_diameter = Column(Float, nullable=True)
+    rod_accuracy = Column(Float, nullable=True)
+    bushing_accuracy = Column(Float, nullable=True)
+    calculated_gap = Column(Float, nullable=True)
+    rounding_radius = Column(Float, nullable=True)
+
+    # Внешний ключ к Turbine
+    turbin_id = Column(Integer, ForeignKey('Base.id'), nullable=True)
+
+    # Связь с Turbine
+    turbine = relationship("Turbine", back_populates="valves")
+
+    # Поля для длин секций
+    section_length_1 = Column(Float, nullable=True)
+    section_length_2 = Column(Float, nullable=True)
+    section_length_3 = Column(Float, nullable=True)
+    section_length_4 = Column(Float, nullable=True)
+    section_length_5 = Column(Float, nullable=True)
+
+    def __repr__(self):
+        return f"<Valve(valve_drawing='{self.valve_drawing}', valve_type='{self.valve_type}')>"
