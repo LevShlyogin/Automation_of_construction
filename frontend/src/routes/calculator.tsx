@@ -49,7 +49,7 @@ const CalculatorPage: React.FC = () => {
   return (
 	<div className="calculator-page">
   	<header className="header">
-    	<img src="/path/to/logo.png" alt="Logo" className="logo" />
+    	<img src="logo.png" alt="Logo" className="logo" />
     	<h1 className="program-name">WSAPropertiesCalculator</h1>
     	<nav className="nav">
       	<a href="/">Калькулятор</a>
