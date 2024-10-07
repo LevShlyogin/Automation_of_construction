@@ -1,6 +1,7 @@
 from typing import List, Optional
 from pydantic import BaseModel
 
+
 class TurbineInfo(BaseModel):
     id: int
     turbin_name: str
@@ -32,6 +33,7 @@ class ValveInfo(BaseModel):
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным
     valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
+    valve_id: Optional[int] = None  # ID клапана (если введено)
     temperature_start: float
     t_air: float
     count_valves: int

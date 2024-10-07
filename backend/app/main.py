@@ -38,20 +38,13 @@ from typing import List, Optional
 from . import models, schemas, crud
 from .database import SessionLocal, engine
 from .utils import perform_all_calculations
+from .dependencies import get_db
+
 
 # Создание всех таблиц
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Valve Calculation API")
-
-
-# Dependency для получения сессии базы данных
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @app.get("/turbines/{turbin_name}/valves", response_model=schemas.TurbineValves)
