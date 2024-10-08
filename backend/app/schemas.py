@@ -37,7 +37,7 @@ class CalculationParams(BaseModel):
     temperature_start: float
     t_air: float
     count_valves: int
-    p_ejector: Optional[float] = None  # Необязательный параметр для давления в эжекторе
+    p_ejector: List[float] = None  # Параметр для давления в эжекторе
     p_values: List[float]  # Список давлений P1-P5
 
 
