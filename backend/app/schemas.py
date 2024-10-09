@@ -9,6 +9,7 @@ class TurbineInfo(BaseModel):
     class Config:
         orm_mode = True
 
+
 class ValveInfo(BaseModel):
     id: int
     source: Optional[str] = None
@@ -37,7 +38,7 @@ class CalculationParams(BaseModel):
     temperature_start: float
     t_air: float
     count_valves: int
-    p_ejector: List[float] = None  # Параметр для давления в эжекторе
+    p_ejector: List[float]  # Параметр для давления в эжекторе
     p_values: List[float]  # Список давлений P1-P5
 
 
