@@ -21,6 +21,23 @@ h2 {
    margin-bottom: 20px;
 }
 
+.calculation-table, .props-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.calculation-table th, .props-table th,
+.calculation-table td, .props-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.calculation-table th, .props-table th {
+  background-color: #f2f2f2;
+}
+
 .buttons {
    display: flex;
    justify-content: center;
