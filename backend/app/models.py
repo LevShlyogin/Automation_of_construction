@@ -113,9 +113,11 @@ class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=40)
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+
 
 Base = declarative_base()
 
@@ -164,5 +166,24 @@ class Valve(Base):
     section_length_4 = Column(Float, nullable=True)
     section_length_5 = Column(Float, nullable=True)
 
+    # Связь с CalculationResultDB
+    calculations = relationship("CalculationResultDB", back_populates="valve")
+
     def __repr__(self):
         return f"<Valve(valve_drawing='{self.valve_drawing}', valve_type='{self.valve_type}')>"
+
+class CalculationResultDB(Base):
+    __tablename__ = 'Results'  # Имя новой таблицы
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(DateTime, default=datetime.date, nullable=False)
+
+    # Поле valve_drawing для связи с клапаном
+    valve_drawing = Column(String, ForeignKey('Stock.valve_drawing'), nullable=False)
+
+    # Исходные данные из CalculationParams и результаты из CalculationResult
+    parameters = Column(JSON, nullable=False)  # Хранение данных как JSON
+    results = Column(JSON, nullable=False)  # Хранение результатов как JSON
+
+    # Связь с клапаном
+    valve = relationship("Valve", back_populates="calculations")

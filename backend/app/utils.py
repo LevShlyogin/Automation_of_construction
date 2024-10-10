@@ -117,7 +117,7 @@ def verify_password_reset_token(token: str) -> str | None:
 
 
 from math import sqrt, pi
-from typing import Tuple
+from typing import Tuple, Optional
 import logging
 from backend.app.schemas import CalculationParams, ValveInfo
 
@@ -260,6 +260,19 @@ class ValveCalculator:
         self.G_part1 = self.G_part2 = self.G_part3 = self.G_part4 = self.G_part5 = 0.0
         self.t_part1 = self.t_part2 = self.t_part3 = self.t_part4 = self.t_part5 = 0.0
         self.h_part1 = self.h_part2 = self.h_part3 = self.h_part4 = self.h_part5 = 0.0
+
+        # Инициализация дополнительных атрибутов
+        self.v_part1: Optional[float] = None
+        self.din_vis_part1: Optional[float] = None
+        self.v_part2: Optional[float] = None
+        self.din_vis_part2: Optional[float] = None
+        self.v_part3: Optional[float] = None
+        self.din_vis_part3: Optional[float] = None
+        self.v_part4: Optional[float] = None
+        self.din_vis_part4: Optional[float] = None
+        self.v_part5: Optional[float] = None
+        self.din_vis_part5: Optional[float] = None
+        self.p_ejector: Optional[float] = None
 
     def perform_calculations(self) -> dict:
         """Выполняет все расчеты и возвращает результаты."""
@@ -445,7 +458,10 @@ class ValveCalculator:
                           h_part2: float, G_part1: float, G_part2: float,
                           G_part3: float, G_part4: float) -> Tuple[float, float, float, float]:
         """Рассчитывает параметры отсоса в деаэратор."""
-        g_deaerator, t_deaerator, h_deaerator = 0.0, 0.0, h_part2
+        g_deaerator: float = 0.0
+        t_deaerator: float = 0.0
+        h_deaerator: float = h_part2
+
         if count_parts == 3:
             g_deaerator = (G_part1 - G_part2) * count_valves
             t_deaerator = ph(p_deaerator, h_deaerator, 1)
@@ -457,13 +473,19 @@ class ValveCalculator:
             t_deaerator = ph(p_deaerator, h_deaerator, 1)
         else:
             handle_error("Неверное количество секций клапана.")
+
         return g_deaerator, t_deaerator, p_deaerator, h_deaerator
 
-    def ejector_options(self, p_ejector: float, count_parts: int, count_valves: int,
+
+    def ejector_options(p_ejector: float, count_parts: int, count_valves: int,
                         G_part2: float, h_part2: float, G_part3: float, h_part3: float,
                         G_part4: float = 0.0, h_part4: float = 0.0, G_part5: float = 0.0,
                         h_part5: float = 0.0) -> Tuple[float, float, float, float]:
         """Рассчитывает параметры отсоса в эжектор уплотнений."""
+        g_ejector: float = 0.0
+        t_ejector: float = 0.0
+        h_ejector: float = 0.0
+
         if count_parts == 2:
             g_ejector = G_part2 * count_valves
             h_ejector = h_part2
@@ -478,7 +500,7 @@ class ValveCalculator:
             h_second_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
             g_ejector = g_first_suction + g_second_suction
             h_ejector = (g_second_suction * h_second_suction + g_first_suction * h_part2) / (
-                        g_second_suction + g_first_suction)
+                    g_second_suction + g_first_suction)
             t_ejector = ph(p_ejector, h_ejector, 1)
         elif count_parts == 5:
             g_first_suction = G_part2 - G_part3 - G_part4
@@ -486,14 +508,18 @@ class ValveCalculator:
             g_third_suction = G_part4 + G_part5
             h_third_suction = (h_part5 * G_part5 + h_part4 * G_part4) / (G_part5 + G_part4)
             g_ejector = (g_first_suction + g_second_suction + g_third_suction) * count_valves
-            h_ejector = ((g_third_suction * h_third_suction + g_second_suction * h_part2 +
-                          g_first_suction * h_part2) / (g_third_suction + g_second_suction + g_first_suction))
+            h_ejector = (
+                    (g_third_suction * h_third_suction + g_second_suction * h_part2 +
+                     g_first_suction * h_part2) /
+                    (g_third_suction + g_second_suction + g_first_suction)
+            )
             t_ejector = ph(p_ejector, h_ejector, 1)
         else:
             handle_error("Неверное количество секций клапана.")
+
         return g_ejector, t_ejector, p_ejector, h_ejector
 
     def get_p_ejector_final(self) -> float:
         """Получает окончательное значение давления эжектора."""
         # Здесь можно определить логику получения конечного значения p_ejector
-        return self.p_ejector  # Пример; возможно, нужна дополнительная логика
+        return self.p_ejector if self.p_ejector is not None else self.params.p_ejector_default  # Пример

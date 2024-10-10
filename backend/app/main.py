@@ -1,4 +1,5 @@
 import sentry_sdk
+from docutils.nodes import status
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
@@ -35,7 +36,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 # main.py
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
+from typing import Optional, List
 from . import models, schemas, crud
 from .database import SessionLocal, engine
 from .utils import ValveCalculator, CalculationError
@@ -47,9 +48,11 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Valve Calculation API")
 
-@app.post("/calculate", response_model=schemas.CalculationResult)
+
+@app.post("/calculate", response_model=schemas.CalculationResultDB)
 def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
-    # Выбор клапана на основе предоставленных параметров
+    # Логика выбора клапана остается прежней
+
     valve_info: Optional[schemas.ValveInfo] = None
 
     if params.valve_id:
@@ -72,13 +75,61 @@ def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
     else:
         raise HTTPException(status_code=400, detail="Необходимо указать valve_id, valve_drawing или turbine_name.")
 
+    valve_drawing = valve_info.valve_drawing
+
+    # Проверяем наличие уже существующих результатов для данного чертежа клапана
+    existing_results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_drawing)
+    if existing_results and len(existing_results) > 0:
+        # Возвращаем информацию о существующих результатах и сообщаем пользователю
+        latest_result = existing_results[0]
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,  # Конфликт, так как данные уже существуют
+            detail={
+                "message": "Для данного чертежа клапана уже существуют сохранённые результаты. Вы можете просмотреть их.",
+                "latest_result": latest_result.results,
+                "date": latest_result.date
+            }
+        )
+
     try:
         # Выполнение расчетов
-        calculation_result = ValveCalculator.perform_calculations(params, valve_info)
+        calculator = ValveCalculator(params, valve_info)
+        calculation_result = calculator.perform_calculations()
     except CalculationError as ce:
         raise HTTPException(status_code=400, detail=ce.message)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Ошибка при выполнении расчетов.")
 
-    # Преобразование результата в Pydantic схему
-    return schemas.CalculationResult(**calculation_result)
+    # Сохранение результатов в таблице "Results"
+    new_result = crud.create_calculation_result(db=db,
+                                                valve_drawing=valve_drawing,
+                                                parameters=params,
+                                                results=calculation_result)
+
+    # Возвращение нового результата вместе с датой
+    return schemas.CalculationResultDB(
+        id=new_result.id,
+        date=new_result.date,
+        valve_drawing=new_result.valve_drawing,
+        parameters=params,
+        results=calculation_result
+    )
+
+
+@app.get("/results/{valve_drawing}", response_model=List[schemas.CalculationResultDB])
+def get_results(valve_drawing: str, db: Session = Depends(get_db)):
+    results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_drawing)
+    if not results:
+        raise HTTPException(status_code=404, detail="Результаты для данного чертежа не найдены.")
+
+    # Преобразуем SQLAlchemy модели в Pydantic схемы
+    return [
+        schemas.CalculationResultDB(
+            id=result.id,
+            date=result.date,
+            valve_drawing=result.valve_drawing,
+            parameters=schemas.CalculationParams(**result.parameters),
+            results=schemas.CalculationResult(**result.results)
+        )
+        for result in results
+    ]

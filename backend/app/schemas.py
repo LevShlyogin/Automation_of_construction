@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
-
+from datetime import datetime
 
 class TurbineInfo(BaseModel):
     id: int
@@ -64,3 +64,14 @@ class ErrorResponse(BaseModel):
     error: bool
     message: str
     detail: Optional[str] = None
+
+
+class CalculationResultDB(BaseModel):
+    id: int
+    date: datetime
+    valve_drawing: str
+    parameters: CalculationParams
+    results: CalculationResult
+
+    class Config:
+        from_attributes = True
