@@ -38,7 +38,7 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import Optional, List
 from . import models, schemas, crud
-from .database import SessionLocal, engine
+from .database import engine
 from .utils import ValveCalculator, CalculationError
 from .dependencies import get_db
 from fastapi import FastAPI
