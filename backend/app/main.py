@@ -38,7 +38,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from . import models, schemas, crud
 from .database import SessionLocal, engine
-from .utils import perform_all_calculations, CalculationError
+from .utils import ValveCalculator, CalculationError
 from .dependencies import get_db
 from fastapi import FastAPI
 
@@ -74,7 +74,7 @@ def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
 
     try:
         # Выполнение расчетов
-        calculation_result = perform_all_calculations(params, valve_info)
+        calculation_result = ValveCalculator.perform_calculations(params, valve_info)
     except CalculationError as ce:
         raise HTTPException(status_code=400, detail=ce.message)
     except Exception as e:

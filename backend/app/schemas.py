@@ -7,7 +7,7 @@ class TurbineInfo(BaseModel):
     turbin_name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ValveInfo(BaseModel):
@@ -29,7 +29,7 @@ class ValveInfo(BaseModel):
     turbine: Optional[TurbineInfo] = None  # Включение информации о турбине
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным
@@ -51,12 +51,14 @@ class CalculationResult(BaseModel):
     deaerator_props: List[float]
     ejector_props: List[float]
 
+
 class TurbineValves(BaseModel):
     count: int
     valves: List[ValveInfo]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
 
 class ErrorResponse(BaseModel):
     error: bool

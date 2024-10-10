@@ -119,6 +119,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+
 class Turbine(Base):
     __tablename__ = 'Base'  # Имя таблицы в базе данных
 
@@ -130,6 +131,7 @@ class Turbine(Base):
 
     def __repr__(self):
         return f"<Turbine(turbin_name='{self.turbin_name}')>"
+
 
 class Valve(Base):
     __tablename__ = 'Stock'  # Имя таблицы в базе данных

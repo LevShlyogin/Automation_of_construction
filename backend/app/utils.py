@@ -1,4 +1,3 @@
-import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -118,7 +117,7 @@ def verify_password_reset_token(token: str) -> str | None:
 
 
 from math import sqrt, pi
-from typing import Tuple, List
+from typing import Tuple
 import logging
 from backend.app.schemas import CalculationParams, ValveInfo
 
