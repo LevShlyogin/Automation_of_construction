@@ -89,9 +89,10 @@ form {
     margin: 8px;
     width: 270px;
     border: 0px;
+    background-color: #bddb85;
+    height: 50px;
 }
 
 .btn-stock:hover {
-    background-color: #d7d7d7;
-    color: #4CAF50;
+    background-color: #47cd98;
 }
