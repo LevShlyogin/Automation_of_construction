@@ -85,7 +85,8 @@ form {
     font-weight: bold;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.25s ease, background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin: 8px;
     width: 270px;
     border: 0px;
@@ -95,4 +96,5 @@ form {
 
 .btn-stock:hover {
     background-color: #47cd98;
+    transform: translateY(-2.5px);
 }
