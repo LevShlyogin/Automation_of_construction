@@ -88,6 +88,7 @@ form {
     transition: background-color 0.3s ease;
     margin: 8px;
     width: 270px;
+    border: 0px;
 }
 
 .btn-stock:hover {
