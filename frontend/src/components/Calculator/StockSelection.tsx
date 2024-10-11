@@ -20,7 +20,8 @@ const StockSelection: React.FC<Props> = ({ turbine, onSelectStock }) => {
 
   return (
 	<div className="stock-selection">
-  	<h2 className="title">Выберите требуемый шток для {turbine.name}</h2>
+	<h2 className="title">{turbine.name}</h2>
+  	<h2 className="title">Выберите требуемый шток</h2>
   	<ul className="stock-list">
     	{turbine.stocks.map((stock, index) => (
       	<li key={index} className="stock-item" onClick={() => onSelectStock(stock)}>

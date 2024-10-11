@@ -61,7 +61,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, onRecalculate }) => {
         </tbody>
       </table>
 
-      <h3>Хотите провести перерасчет?</h3>
+      <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>
       <div className="buttons">
         <button onClick={() => onRecalculate(false)} className="btn red">Нет</button>
         <button onClick={() => onRecalculate(true)} className="btn green">Да</button>

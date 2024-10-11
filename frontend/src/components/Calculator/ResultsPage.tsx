@@ -16,8 +16,10 @@ const ResultsPage: React.FC<Props> = ({ stockId }) => {
 
   return (
 	<div className="results-page">
+  	<div className="previous-text">
   	<h2>Шток {stockId}</h2>
-  	<p>Все параметры успешно вычислены</p>
+  	<h3>Все параметры успешно вычислены</h3>
+    </div>
     <table className="calculation-table">
         <thead>
           <tr>

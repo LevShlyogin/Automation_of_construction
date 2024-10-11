@@ -37,7 +37,7 @@ const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
       	onChange={(e) => setSearchTerm(e.target.value)}
       	className="search-input"
     	/>
-    	<button className="search-button">Поиск</button>
+     	{/*<button className="search-button">Поиск</button>*/}
   	</div>
   	<ul className="turbine-list">
     	{filteredTurbines.map((turbine, index) => (
