@@ -32,33 +32,26 @@
   color: #334;
 }
 
-.header-nav a {
-	text-decoration: none;
-	font-size: 16px;
-	color: white; /* Белый текст для шапки */
-	padding: 8px 12px;
-	background-color: transparent; /* Без фона для ссылок */
-	transition: background-color 0.3s ease, color 0.3s ease;
+.header a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #000000;
+  padding: 8px 12px;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+  border: 2px solid transparent; /* Добавляем прозрачную границу по умолчанию */
+  border-radius: 5px; /* Для закругленных краев */
 }
 
-.header-nav a:hover {
-  text-decoration: underline;
+.header a:hover {
+  text-decoration: none;
+  border-color: #ccc; /* Цвет обводки при наведении */
 }
 
-.header-nav a.active {
-  font-weight: bold;
-  background-color: #ccc;
-}
-
-.header-title a:hover {
-	text-decoration: none;
-	cursor: pointer;
-}
-
-.header-nav a.active {
-  background-color: #ccc;
-  font-weight: bold;
-}
+/*.header-nav a.active {*/
+/*  background-color: #ccc;*/
+/*  font-weight: bold;*/
+/*}*/
 
 .logo {
     height: 50px;
