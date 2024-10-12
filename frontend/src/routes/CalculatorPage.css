@@ -45,7 +45,7 @@
 
 .header a:hover {
   text-decoration: none;
-  border-color: #ccc; /* Цвет обводки при наведении */
+  border-color: #357993; /* Цвет обводки при наведении */
 }
 
 .logo {
@@ -60,14 +60,10 @@
 }
 
 .nav a {
-  margin-left: 20px;
+  margin-left: 10px;
   text-decoration: none;
   color: #000000;
   font-size: 16px;
-}
-
-.nav a:hover {
-  text-decoration: underline;
 }
 
 .main-content {
