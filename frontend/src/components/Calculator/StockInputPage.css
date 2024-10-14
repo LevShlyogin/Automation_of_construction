@@ -89,11 +89,12 @@ form {
     margin: 8px;
     width: 270px;
     border: 0px;
-    background-color: #bddb85;
+    background-color: #4CAF50;
     height: 50px;
+    color: #fff;
 }
 
 .btn-stock:hover {
-    background-color: #47cd98;
+    background-color: #148907;
     transform: translateY(-2.5px);
 }
