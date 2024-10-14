@@ -1,4 +1,4 @@
-WSAProperties~=0.2
+WSAProperties~=0.2.1
 seuif97==1.2.0
 psycopg2~=2.9.9
 prettytable~=3.11.0
@@ -25,7 +25,7 @@ requests~=2.32.3
 wcwidth~=0.2.13
 importlib_metadata~=8.4.0
 numpy~=2.1.1
-urllib3~=2.2.2
+urllib3~=2.2.3
 more-itertools~=10.5.0
 six~=1.16.0
 greenlet~=3.1.0
