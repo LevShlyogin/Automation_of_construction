@@ -109,6 +109,9 @@ class ValveInfo:
         self.rod_diameter = rod_diameter
         self.section_lengths = section_lengths
 
+# Настройка логирования
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class ValveCalculator:
     """Класс для выполнения всех расчетов, связанных с клапаном и турбиной."""
@@ -169,9 +172,6 @@ class ValveCalculator:
         self.h_parts = [0.0] * self.count_parts
         self.v_parts = [0.0] * self.count_parts
         self.din_vis_parts = [0.0] * self.count_parts
-
-        # Инициализация дополнительных атрибутов
-        self.p_ejector: Optional[float] = None
 
     def perform_calculations(self) -> dict:
         """Выполняет все расчеты и возвращает результаты."""
@@ -294,7 +294,7 @@ class ValveCalculator:
                     self.len_parts[2], self.delta_clearance, self.S, self.KSI, last_part=True
                 )
                 logger.info(
-                    f"Calculated values for area 3 (last part): G={self.g_parts[2]}, T={self.t_parts[2]}, H={self.h_parts[2]}")
+                    f"Calculated values for area 3: G={self.g_parts[2]}, T={self.t_parts[2]}, H={self.h_parts[2]}")
 
     def calculate_area4(self):
         """Выполняет расчеты для участка 4."""
@@ -310,7 +310,7 @@ class ValveCalculator:
                     self.len_parts[3], self.delta_clearance, self.S, self.KSI
                 )
                 logger.info(
-                    f"Calculated values for area 3 (last part): G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
+                    f"Calculated values for area 4: G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
             else:
                 # Если len_parts[4] == 0 (len_part5 было исправлено на len_parts[4])
                 self.p_ejector = self.p_suctions[2]
@@ -323,7 +323,7 @@ class ValveCalculator:
                     self.len_parts[3], self.delta_clearance, self.S, self.KSI, last_part=True
                 )
                 logger.info(
-                    f"Calculated values for area 3 (last part): G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
+                    f"Calculated values for area 4: G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
 
     def calculate_area5(self):
         """Выполняет расчеты для участка 5."""
@@ -338,7 +338,7 @@ class ValveCalculator:
                 self.len_parts[4], self.delta_clearance, self.S, self.KSI, last_part=True
             )
             logger.info(
-                f"Calculated values for area 3 (last part): G={self.g_parts[4]}, T={self.t_parts[4]}, H={self.h_parts[4]}")
+                f"Calculated values for area 5: G={self.g_parts[4]}, T={self.t_parts[4]}, H={self.h_parts[4]}")
 
     def deaerator_options(self) -> Tuple[float, float, float, float]:
         """Рассчитывает параметры отсоса в деаэратор."""
@@ -360,88 +360,77 @@ class ValveCalculator:
             t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
         else:
             handle_error("Неверное количество секций клапана.")
+        logger.info(
+            f"Calculated values for deaerator: G={g_deaerator}, T={t_deaerator}, H={h_deaerator}, P={self.p_deaerator}")
 
         return g_deaerator, t_deaerator, h_deaerator, self.p_deaerator
 
-
     def ejector_options(self):
         """Рассчитывает параметры отсоса в эжектор уплотнений."""
-        g_ejectors: List[float] = [0.0] * (self.count_parts - 1)
-        t_ejectors: List[float] = [0.0] * (self.count_parts - 1)
-        h_ejectors: List[float] = [0.0] * (self.count_parts - 1)
-        p_ejectors: List[float] = [0.0] * (self.count_parts - 1)
+        g_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        t_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        h_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        p_ejectors: List[float] = [0.0] * (self.count_parts - 2)
 
         # Расчёт в зависимости от количества участков
         if self.count_parts == 2:
             # Один отсос в эжектор
-            g_ejectors[0] = (self.g_parts[0] + self.g_parts[1]) * self.count_valves
+            g_ejectors[0] = (self.g_parts[1] + self.g_parts[0]) * self.count_valves
             h_ejectors[0] = (self.h_parts[1] * self.g_parts[1] + self.h_parts[0] * self.g_parts[0]) / (
                     self.g_parts[1] + g_parts[0])
-            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            t_ejectors[0] = ph(p_ejectors[0], h_ejectors[0], 1)
             p_ejectors[0] = self.p_suctions[0]
         elif self.count_parts == 3:
             # Один отсос в эжектор
-            g_ejectors[0] = (self.g_parts[1] + self.g_parts[2]) * self.count_valves
-            h_ejectors[0] = (self.h_parts[1] * self.g_parts[1] + self.h_parts[2] * self.g_parts[2]) / (
-                        self.g_parts[1] + self.g_parts[2])
+            g_ejectors[0] = (self.g_parts[2] + self.g_parts[1]) * self.count_valves
+            h_ejectors[0] = (self.h_parts[2] * self.g_parts[2] + self.h_parts[1] * self.g_parts[1]) / (
+                        self.g_parts[2] + self.g_parts[1])
             t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
             p_ejectors[0] = self.p_suctions[0]
-
         elif self.count_parts == 4:
             # Два отсоса в эжектор
             # Первый отсос
-            g_first_suction = (self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
-            h_first_suction = self.h_parts[1]
-            g_ejectors[0] = g_first_suction
-            h_ejectors[0] = h_first_suction
-            t_ejectors[0] = ph(p_ejector, h_ejectors[0], 1)
-            p_ejectors[0] = p_ejector
+            g_ejectors[0] = abs(self.g_parts[3] - self.g_parts[2] - self.g_parts[1]) * self.count_valves
+            h_ejectors[0] = self.h_parts[1]
+            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
 
             # Второй отсос
-            g_second_suction = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
-            h_second_suction = (self.h_parts[2] * self.g_parts[2] + self.h_parts[3] * self.g_parts[3]) / (
-                        self.g_parts[2] + self.g_parts[3])
-            g_ejectors[1] = g_second_suction
-            h_ejectors[1] = h_second_suction
-            t_ejectors[1] = ph(p_ejector, h_ejectors[1], 1)
-            p_ejectors[1] = p_ejector
+            g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[1] = (self.h_parts[3] * self.g_parts[3] + self.h_parts[2] * self.g_parts[2]) / (
+                        self.g_parts[3] + self.g_parts[2])
+            t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
+            p_ejectors[1] = self.p_suctions[1]
         elif self.count_parts == 5:
             # Три отсоса в эжектор
             # Первый отсос
-            g_first_suction = (self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
-            h_first_suction = self.h_parts[1]
-            g_ejectors[0] = g_first_suction
-            h_ejectors[0] = h_first_suction
-            t_ejectors[0] = ph(p_ejector, h_ejectors[0], 1)
-            p_ejectors[0] = p_ejector
+            g_ejectors[0] = abs(self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[0] = self.h_parts[1]
+            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
 
             # Второй отсос
-            g_second_suction = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
-            h_second_suction = self.h_parts[2]
-            g_ejectors[1] = g_second_suction
-            h_ejectors[1] = h_second_suction
-            t_ejectors[1] = ph(p_ejector, h_ejectors[1], 1)
-            p_ejectors[1] = p_ejector
+            g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[1] = self.h_parts[2]
+            t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
+            p_ejectors[1] = self.p_suctions[1]
 
             # Третий отсос
-            g_third_suction = (self.g_parts[3] + self.g_parts[4]) * self.count_valves
-            h_third_suction = (self.h_parts[3] * self.g_parts[3] + self.h_parts[4] * self.g_parts[4]) / (
-                        self.g_parts[3] + self.g_parts[4])
-            g_ejectors[2] = g_third_suction
-            h_ejectors[2] = h_third_suction
-            t_ejectors[2] = ph(p_ejector, h_ejectors[2], 1)
-            p_ejectors[2] = p_ejector
+            g_ejectors[2] = (self.g_parts[4] + self.g_parts[3]) * self.count_valves
+            h_ejectors[2] = (self.h_parts[4] * self.g_parts[4] + self.h_parts[3] * self.g_parts[3]) / (
+                        self.g_parts[4] + self.g_parts[3])
+            t_ejectors[2] = ph(self.p_suctions[2], h_ejectors[2], 1)
+            p_ejectors[2] = self.p_suctions[2]
         else:
             handle_error("Неверное количество секций клапана.")
+        logger.info(
+            f"Calculated values for ejector: G={g_ejectors}, T={t_ejectors}, H={h_ejectors}, P={p_ejectors}")
 
         return tuple(g_ejectors), tuple(t_ejectors), tuple(h_ejectors), tuple(p_ejectors)
 
     def handle_error(self, message):
         raise ValueError(message)
 
-# Настройка логирования
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 class TestValveCalculator(unittest.TestCase):
     def setUp(self):
@@ -498,7 +487,7 @@ class TestValveCalculator(unittest.TestCase):
 
         # Проверка параметров эжектора
         expected_ejector_props = [
-            {"g": 0.2, "t": 350, "h": 1500, "p": 0.97},
+            {"g": 0.0943620662327136, "t": 337.26128079846364, "h": 3149.943751309693, "p": 0.097},
         ]
 
         for i, expected in enumerate(expected_ejector_props):
@@ -508,6 +497,203 @@ class TestValveCalculator(unittest.TestCase):
             self.assertAlmostEqual(ejector["h"], expected["h"], places=0)
             self.assertAlmostEqual(ejector["p"], expected["p"], places=2)
 
+
+class TestValveCalculatorTwo(unittest.TestCase):
+    def setUp(self):
+        # Подготовка тестовых данных
+        params = CalculationParams(
+            temperature_start=555,
+            t_air=40,
+            count_valves=4,
+            p_ejector=[0.97, 0.97, 0.97],
+            p_values=[130, 10, 0.97, 1.03]
+        )
+        valve_info = ValveInfo(
+            rounding_radius=2,
+            calculated_gap=0.215,
+            rod_diameter=40,
+            section_lengths=[319.5, 50, 25, 37.5]
+        )
+        self.calculator = ValveCalculator(params, valve_info)
+
+    def test_perform_calculations_two(self):
+        # Выполнение расчётов
+        result = self.calculator.perform_calculations()
+
+        # Проверка результатов
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
+        expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
+
+        self.assertEqual(result["Gi"], expected_Gi)
+        self.assertEqual(result["Pi_in"], expected_Pi_in)
+        self.assertEqual(result["Ti"], expected_Ti)
+        self.assertEqual(result["Hi"], expected_Hi)
+
+        for i in range(len(expected_Gi)):
+            self.assertAlmostEqual(result["Gi"][i], expected_Gi[i], places=3)
+
+        for i in range(len(expected_Pi_in)):
+            self.assertAlmostEqual(result["Pi_in"][i], expected_Pi_in[i], places=2)
+
+        for i in range(len(expected_Ti)):
+            self.assertAlmostEqual(result["Ti"][i], expected_Ti[i], places=1)
+
+        for i in range(len(expected_Hi)):
+            self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
+
+
+        expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
+                                    0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
+
+        # Сравниваем ожидаемые значения с реальными
+        for i, expected_value in enumerate(expected_deaerator_props):
+            self.assertAlmostEqual(result["deaerator_props"][i], expected_value, places=1)
+
+        # Проверка параметров эжектора
+        expected_ejector_props = [
+            {"g": 0.0943620662327136, "t": 337.26128079846364, "h": 3149.943751309693, "p": 0.097},
+        ]
+
+        for i, expected in enumerate(expected_ejector_props):
+            ejector = result["ejector_props"][i]
+            self.assertAlmostEqual(ejector["g"], expected["g"], places=1)
+            self.assertAlmostEqual(ejector["t"], expected["t"], places=1)
+            self.assertAlmostEqual(ejector["h"], expected["h"], places=0)
+            self.assertAlmostEqual(ejector["p"], expected["p"], places=2)
+
+
+class TestValveCalculatorThree(unittest.TestCase):
+    def setUp(self):
+        # Подготовка тестовых данных
+        params = CalculationParams(
+            temperature_start=555,
+            t_air=40,
+            count_valves=4,
+            p_ejector=[0.97, 0.97, 0.97],
+            p_values=[130, 7, 0.97, 1.03]
+        )
+        valve_info = ValveInfo(
+            rounding_radius=2,
+            calculated_gap=0.205,
+            rod_diameter=36,
+            section_lengths=[438.5, 50, 25, 37.5]
+        )
+        self.calculator = ValveCalculator(params, valve_info)
+
+    def test_perform_calculations_three(self):
+        # Выполнение расчётов
+        result = self.calculator.perform_calculations()
+
+        # Проверка результатов
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
+        expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
+
+        self.assertEqual(result["Gi"], expected_Gi)
+        self.assertEqual(result["Pi_in"], expected_Pi_in)
+        self.assertEqual(result["Ti"], expected_Ti)
+        self.assertEqual(result["Hi"], expected_Hi)
+
+        for i in range(len(expected_Gi)):
+            self.assertAlmostEqual(result["Gi"][i], expected_Gi[i], places=3)
+
+        for i in range(len(expected_Pi_in)):
+            self.assertAlmostEqual(result["Pi_in"][i], expected_Pi_in[i], places=2)
+
+        for i in range(len(expected_Ti)):
+            self.assertAlmostEqual(result["Ti"][i], expected_Ti[i], places=1)
+
+        for i in range(len(expected_Hi)):
+            self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
+
+
+        expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
+                                    0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
+
+        # Сравниваем ожидаемые значения с реальными
+        for i, expected_value in enumerate(expected_deaerator_props):
+            self.assertAlmostEqual(result["deaerator_props"][i], expected_value, places=1)
+
+        # Проверка параметров эжектора
+        expected_ejector_props = [
+            {"g": 0.0943620662327136, "t": 337.26128079846364, "h": 3149.943751309693, "p": 0.097},
+        ]
+
+        for i, expected in enumerate(expected_ejector_props):
+            ejector = result["ejector_props"][i]
+            self.assertAlmostEqual(ejector["g"], expected["g"], places=1)
+            self.assertAlmostEqual(ejector["t"], expected["t"], places=1)
+            self.assertAlmostEqual(ejector["h"], expected["h"], places=0)
+            self.assertAlmostEqual(ejector["p"], expected["p"], places=2)
+
+
+class TestValveCalculatorFour(unittest.TestCase):
+    def setUp(self):
+        # Подготовка тестовых данных
+        params = CalculationParams(
+            temperature_start=555,
+            t_air=40,
+            count_valves=2,
+            p_ejector=[0.97, 0.97],
+            p_values=[130, 8.35, 1.03]
+        )
+        valve_info = ValveInfo(
+            rounding_radius=2,
+            calculated_gap=0.28,
+            rod_diameter=38,
+            section_lengths=[161.5, 102.5, 50.5]
+        )
+        self.calculator = ValveCalculator(params, valve_info)
+
+    def test_perform_calculations_four(self):
+        # Выполнение расчётов
+        result = self.calculator.perform_calculations()
+
+        # Проверка результатов
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
+        expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
+
+        self.assertEqual(result["Gi"], expected_Gi)
+        self.assertEqual(result["Pi_in"], expected_Pi_in)
+        self.assertEqual(result["Ti"], expected_Ti)
+        self.assertEqual(result["Hi"], expected_Hi)
+
+        for i in range(len(expected_Gi)):
+            self.assertAlmostEqual(result["Gi"][i], expected_Gi[i], places=3)
+
+        for i in range(len(expected_Pi_in)):
+            self.assertAlmostEqual(result["Pi_in"][i], expected_Pi_in[i], places=2)
+
+        for i in range(len(expected_Ti)):
+            self.assertAlmostEqual(result["Ti"][i], expected_Ti[i], places=1)
+
+        for i in range(len(expected_Hi)):
+            self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
+
+
+        expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
+                                    0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
+
+        # Сравниваем ожидаемые значения с реальными
+        for i, expected_value in enumerate(expected_deaerator_props):
+            self.assertAlmostEqual(result["deaerator_props"][i], expected_value, places=1)
+
+        # Проверка параметров эжектора
+        expected_ejector_props = [
+            {"g": 0.0943620662327136, "t": 337.26128079846364, "h": 3149.943751309693, "p": 0.097},
+        ]
+
+        for i, expected in enumerate(expected_ejector_props):
+            ejector = result["ejector_props"][i]
+            self.assertAlmostEqual(ejector["g"], expected["g"], places=1)
+            self.assertAlmostEqual(ejector["t"], expected["t"], places=1)
+            self.assertAlmostEqual(ejector["h"], expected["h"], places=0)
+            self.assertAlmostEqual(ejector["p"], expected["p"], places=2)
 
 if __name__ == '__main__':
     unittest.main()
