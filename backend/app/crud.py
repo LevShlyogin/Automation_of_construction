@@ -59,6 +59,7 @@ from backend.app import models, schemas
 from typing import List, Optional
 from datetime import datetime
 
+
 def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.TurbineValves]:
     turbine = db.query(models.Turbine).filter(models.Turbine.turbin_name == turbin_name).first()
     if not turbine:
@@ -166,12 +167,13 @@ def get_valve_by_id(db: Session, valve_id: int) -> Optional[schemas.ValveInfo]:
         turbine=turbine_info
     )
 
+
 def create_calculation_result(db: Session, valve_drawing: str, parameters: schemas.CalculationParams, results: schemas.CalculationResult) -> models.CalculationResultDB:
     db_result = models.CalculationResultDB(
         valve_drawing=valve_drawing,
         parameters=parameters.model_dump(),
         results=results.model_dump(),
-        date=datetime.date
+        date=datetime.now(timezone.utc)
     )
     db.add(db_result)
     db.commit()

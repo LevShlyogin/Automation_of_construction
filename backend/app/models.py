@@ -116,7 +116,7 @@ class NewPassword(SQLModel):
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 Base = declarative_base()
@@ -176,7 +176,7 @@ class CalculationResultDB(Base):
     __tablename__ = 'Results'  # Имя новой таблицы
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(DateTime, default=datetime.date, nullable=False)
+    date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Поле valve_drawing для связи с клапаном
     valve_drawing = Column(String, ForeignKey('Stock.valve_drawing'), nullable=False)

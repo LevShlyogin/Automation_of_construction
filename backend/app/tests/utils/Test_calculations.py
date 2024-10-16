@@ -8,6 +8,7 @@ from WSAProperties import air_calc, ksi_calc, lambda_calc
 
 import unittest
 
+
 class CalculationError(Exception):
     """Кастомное исключение для ошибок расчетов."""
 
@@ -172,7 +173,7 @@ class ValveCalculator:
         self.h_parts = [0.0] * self.count_parts
         self.v_parts = [0.0] * self.count_parts
         self.din_vis_parts = [0.0] * self.count_parts
-
+        self.p_ejector: Optional[float] = None
     def perform_calculations(self) -> dict:
         """Выполняет все расчеты и возвращает результаты."""
         try:
@@ -427,9 +428,6 @@ class ValveCalculator:
             f"Calculated values for ejector: G={g_ejectors}, T={t_ejectors}, H={h_ejectors}, P={p_ejectors}")
 
         return tuple(g_ejectors), tuple(t_ejectors), tuple(h_ejectors), tuple(p_ejectors)
-
-    def handle_error(self, message):
-        raise ValueError(message)
 
 
 class TestValveCalculator(unittest.TestCase):
