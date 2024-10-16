@@ -1,7 +1,7 @@
 # tests/test_crud.py
 import pytest
 from sqlalchemy.orm import Session
-from app import crud, models, schemas
+from backend.app import crud, models, schemas
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
