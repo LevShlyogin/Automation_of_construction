@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -49,7 +49,7 @@ class CalculationResult(BaseModel):
     Ti: List[float]
     Hi: List[float]
     deaerator_props: List[float]
-    ejector_props: List[float]
+    ejector_props: List[Any]
 
 
 class TurbineValves(BaseModel):

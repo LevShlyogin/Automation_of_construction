@@ -57,7 +57,7 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
 from sqlalchemy.orm import Session, joinedload
 from backend.app import models, schemas
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.TurbineValves]:
