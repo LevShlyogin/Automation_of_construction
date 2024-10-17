@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 import emails  # type: ignore
 import jwt
@@ -117,7 +117,7 @@ def verify_password_reset_token(token: str) -> str | None:
 
 
 from math import sqrt, pi
-from typing import Tuple, Optional
+from typing import Optional
 import logging
 from backend.app.schemas import CalculationParams, ValveInfo
 
@@ -437,7 +437,7 @@ class ValveCalculator:
             logger.info(
                 f"Calculated values for area 5: G={self.g_parts[4]}, T={self.t_parts[4]}, H={self.h_parts[4]}")
 
-    def deaerator_options(self) -> Tuple[float, float, float, float]:
+    def deaerator_options(self):
         """Рассчитывает параметры отсоса в деаэратор."""
         g_deaerator: float = 0.0
         t_deaerator: float = 0.0
@@ -445,7 +445,7 @@ class ValveCalculator:
 
         # Расчёт массового расхода и температуры в зависимости от количества участков
         if self.count_parts == 2:
-            return ejector_options(self)
+            return self.ejector_options()
         if self.count_parts == 3:
             g_deaerator = (self.g_parts[0] - self.g_parts[1]) * self.count_valves
             t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
@@ -474,7 +474,7 @@ class ValveCalculator:
             # Один отсос в эжектор
             g_ejectors[0] = (self.g_parts[1] + self.g_parts[0]) * self.count_valves
             h_ejectors[0] = (self.h_parts[1] * self.g_parts[1] + self.h_parts[0] * self.g_parts[0]) / (
-                    self.g_parts[1] + g_parts[0])
+                    self.g_parts[1] + self.g_parts[0])
             t_ejectors[0] = ph(p_ejectors[0], h_ejectors[0], 1)
             p_ejectors[0] = self.p_suctions[0]
         elif self.count_parts == 3:
