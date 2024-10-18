@@ -1,0 +1,85 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+.detected-calculation {
+    text-align: center;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #444;
+}
+
+.calculation-img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.calculation-table, .props-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.calculation-table th, .props-table th,
+.calculation-table td, .props-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+}
+
+.calculation-table th, .props-table th {
+    background-color: #f2f2f2;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 8px;
+    width: 150px;
+}
+
+.btn.red {
+    background-color: #ff4d4d;
+    color: #fff;
+    transition: transform 0.25s ease, background-color 0.3s ease;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.btn.red:hover {
+    background-color: #cc0000;
+    transform: translateY(-2.5px); /* Эффект поднятия */
+}
+
+.btn.green {
+    background-color: #4CAF50;
+    color: #fff;
+    transition: transform 0.25s ease, background-color 0.3s ease;
+    height: 50px;
+    border-radius: 10px;
+}
+
+.btn.green:hover {
+    background-color: #148907;
+    transform: translateY(-2.5px); /* Эффект поднятия */
+}
+
+.question-before-buttons {
+    margin-bottom: 10px;
+}

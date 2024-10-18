@@ -43,11 +43,15 @@
 
 import { Route, Routes } from 'react-router-dom';
 import CalculatorPage from './calculator'; // Импортируйте ваш компонент для рендеринга страницы калькулятора
+import AboutPage from '../components/OtherPages/AboutPage';
+import HelpPage from '../components/OtherPages/HelpPage';
 
 const LayoutRoutes = () => {
   return (
 	<Routes>
-  	<Route path="/calculator" element={<CalculatorPage />} />
+  	<Route path="/" element={<CalculatorPage />} />
+  	<Route path="/about" element={<AboutPage />} />
+    <Route path="/help" element={<HelpPage />} />
   	{/* Здесь можно добавить другие маршруты, если нужно */}
 	</Routes>
   );
