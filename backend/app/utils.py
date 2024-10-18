@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, List
 
 import emails  # type: ignore
 import jwt
@@ -117,7 +117,7 @@ def verify_password_reset_token(token: str) -> str | None:
 
 
 from math import sqrt, pi
-from typing import Tuple, Optional
+from typing import Optional
 import logging
 from backend.app.schemas import CalculationParams, ValveInfo
 
@@ -126,7 +126,7 @@ from seuif97 import pt2h, ph, ph2v, ph2t
 from WSAProperties import air_calc, ksi_calc, lambda_calc
 
 # Настройка логирования
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -238,74 +238,62 @@ class ValveCalculator:
         # Подсчет количества непустых участков
         self.count_parts = len(self.len_parts)
 
-        # Извлечение значений давления
-        self.p_suctions = self.params.p_ejector if self.params.p_ejector else []
-        self.P_values = self.params.p_values
-        if len(self.P_values) != 5:
-            raise ValueError("Должно быть пять значений давления в p_values.")
-        self.P1, self.P2, self.P3, self.P4, self.P5 = self.P_values
-        self.p_deaerator = self.P2
+        # Конвертация давлений на участках из бар в МПа
+        self.P_values = [
+            convert_pressure_to_mpa(p, unit=5) if p > 0 else ValueError(f"Давление участка не может быть нулевым или отрицательным")
+            for p in self.params.p_values[:self.count_parts]
+        ]
+        if len(self.P_values) != self.count_parts:
+            raise ValueError(
+                f"Количество значений давления ({len(self.P_values)}) не соответствует количеству участков ({self.count_parts})."
+            )
 
-        # Заполнение длиной участков, заполняя недостающие нулями
-        self.len_parts_extended = self.len_parts + [0.0] * (5 - len(self.len_parts))
-        self.len_part1, self.len_part2, self.len_part3, self.len_part4, self.len_part5 = self.len_parts_extended[:5]
+        #Давление в деаэратор всегда по дефолту равно
+        self.p_deaerator = self.P_values[1]
+
+        # Конвертация давлений отсоса из бар в МПа
+        self.p_suctions = [
+            convert_pressure_to_mpa(p, unit=5)
+            for p in self.params.p_ejector
+        ] if self.params.p_ejector else []
 
         # Расчет коэффициента пропорциональности и других параметров
         self.proportional_coef = self.radius_rounding / (self.delta_clearance * 2)
         self.S = self.delta_clearance * pi * self.diameter_stock
-        self.enthalpy_steam = pt2h(self.P1, self.temperature_start_DB)
+        self.enthalpy_steam = pt2h(self.P_values[0], self.temperature_start_DB)
         self.KSI = ksi_calc(self.proportional_coef)
 
         # Инициализация всех G, T и H параметров
-        self.G_part1 = self.G_part2 = self.G_part3 = self.G_part4 = self.G_part5 = 0.0
-        self.t_part1 = self.t_part2 = self.t_part3 = self.t_part4 = self.t_part5 = 0.0
-        self.h_part1 = self.h_part2 = self.h_part3 = self.h_part4 = self.h_part5 = 0.0
-
-        # Инициализация дополнительных атрибутов
-        self.v_part1: Optional[float] = None
-        self.din_vis_part1: Optional[float] = None
-        self.v_part2: Optional[float] = None
-        self.din_vis_part2: Optional[float] = None
-        self.v_part3: Optional[float] = None
-        self.din_vis_part3: Optional[float] = None
-        self.v_part4: Optional[float] = None
-        self.din_vis_part4: Optional[float] = None
-        self.v_part5: Optional[float] = None
-        self.din_vis_part5: Optional[float] = None
+        self.g_parts = [0.0] * self.count_parts
+        self.t_parts = [0.0] * self.count_parts
+        self.h_parts = [0.0] * self.count_parts
+        self.v_parts = [0.0] * self.count_parts
+        self.din_vis_parts = [0.0] * self.count_parts
         self.p_ejector: Optional[float] = None
-
     def perform_calculations(self) -> dict:
         """Выполняет все расчеты и возвращает результаты."""
         try:
-            # Расчеты для каждого участка
-            self.calculate_area1()
-            self.calculate_area2()
-            self.calculate_area3()
-            self.calculate_area4()
-            self.calculate_area5()
+            # Динамически вызываем методы расчёта участков
+            for i in range(self.count_parts):
+                getattr(self, f'calculate_area{i + 1}')()
 
             # Вычисление параметров отсоса в деаэратор и эжектор
-            g_deaerator, t_deaerator, p_deaerator_final, h_deaerator = self.deaerator_options(
-                self.p_deaerator, self.count_parts, self.count_valves, self.h_part2,
-                self.G_part1, self.G_part2, self.G_part3, self.G_part4
-            )
-            g_ejector, t_ejector, p_ejector_final, h_ejector = self.ejector_options(
-                self.get_p_ejector_final(), self.count_parts, self.count_valves,
-                self.G_part2, self.h_part2, self.G_part3, self.h_part3,
-                self.G_part4, self.h_part4, self.G_part5, self.h_part5
-            )
+            g_deaerator, t_deaerator, h_deaerator, p_deaerator = self.deaerator_options()
+            g_ejectors, t_ejectors, h_ejectors, p_ejectors = self.ejector_options()
 
             # Подготовка результатов
             result = {
-                "Gi": [self.G_part1, self.G_part2, self.G_part3, self.G_part4, self.G_part5],
-                "Pi_in": [self.P1, self.P2, self.P3, self.P4, self.P5],
-                "Ti": [self.t_part1, self.t_part2, self.t_part3, self.t_part4, self.t_part5],
-                "Hi": [self.h_part1, self.h_part2, self.h_part3, self.h_part4, self.h_part5],
-                "deaerator_props": [g_deaerator, t_deaerator, p_deaerator_final, h_deaerator],
-                "ejector_props": [g_ejector, t_ejector, p_ejector_final, h_ejector]
+                "Gi": self.g_parts[:self.count_parts],
+                "Pi_in": self.P_values[:self.count_parts],
+                "Ti": self.t_parts[:self.count_parts],
+                "Hi": self.h_parts[:self.count_parts],
+                "deaerator_props": [g_deaerator, t_deaerator, h_deaerator, p_deaerator],
+                "ejector_props": [
+                    {"g": g, "t": t, "h": h, "p": p} for g, t, h, p in
+                    zip(g_ejectors, t_ejectors, h_ejectors, p_ejectors)
+                ]
             }
-            return result
-
+            return result  # <-- Возврат результата после цикла
         except CalculationError as ce:
             logger.error(f"Calculation error: {ce.message}")
             raise
@@ -315,211 +303,225 @@ class ValveCalculator:
 
     def calculate_area1(self):
         """Выполняет расчеты для участка 1."""
-        if self.len_part1 > 0:
-            if self.len_part2 > 0:
-                self.h_part1 = self.enthalpy_steam
-                self.v_part1 = ph2v(self.P1, self.h_part1)
-                self.t_part1 = ph2t(self.P1, self.h_part1)
-                self.din_vis_part1 = ph(self.P1, self.h_part1, 24)
-                self.G_part1 = part_props_detection(
-                    self.P1, self.P2, self.v_part1, self.din_vis_part1,
-                    self.len_part1, self.delta_clearance, self.S, self.KSI
+        if self.count_parts >= 2:
+            if self.len_parts[0] and self.len_parts[1]:
+                self.h_parts[0] = self.enthalpy_steam
+                self.v_parts[0] = ph2v(self.P_values[0], self.h_parts[0])
+                self.t_parts[0] = ph2t(self.P_values[0], self.h_parts[0])
+                self.din_vis_parts[0] = ph(self.P_values[0], self.h_parts[0], 24)
+                self.g_parts[0] = part_props_detection(
+                    self.P_values[0], self.P_values[1], self.v_parts[0], self.din_vis_parts[0],
+                    self.len_parts[0], self.delta_clearance, self.S, self.KSI
                 )
+                logger.info(
+                    f"Calculated values for area 1: G={self.g_parts[0]}, T={self.t_parts[0]}, H={self.h_parts[0]}")
+            else:
+                logger.error("Длины первого и второго участков должны быть ненулевыми.")
+                raise CalculationError("Длины первого и второго участков должны быть ненулевыми.")
+        else:
+            logger.error("Клапан должен иметь как минимум два участка.")
+            raise CalculationError("Клапан должен иметь как минимум два участка.")
 
     def calculate_area2(self):
         """Выполняет расчеты для участка 2."""
-        if self.len_part2 > 0:
-            if self.len_part3 > 0:
-                # Если есть ввод P_ejector, используем его, иначе используем значение по умолчанию
-                if len(self.p_suctions) > 0:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[0])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-                self.h_part2 = self.enthalpy_steam
-                self.v_part2 = ph(self.P2, self.h_part2, 3)
-                self.t_part2 = ph(self.P2, self.h_part2, 1)
-                self.din_vis_part2 = ph(self.P2, self.h_part2, 24)
-                self.G_part2 = part_props_detection(
-                    self.P2, self.p_ejector, self.v_part2, self.din_vis_part2,
-                    self.len_part2, self.delta_clearance, self.S, self.KSI
+        if self.count_parts >= 2:
+            if self.count_parts > 2:  # Исправлено с len_part3 на len_parts[2]
+                self.p_ejector = self.p_suctions[0]
+                self.h_parts[1] = self.enthalpy_steam
+                self.v_parts[1] = ph(self.P_values[1], self.h_parts[1], 3)
+                self.t_parts[1] = ph(self.P_values[1], self.h_parts[1], 1)
+                self.din_vis_parts[1] = ph(self.P_values[1], self.h_parts[1], 24)
+                self.g_parts[1] = part_props_detection(
+                    self.P_values[1], self.p_ejector, self.v_parts[1], self.din_vis_parts[1],
+                    self.len_parts[1], self.delta_clearance, self.S, self.KSI
                 )
+                logger.info(
+                    f"Calculated values for area 2: G={self.g_parts[1]}, T={self.t_parts[1]}, H={self.h_parts[1]}")
             else:
-                # Если len_part3 == 0
-                if len(self.p_suctions) > 0:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[0])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
+                # Если len_parts[2] == 0 (len_part3 было исправлено на len_parts[2])
+                self.p_ejector = self.p_suctions[0]
                 # Recalculate properties for part 1
-                self.h_part1 = self.enthalpy_steam
-                self.v_part1 = ph2v(self.P1, self.h_part1)
-                self.t_part1 = ph2t(self.P1, self.h_part1)
-                self.din_vis_part1 = ph(self.P1, self.h_part1, 24)
-                self.G_part1 = part_props_detection(
-                    self.P1, self.p_ejector, self.v_part1, self.din_vis_part1,
-                    self.len_part1, self.delta_clearance, self.S, self.KSI
+                self.h_parts[0] = self.enthalpy_steam
+                self.v_parts[0] = ph2v(self.P_values[0], self.h_parts[0])
+                self.t_parts[0] = ph2t(self.P_values[0], self.h_parts[0])
+                self.din_vis_parts[0] = ph(self.P_values[0], self.h_parts[0], 24)
+                self.g_parts[0] = part_props_detection(
+                    self.P_values[0], self.p_ejector, self.v_parts[0], self.din_vis_parts[0],
+                    self.len_parts[0], self.delta_clearance, self.S, self.KSI
                 )
+                logger.info(
+                    f"Calculated values for area 1: G={self.g_parts[0]}, T={self.t_parts[0]}, H={self.h_parts[0]}")
 
                 # Calculate properties for part 2
-                self.h_part2 = self.h_air
-                self.t_part2 = self.t_air
-                self.v_part2 = air_calc(self.t_part2, 1)
-                self.din_vis_part2 = air_calc(self.t_part2, 2)
-                self.G_part2 = part_props_detection(
-                    0.1013, self.p_ejector, self.v_part2, self.din_vis_part2,
-                    self.len_part2, self.delta_clearance, self.S, self.KSI, last_part=True
+                self.h_parts[1] = self.h_air
+                self.t_parts[1] = self.t_air
+                self.v_parts[1] = air_calc(self.t_parts[1], 1)
+                self.din_vis_parts[1] = air_calc(self.t_parts[1], 2)
+                self.g_parts[1] = part_props_detection(
+                    0.1013, self.p_ejector, self.v_parts[1], self.din_vis_parts[1],
+                    self.len_parts[1], self.delta_clearance, self.S, self.KSI, last_part=True
                 )
+                logger.info(
+                    f"Calculated values for area 2: G={self.g_parts[1]}, T={self.t_parts[1]}, H={self.h_parts[1]}")
 
     def calculate_area3(self):
         """Выполняет расчеты для участка 3."""
-        if self.len_part3 > 0:
-            if self.len_part4 > 0:
-                if len(self.p_suctions) > 1:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[1])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-                self.h_part3 = self.enthalpy_steam
-                self.v_part3 = ph(self.P3, self.h_part3, 3)
-                self.t_part3 = ph(self.P3, self.h_part3, 1)
-                self.din_vis_part3 = ph(self.P3, self.h_part3, 24)
-                self.G_part3 = part_props_detection(
-                    self.P3, self.p_ejector, self.v_part3, self.din_vis_part3,
-                    self.len_part3, self.delta_clearance, self.S, self.KSI
+        if self.count_parts >= 3:
+            if self.count_parts > 3:  # Исправлено с len_part4 на len_parts[3]
+                self.p_ejector = self.p_suctions[1]
+                self.h_parts[2] = self.enthalpy_steam
+                self.v_parts[2] = ph(self.P_values[2], self.h_parts[2], 3)
+                self.t_parts[2] = ph(self.P_values[2], self.h_parts[2], 1)
+                self.din_vis_parts[2] = ph(self.P_values[2], self.h_parts[2], 24)
+                self.g_parts[2] = part_props_detection(
+                    self.P_values[2], self.p_ejector, self.v_parts[2], self.din_vis_parts[2],
+                    self.len_parts[2], self.delta_clearance, self.S, self.KSI
                 )
+                logger.info(
+                    f"Calculated values for area 3: G={self.g_parts[2]}, T={self.t_parts[2]}, H={self.h_parts[2]}")
             else:
-                # Если len_part4 == 0
-                if len(self.p_suctions) > 1:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[1])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-                self.h_part3 = self.h_air
-                self.t_part3 = self.t_air
-                self.v_part3 = air_calc(self.t_part3, 1)
-                self.din_vis_part3 = air_calc(self.t_part3, 2)
-                self.G_part3 = part_props_detection(
-                    0.1013, self.p_ejector, self.v_part3, self.din_vis_part3,
-                    self.len_part3, self.delta_clearance, self.S, self.KSI, last_part=True
+                # Если len_parts[3] == 0
+                self.p_ejector = self.p_suctions[1]
+                self.h_parts[2] = self.h_air
+                self.t_parts[2] = self.t_air
+                self.v_parts[2] = air_calc(self.t_parts[2], 1)
+                self.din_vis_parts[2] = air_calc(self.t_parts[2], 2)
+                self.g_parts[2] = part_props_detection(
+                    0.1013, self.p_ejector, self.v_parts[2], self.din_vis_parts[2],
+                    self.len_parts[2], self.delta_clearance, self.S, self.KSI, last_part=True
                 )
+                logger.info(
+                    f"Calculated values for area 3: G={self.g_parts[2]}, T={self.t_parts[2]}, H={self.h_parts[2]}")
 
     def calculate_area4(self):
         """Выполняет расчеты для участка 4."""
-        if self.len_part4 > 0:
-            if self.len_part5 > 0:
-                if len(self.p_suctions) > 2:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[2])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-                self.h_part4 = self.enthalpy_steam
-                self.v_part4 = ph(self.P4, self.h_part4, 3)
-                self.t_part4 = ph(self.P4, self.h_part4, 1)
-                self.din_vis_part4 = ph(self.P4, self.h_part4, 24)
-                self.G_part4 = part_props_detection(
-                    self.P4, self.p_ejector, self.v_part4, self.din_vis_part4,
-                    self.len_part4, self.delta_clearance, self.S, self.KSI
+        if self.count_parts >= 4:
+            if self.count_parts > 4:  # Исправлено с len_part5 на len_parts[4]
+                self.p_ejector = self.p_suctions[2]
+                self.h_parts[3] = self.enthalpy_steam
+                self.v_parts[3] = ph(self.P_values[3], self.h_parts[3], 3)
+                self.t_parts[3] = ph(self.P_values[3], self.h_parts[3], 1)
+                self.din_vis_parts[3] = ph(self.P_values[3], self.h_parts[3], 24)
+                self.g_parts[3] = part_props_detection(
+                    self.P_values[3], self.p_ejector, self.v_parts[3], self.din_vis_parts[3],
+                    self.len_parts[3], self.delta_clearance, self.S, self.KSI
                 )
+                logger.info(
+                    f"Calculated values for area 4: G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
             else:
-                # Если len_part5 == 0
-                if len(self.p_suctions) > 2:
-                    self.p_ejector = convert_pressure_to_mpa(self.p_suctions[2])
-                else:
-                    self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-                self.h_part4 = self.h_air
-                self.t_part4 = self.t_air
-                self.v_part4 = air_calc(self.t_part4, 1)
-                self.din_vis_part4 = air_calc(self.t_part4, 2)
-                self.G_part4 = part_props_detection(
-                    0.1013, self.p_ejector, self.v_part4, self.din_vis_part4,
-                    self.len_part4, self.delta_clearance, self.S, self.KSI, last_part=True
+                # Если len_parts[4] == 0 (len_part5 было исправлено на len_parts[4])
+                self.p_ejector = self.p_suctions[2]
+                self.h_parts[3] = self.h_air
+                self.t_parts[3] = self.t_air
+                self.v_parts[3] = air_calc(self.t_parts[3], 1)
+                self.din_vis_parts[3] = air_calc(self.t_parts[3], 2)
+                self.g_parts[3] = part_props_detection(
+                    0.1013, self.p_ejector, self.v_parts[3], self.din_vis_parts[3],
+                    self.len_parts[3], self.delta_clearance, self.S, self.KSI, last_part=True
                 )
+                logger.info(
+                    f"Calculated values for area 4: G={self.g_parts[3]}, T={self.t_parts[3]}, H={self.h_parts[3]}")
 
     def calculate_area5(self):
         """Выполняет расчеты для участка 5."""
-        if self.len_part5 > 0:
-            if len(self.p_suctions) > 3:
-                self.p_ejector = convert_pressure_to_mpa(self.p_suctions[3])
-            else:
-                self.p_ejector = convert_pressure_to_mpa(self.params.p_ejector_default, unit=5)
-
-            self.h_part5 = self.h_air
-            self.t_part5 = self.t_air
-            self.v_part5 = air_calc(self.t_part5, 1)
-            self.din_vis_part5 = air_calc(self.t_part5, 2)
-            self.G_part5 = part_props_detection(
-                0.1013, self.p_ejector, self.v_part5, self.din_vis_part5,
-                self.len_part5, self.delta_clearance, self.S, self.KSI, last_part=True
+        if self.count_parts >= 5:  # Исправлено с len_part5 на len_parts[4]
+            self.p_ejector = self.p_suctions[3]
+            self.h_parts[4] = self.h_air
+            self.t_parts[4] = self.t_air
+            self.v_parts[4] = air_calc(self.t_parts[4], 1)
+            self.din_vis_parts[4] = air_calc(self.t_parts[4], 2)
+            self.g_parts[4] = part_props_detection(
+                0.1013, self.p_ejector, self.v_parts[4], self.din_vis_parts[4],
+                self.len_parts[4], self.delta_clearance, self.S, self.KSI, last_part=True
             )
+            logger.info(
+                f"Calculated values for area 5: G={self.g_parts[4]}, T={self.t_parts[4]}, H={self.h_parts[4]}")
 
-    def deaerator_options(self, p_deaerator: float, count_parts: int, count_valves: int,
-                          h_part2: float, G_part1: float, G_part2: float,
-                          G_part3: float, G_part4: float) -> Tuple[float, float, float, float]:
+    def deaerator_options(self):
         """Рассчитывает параметры отсоса в деаэратор."""
         g_deaerator: float = 0.0
         t_deaerator: float = 0.0
-        h_deaerator: float = h_part2
+        h_deaerator: float = self.h_parts[1]
 
-        if count_parts == 3:
-            g_deaerator = (G_part1 - G_part2) * count_valves
-            t_deaerator = ph(p_deaerator, h_deaerator, 1)
-        elif count_parts == 4:
-            g_deaerator = (G_part1 - G_part2 - G_part3) * count_valves
-            t_deaerator = ph(p_deaerator, h_deaerator, 1)
-        elif count_parts == 5:
-            g_deaerator = (G_part1 - G_part2 - G_part3 - G_part4) * count_valves
-            t_deaerator = ph(p_deaerator, h_deaerator, 1)
+        # Расчёт массового расхода и температуры в зависимости от количества участков
+        if self.count_parts == 2:
+            return self.ejector_options()
+        if self.count_parts == 3:
+            g_deaerator = (self.g_parts[0] - self.g_parts[1]) * self.count_valves
+            t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
+        elif self.count_parts == 4:
+            g_deaerator = (self.g_parts[0] - self.g_parts[1] - self.g_parts[2]) * self.count_valves
+            t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
+        elif self.count_parts == 5:
+            g_deaerator = (self.g_parts[0] - self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
         else:
             handle_error("Неверное количество секций клапана.")
+        logger.info(
+            f"Calculated values for deaerator: G={g_deaerator}, T={t_deaerator}, H={h_deaerator}, P={self.p_deaerator}")
 
-        return g_deaerator, t_deaerator, p_deaerator, h_deaerator
+        return g_deaerator, t_deaerator, h_deaerator, self.p_deaerator
 
-
-    def ejector_options(p_ejector: float, count_parts: int, count_valves: int,
-                        G_part2: float, h_part2: float, G_part3: float, h_part3: float,
-                        G_part4: float = 0.0, h_part4: float = 0.0, G_part5: float = 0.0,
-                        h_part5: float = 0.0) -> Tuple[float, float, float, float]:
+    def ejector_options(self):
         """Рассчитывает параметры отсоса в эжектор уплотнений."""
-        g_ejector: float = 0.0
-        t_ejector: float = 0.0
-        h_ejector: float = 0.0
+        g_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        t_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        h_ejectors: List[float] = [0.0] * (self.count_parts - 2)
+        p_ejectors: List[float] = [0.0] * (self.count_parts - 2)
 
-        if count_parts == 2:
-            g_ejector = G_part2 * count_valves
-            h_ejector = h_part2
-            t_ejector = ph(p_ejector, h_ejector, 1)
-        elif count_parts == 3:
-            g_ejector = (G_part2 + G_part3) * count_valves
-            h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)
-            t_ejector = ph(p_ejector, h_ejector, 1)
-        elif count_parts == 4:
-            g_first_suction = (G_part2 - G_part3 - G_part4) * count_valves
-            g_second_suction = abs(G_part3 - G_part4) * count_valves
-            h_second_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
-            g_ejector = g_first_suction + g_second_suction
-            h_ejector = (g_second_suction * h_second_suction + g_first_suction * h_part2) / (
-                    g_second_suction + g_first_suction)
-            t_ejector = ph(p_ejector, h_ejector, 1)
-        elif count_parts == 5:
-            g_first_suction = G_part2 - G_part3 - G_part4
-            g_second_suction = abs(G_part3 - G_part4)
-            g_third_suction = G_part4 + G_part5
-            h_third_suction = (h_part5 * G_part5 + h_part4 * G_part4) / (G_part5 + G_part4)
-            g_ejector = (g_first_suction + g_second_suction + g_third_suction) * count_valves
-            h_ejector = (
-                    (g_third_suction * h_third_suction + g_second_suction * h_part2 +
-                     g_first_suction * h_part2) /
-                    (g_third_suction + g_second_suction + g_first_suction)
-            )
-            t_ejector = ph(p_ejector, h_ejector, 1)
+        # Расчёт в зависимости от количества участков
+        if self.count_parts == 2:
+            # Один отсос в эжектор
+            g_ejectors[0] = (self.g_parts[1] + self.g_parts[0]) * self.count_valves
+            h_ejectors[0] = (self.h_parts[1] * self.g_parts[1] + self.h_parts[0] * self.g_parts[0]) / (
+                    self.g_parts[1] + self.g_parts[0])
+            t_ejectors[0] = ph(p_ejectors[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
+        elif self.count_parts == 3:
+            # Один отсос в эжектор
+            g_ejectors[0] = (self.g_parts[2] + self.g_parts[1]) * self.count_valves
+            h_ejectors[0] = (self.h_parts[2] * self.g_parts[2] + self.h_parts[1] * self.g_parts[1]) / (
+                        self.g_parts[2] + self.g_parts[1])
+            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
+        elif self.count_parts == 4:
+            # Два отсоса в эжектор
+            # Первый отсос
+            g_ejectors[0] = abs(self.g_parts[3] - self.g_parts[2] - self.g_parts[1]) * self.count_valves
+            h_ejectors[0] = self.h_parts[1]
+            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
+
+            # Второй отсос
+            g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[1] = (self.h_parts[3] * self.g_parts[3] + self.h_parts[2] * self.g_parts[2]) / (
+                        self.g_parts[3] + self.g_parts[2])
+            t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
+            p_ejectors[1] = self.p_suctions[1]
+        elif self.count_parts == 5:
+            # Три отсоса в эжектор
+            # Первый отсос
+            g_ejectors[0] = abs(self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[0] = self.h_parts[1]
+            t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
+            p_ejectors[0] = self.p_suctions[0]
+
+            # Второй отсос
+            g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
+            h_ejectors[1] = self.h_parts[2]
+            t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
+            p_ejectors[1] = self.p_suctions[1]
+
+            # Третий отсос
+            g_ejectors[2] = (self.g_parts[4] + self.g_parts[3]) * self.count_valves
+            h_ejectors[2] = (self.h_parts[4] * self.g_parts[4] + self.h_parts[3] * self.g_parts[3]) / (
+                        self.g_parts[4] + self.g_parts[3])
+            t_ejectors[2] = ph(self.p_suctions[2], h_ejectors[2], 1)
+            p_ejectors[2] = self.p_suctions[2]
         else:
             handle_error("Неверное количество секций клапана.")
+        logger.info(
+            f"Calculated values for ejector: G={g_ejectors}, T={t_ejectors}, H={h_ejectors}, P={p_ejectors}")
 
-        return g_ejector, t_ejector, p_ejector, h_ejector
+        return tuple(g_ejectors), tuple(t_ejectors), tuple(h_ejectors), tuple(p_ejectors)
 
-    def get_p_ejector_final(self) -> float:
-        """Получает окончательное значение давления эжектора."""
-        # Здесь можно определить логику получения конечного значения p_ejector
-        return self.p_ejector if self.p_ejector is not None else self.params.p_ejector_default  # Пример
