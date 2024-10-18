@@ -6,7 +6,7 @@ from typing import Any, List
 import emails  # type: ignore
 import jwt
 from jinja2 import Template
-from jwt.exceptions import InvalidTokenError
+# from jwt.exceptions import InvalidTokenError
 
 from backend.app.core.config import settings
 
@@ -112,7 +112,7 @@ def verify_password_reset_token(token: str) -> str | None:
     try:
         decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         return str(decoded_token["sub"])
-    except InvalidTokenError:
+    except Exception:
         return None
 
 
