@@ -1,10 +1,11 @@
 import uuid
-from typing import Any
+from typing import Any, Type
+import json
 
 from sqlmodel import Session, select
 
 from backend.app.core.security import get_password_hash, verify_password
-from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate, CalculationResultDB
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -56,7 +57,7 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
 
 from sqlalchemy.orm import Session, joinedload
 from backend.app import models, schemas
-from typing import List, Optional
+from typing import Optional
 from datetime import datetime, timezone
 
 
@@ -169,17 +170,24 @@ def get_valve_by_id(db: Session, valve_id: int) -> Optional[schemas.ValveInfo]:
 
 
 def create_calculation_result(db: Session, valve_drawing: str, parameters: schemas.CalculationParams, results: schemas.CalculationResult) -> models.CalculationResultDB:
-    db_result = models.CalculationResultDB(
-        valve_drawing=valve_drawing,
-        parameters=parameters.model_dump(),
-        results=results.model_dump(),
-        date=datetime.now(timezone.utc)
-    )
-    db.add(db_result)
-    db.commit()
-    db.refresh(db_result)
-    return db_result
+    try:
+        db_result = models.CalculationResultDB(
+            valve_drawing=valve_drawing,
+            parameters=json.dumps(parameters.model_dump()),
+            results=json.dumps(results.model_dump()),
+            date=datetime.now(timezone.utc)
+        )
+        db.add(db_result)
+        db.commit()
+        db.refresh(db_result)
+        return db_result
+    except Exception as e:
+        db.rollback()
+        raise Exception(f"An error occurred while saving the calculation result: {str(e)}")
 
 
-def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> List[models.CalculationResultDB]:
-    return db.query(models.CalculationResultDB).filter(models.CalculationResultDB.valve_drawing == valve_drawing).order_by(models.CalculationResultDB.date.desc()).all()
+def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[CalculationResultDB]]:
+    try:
+        return db.query(CalculationResultDB).filter(CalculationResultDB.valve_drawing == valve_drawing).order_by(CalculationResultDB.date.desc()).all()
+    except Exception as e:
+        raise Exception(f"An error occurred while retrieving results: {str(e)}")

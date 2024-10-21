@@ -6,6 +6,8 @@ from typing import Any, List
 import emails  # type: ignore
 import jwt
 from jinja2 import Template
+
+from app.schemas import CalculationResult
 # from jwt.exceptions import InvalidTokenError
 
 from backend.app.core.config import settings
@@ -270,7 +272,7 @@ class ValveCalculator:
         self.v_parts = [0.0] * self.count_parts
         self.din_vis_parts = [0.0] * self.count_parts
         self.p_ejector: Optional[float] = None
-    def perform_calculations(self) -> dict:
+    def perform_calculations(self) -> CalculationResult:
         """Выполняет все расчеты и возвращает результаты."""
         try:
             # Динамически вызываем методы расчёта участков
@@ -293,7 +295,7 @@ class ValveCalculator:
                     zip(g_ejectors, t_ejectors, h_ejectors, p_ejectors)
                 ]
             }
-            return result  # <-- Возврат результата после цикла
+            return CalculationResult(**result)  # <-- Возврат результата после цикла
         except CalculationError as ce:
             logger.error(f"Calculation error: {ce.message}")
             raise
