@@ -43,9 +43,14 @@ from .dependencies import get_db
 from fastapi import FastAPI
 
 # Создание всех таблиц
-models.Base.metadata.create_all(bind=engine)
+# models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Valve Calculation API")
+
+
+@app.get("/turbines/test/")
+def test_turbine_endpoint():
+    return {"message": "Тестовый эндпоинт для турбин работает!"}
 
 
 @app.get("/turbines/", response_model=List[schemas.TurbineInfo])
