@@ -21,7 +21,7 @@ const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
   useEffect(() => {
     const fetchTurbines = async () => {
       try {
-        const response = await fetch('http://localhost:8000/turbines/');
+        const response = await fetch('http://127.0.0.1:8000/turbines/');
         if (!response.ok) {
           throw new Error('Ошибка загрузки данных');
         }
