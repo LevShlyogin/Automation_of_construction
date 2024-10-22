@@ -114,7 +114,7 @@ class NewPassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=40)
 
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime, JSON
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timezone
@@ -126,50 +126,47 @@ class Turbine(Base):
     __tablename__ = 'turbines'
 
     id = Column(Integer, primary_key=True, index=True)
-    turbin_name = Column(String, nullable=False, unique=True, index=True)
+    name = Column(String, nullable=False, unique=True, index=True)
     valves = relationship("Valve", back_populates="turbine")
 
     def __repr__(self):
-        return f"<Turbine(turbin_name='{self.turbin_name}')>"
+        return f"<Turbine(name='{self.turbin_name}')>"
 
 
 class Valve(Base):
-    __tablename__ = 'valves'
+    __tablename__ = 'stocks'
 
     id = Column(Integer, primary_key=True, index=True)
-    source = Column(String, nullable=True)
-    verified = Column(Boolean, nullable=True)
-    verifier = Column(String, nullable=True)
-    valve_type = Column(String, nullable=True)
-    valve_drawing = Column(String, nullable=False, unique=True, index=True)
-    section_count = Column(Integer, nullable=True)
-    bushing_drawing = Column(String, nullable=True)
-    rod_drawing = Column(String, nullable=True)
-    rod_diameter = Column(Float, nullable=True)
-    rod_accuracy = Column(Float, nullable=True)
-    bushing_accuracy = Column(Float, nullable=True)
-    calculated_gap = Column(Float, nullable=True)
-    rounding_radius = Column(Float, nullable=True)
-    turbin_id = Column(Integer, ForeignKey('turbines.id'), nullable=True)
+    name = Column(String, nullable=False, unique=True, index=True)  # Новое поле "name"
+    type = Column(String, nullable=True)  # Изменено на "type"
+    diameter = Column(Float, nullable=True)  # Новое поле "diameter"
+    clearance = Column(Float, nullable=True)  # Новое поле "clearance"
+    count_parts = Column(Integer, nullable=True)  # Новое поле "count_parts"
+    len_part1 = Column(Float, nullable=True)  # Новое поле "len_part1"
+    len_part2 = Column(Float, nullable=True)  # Новое поле "len_part2"
+    len_part3 = Column(Float, nullable=True)  # Новое поле "len_part3"
+    len_part4 = Column(Float, nullable=True)  # Новое поле "len_part4"
+    len_part5 = Column(Float, nullable=True)  # Новое поле "len_part5"
+    round_radius = Column(Float, nullable=True)  # Новое поле "round_radius"
+
     turbine = relationship("Turbine", back_populates="valves")
-    section_length_1 = Column(Float, nullable=True)
-    section_length_2 = Column(Float, nullable=True)
-    section_length_3 = Column(Float, nullable=True)
-    section_length_4 = Column(Float, nullable=True)
-    section_length_5 = Column(Float, nullable=True)
 
     def __repr__(self):
-        return f"<Valve(valve_drawing='{self.valve_drawing}', valve_type='{self.valve_type}')>"
+        return f"<Valve(name='{self.name}', valve_type='{self.type}')>"
 
 
 class CalculationResultDB(Base):
-    __tablename__ = 'results'
+    __tablename__ = 'resultcalcs'
 
     id = Column(Integer, primary_key=True, index=True)
-    date = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    valve_drawing = Column(String, nullable=False)
-    parameters = Column(JSON, nullable=False)
-    results = Column(JSON, nullable=False)
+    user_name = Column(String, nullable=False)
+    stock_name = Column(String, ForeignKey('stocks.name'), nullable=False)
+    stock = relationship("Valve", backref="calculation_results")
+    turbine_name = Column(String, ForeignKey('turbines.name'), nullable=False)
+    turbine = relationship("Turbine", backref="calculation_results")
+    calc_timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    input_data = Column(JSON, nullable=False)
+    output_data = Column(JSON, nullable=False)
 
     def __repr__(self):
-        return f"<CalculationResultDB(valve_drawing='{self.valve_drawing}', date='{self.date}')>"
+        return f"<CalculationResultDB(stock_name='{self.stock_name}', turbine_name='{self.turbine_name}')>"
