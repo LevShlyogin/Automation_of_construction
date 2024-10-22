@@ -7,7 +7,7 @@ import emails  # type: ignore
 import jwt
 from jinja2 import Template
 
-from app.schemas import CalculationResult
+from backend.app.schemas import CalculationResult
 # from jwt.exceptions import InvalidTokenError
 
 from backend.app.core.config import settings
