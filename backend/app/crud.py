@@ -1,11 +1,10 @@
 import uuid
 from typing import Any, Type
-import json
 
 from sqlmodel import Session, select
 
 from backend.app.core.security import get_password_hash, verify_password
-from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate, CalculationResultDB
+from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -59,39 +58,33 @@ from sqlalchemy.orm import Session, joinedload
 from backend.app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
+import json
 
 
 def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.TurbineValves]:
-    turbine = db.query(models.Turbine).filter(models.Turbine.turbin_name == turbin_name).first()
+    turbine = db.query(models.Turbine).filter(models.Turbine.name == turbin_name).first()
     if not turbine:
         return None
 
     valves = turbine.valves
     valve_infos = [schemas.ValveInfo(
         id=valve.id,
-        source=valve.source,
-        verified=valve.verified,
-        verifier=valve.verifier,
-        valve_type=valve.valve_type,
-        valve_drawing=valve.valve_drawing,
-        section_count=valve.section_count,
-        bushing_drawing=valve.bushing_drawing,
-        rod_drawing=valve.rod_drawing,
-        rod_diameter=valve.rod_diameter,
-        rod_accuracy=valve.rod_accuracy,
-        bushing_accuracy=valve.bushing_accuracy,
-        calculated_gap=valve.calculated_gap,
+        name=valve.name,
+        type=valve.type,
+        diameter=valve.diameter,
+        clearance=valve.clearance,
+        count_parts=valve.count_parts,
         section_lengths=[
-            valve.section_length_1,
-            valve.section_length_2,
-            valve.section_length_3,
-            valve.section_length_4,
-            valve.section_length_5
+            valve.len_part1,
+            valve.len_part2,
+            valve.len_part3,
+            valve.len_part4,
+            valve.len_part5
         ],
-        rounding_radius=valve.rounding_radius,
+        round_radius=valve.round_radius,
         turbine=schemas.TurbineInfo(
             id=turbine.id,
-            turbin_name=turbine.turbin_name
+            name=turbine.name
         )
     ) for valve in valves]
 
@@ -100,36 +93,29 @@ def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.Tur
 
 def get_valve_by_drawing(db: Session, valve_drawing: str) -> Optional[schemas.ValveInfo]:
     valve = db.query(models.Valve).options(joinedload(models.Valve.turbine)).filter(
-        models.Valve.valve_drawing == valve_drawing).first()
+        models.Valve.name == valve_drawing).first()
     if valve is None:
         return None
     turbine = valve.turbine
     turbine_info = schemas.TurbineInfo(
         id=turbine.id,
-        turbin_name=turbine.turbin_name
+        name=turbine.name
     ) if turbine else None
     return schemas.ValveInfo(
         id=valve.id,
-        source=valve.source,
-        verified=valve.verified,
-        verifier=valve.verifier,
-        valve_type=valve.valve_type,
-        valve_drawing=valve.valve_drawing,
-        section_count=valve.section_count,
-        bushing_drawing=valve.bushing_drawing,
-        rod_drawing=valve.rod_drawing,
-        rod_diameter=valve.rod_diameter,
-        rod_accuracy=valve.rod_accuracy,
-        bushing_accuracy=valve.bushing_accuracy,
-        calculated_gap=valve.calculated_gap,
+        name=valve.name,
+        type=valve.type,
+        diameter=valve.diameter,
+        clearance=valve.clearance,
+        count_parts=valve.count_parts,
         section_lengths=[
-            valve.section_length_1,
-            valve.section_length_2,
-            valve.section_length_3,
-            valve.section_length_4,
-            valve.section_length_5
+            valve.len_part1,
+            valve.len_part2,
+            valve.len_part3,
+            valve.len_part4,
+            valve.len_part5
         ],
-        rounding_radius=valve.rounding_radius,
+        round_radius=valve.round_radius,
         turbine=turbine_info
     )
 
@@ -141,30 +127,23 @@ def get_valve_by_id(db: Session, valve_id: int) -> Optional[schemas.ValveInfo]:
     turbine = valve.turbine
     turbine_info = schemas.TurbineInfo(
         id=turbine.id,
-        turbin_name=turbine.turbin_name
+        name=turbine.name
     ) if turbine else None
     return schemas.ValveInfo(
         id=valve.id,
-        source=valve.source,
-        verified=valve.verified,
-        verifier=valve.verifier,
-        valve_type=valve.valve_type,
-        valve_drawing=valve.valve_drawing,
-        section_count=valve.section_count,
-        bushing_drawing=valve.bushing_drawing,
-        rod_drawing=valve.rod_drawing,
-        rod_diameter=valve.rod_diameter,
-        rod_accuracy=valve.rod_accuracy,
-        bushing_accuracy=valve.bushing_accuracy,
-        calculated_gap=valve.calculated_gap,
+        name=valve.name,
+        type=valve.type,
+        diameter=valve.diameter,
+        clearance=valve.clearance,
+        count_parts=valve.count_parts,
         section_lengths=[
-            valve.section_length_1,
-            valve.section_length_2,
-            valve.section_length_3,
-            valve.section_length_4,
-            valve.section_length_5
+            valve.len_part1,
+            valve.len_part2,
+            valve.len_part3,
+            valve.len_part4,
+            valve.len_part5
         ],
-        rounding_radius=valve.rounding_radius,
+        round_radius=valve.round_radius,
         turbine=turbine_info
     )
 
@@ -175,7 +154,7 @@ def create_calculation_result(db: Session, valve_drawing: str, parameters: schem
             valve_drawing=valve_drawing,
             parameters=json.dumps(parameters.model_dump()),
             results=json.dumps(results.model_dump()),
-            date=datetime.now(timezone.utc)
+            calc_timestamp=datetime.now(timezone.utc)
         )
         db.add(db_result)
         db.commit()
@@ -186,8 +165,8 @@ def create_calculation_result(db: Session, valve_drawing: str, parameters: schem
         raise Exception(f"An error occurred while saving the calculation result: {str(e)}")
 
 
-def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[CalculationResultDB]]:
+def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[models.CalculationResultDB]]:
     try:
-        return db.query(CalculationResultDB).filter(CalculationResultDB.valve_drawing == valve_drawing).order_by(CalculationResultDB.date.desc()).all()
+        return db.query(models.CalculationResultDB).filter(models.CalculationResultDB.stock.name == valve_drawing).order_by(models.CalculationResultDB.calc_timestamp.desc()).all()
     except Exception as e:
         raise Exception(f"An error occurred while retrieving results: {str(e)}")

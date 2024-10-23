@@ -2,9 +2,6 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from backend.app.database import Base
-from backend.app.dependencies import get_db
-import sys
-import os
 
 # Создаём тестовый движок с использованием SQLite в памяти
 TEST_SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -17,17 +14,16 @@ engine = create_engine(
 # Создаём класс для создания сессий
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Фикстура для создания таблиц перед запуском тестов
-@pytest.fixture(scope="session")
-def engine_fixture():
+@pytest.fixture(scope="session", autouse=True)
+def setup_database():
     Base.metadata.create_all(bind=engine)
-    yield engine
+    yield
     Base.metadata.drop_all(bind=engine)
 
 # Фикстура для создания сессии базы данных
 @pytest.fixture(scope="function")
-def db_session(engine_fixture):
-    connection = engine_fixture.connect()
+def db_session():
+    connection = engine.connect()
     transaction = connection.begin()
     session = TestingSessionLocal(bind=connection)
 
@@ -56,3 +52,9 @@ def client(override_get_db, monkeypatch):
 
     client = TestClient(app)
     return client
+
+# Пример теста для /turbines/test/
+def test_turbine_endpoint(client):
+    response = client.get("/turbines/test/")
+    assert response.status_code == 200
+    assert response.json() == {"message": "Тестовый эндпоинт для турбин работает!"}

@@ -226,8 +226,8 @@ class ValveCalculator:
         self.count_valves = params.count_valves
 
         self.radius_rounding_DB = valve_info.rounding_radius
-        self.delta_clearance_DB = valve_info.calculated_gap
-        self.diameter_stock_DB = valve_info.rod_diameter
+        self.delta_clearance_DB = valve_info.clearance
+        self.diameter_stock_DB = valve_info.diameter
         self.len_parts_DB = valve_info.section_lengths
 
         # Конвертация измерений в метры
@@ -526,4 +526,3 @@ class ValveCalculator:
             f"Calculated values for ejector: G={g_ejectors}, T={t_ejectors}, H={h_ejectors}, P={p_ejectors}")
 
         return tuple(g_ejectors), tuple(t_ejectors), tuple(h_ejectors), tuple(p_ejectors)
-
