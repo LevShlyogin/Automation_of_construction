@@ -41,6 +41,8 @@ from .database import engine
 from .utils import ValveCalculator, CalculationError
 from .dependencies import get_db
 from fastapi import FastAPI
+import logging
+from .database import Base
 
 app = FastAPI(title="Valve Calculation API")
 
@@ -56,7 +58,7 @@ def get_all_turbines(db: Session = Depends(get_db)):
     turbine_infos = [
         schemas.TurbineInfo(
             id=turbine.id,
-            turbin_name=turbine.name
+            name=turbine.name
         ) for turbine in turbines
     ]
     return turbine_infos

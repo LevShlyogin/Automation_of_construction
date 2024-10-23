@@ -1,5 +1,6 @@
 import uuid
 
+import sqlalchemy
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
@@ -115,58 +116,60 @@ class NewPassword(SQLModel):
 
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime, timezone
 
-Base = declarative_base()
-
+Base = sqlalchemy.orm.declarative_base()
 
 class Turbine(Base):
     __tablename__ = 'turbines'
+    __table_args__ = {'schema': 'autocalc'}
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False, unique=True, index=True)
     valves = relationship("Valve", back_populates="turbine")
 
     def __repr__(self):
-        return f"<Turbine(name='{self.turbin_name}')>"
-
+        return f"<Turbine(name='{self.name}')>"
 
 class Valve(Base):
     __tablename__ = 'stocks'
+    __table_args__ = {'schema': 'autocalc'}
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False, unique=True, index=True)  # Новое поле "name"
-    type = Column(String, nullable=True)  # Изменено на "type"
-    diameter = Column(Float, nullable=True)  # Новое поле "diameter"
-    clearance = Column(Float, nullable=True)  # Новое поле "clearance"
-    count_parts = Column(Integer, nullable=True)  # Новое поле "count_parts"
-    len_part1 = Column(Float, nullable=True)  # Новое поле "len_part1"
-    len_part2 = Column(Float, nullable=True)  # Новое поле "len_part2"
-    len_part3 = Column(Float, nullable=True)  # Новое поле "len_part3"
-    len_part4 = Column(Float, nullable=True)  # Новое поле "len_part4"
-    len_part5 = Column(Float, nullable=True)  # Новое поле "len_part5"
-    round_radius = Column(Float, nullable=True)  # Новое поле "round_radius"
+    name = Column(String, nullable=False, unique=True, index=True)
+    type = Column(String, nullable=True)
+    diameter = Column(Float, nullable=True)
+    clearance = Column(Float, nullable=True)
+    count_parts = Column(Integer, nullable=True)
+    len_part1 = Column(Float, nullable=True)
+    len_part2 = Column(Float, nullable=True)
+    len_part3 = Column(Float, nullable=True)
+    len_part4 = Column(Float, nullable=True)
+    len_part5 = Column(Float, nullable=True)
+    round_radius = Column(Float, nullable=True)
+
+    turbine_id = Column(Integer, ForeignKey('autocalc.turbines.id'), nullable=False)
 
     turbine = relationship("Turbine", back_populates="valves")
 
     def __repr__(self):
         return f"<Valve(name='{self.name}', valve_type='{self.type}')>"
 
-
 class CalculationResultDB(Base):
     __tablename__ = 'resultcalcs'
+    __table_args__ = {'schema': 'autocalc'}
 
     id = Column(Integer, primary_key=True, index=True)
     user_name = Column(String, nullable=True)
-    stock_name = Column(String, ForeignKey('stocks.name'), nullable=False)
+    stock_id = Column(Integer, ForeignKey('autocalc.stocks.id'), nullable=False)
     stock = relationship("Valve", backref="calculation_results")
-    turbine_name = Column(String, ForeignKey('turbines.name'), nullable=False)
+    turbine_id = Column(Integer, ForeignKey('autocalc.turbines.id'), nullable=False)
     turbine = relationship("Turbine", backref="calculation_results")
     calc_timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     input_data = Column(JSON, nullable=False)
     output_data = Column(JSON, nullable=False)
 
     def __repr__(self):
-        return f"<CalculationResultDB(stock_name='{self.stock_name}', turbine_name='{self.turbine_name}')>"
+        return f"<CalculationResultDB(stock_name='{self.stock.name}', turbine_name='{self.turbine.name}')>"
