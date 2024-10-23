@@ -5,7 +5,7 @@ from datetime import datetime
 
 class TurbineInfo(BaseModel):
     id: int
-    turbin_name: str
+    name: str
 
     class Config:
         from_attributes = True
@@ -13,24 +13,18 @@ class TurbineInfo(BaseModel):
 
 class ValveInfo(BaseModel):
     id: int
-    source: Optional[str] = None
-    verified: Optional[bool] = None
-    verifier: Optional[str] = None
-    valve_type: Optional[str] = None
-    valve_drawing: str
-    section_count: Optional[int] = None
-    bushing_drawing: Optional[str] = None
-    rod_drawing: Optional[str] = None
-    rod_diameter: Optional[float] = None
-    rod_accuracy: Optional[float] = None
-    bushing_accuracy: Optional[float] = None
-    calculated_gap: Optional[float] = None
-    section_lengths: List[Optional[float]]
-    rounding_radius: Optional[float] = None
+    name: str
+    type: Optional[str] = None
+    diameter: Optional[float] = None
+    clearance: Optional[float] = None
+    count_parts: Optional[int] = None
+    section_lengths: List[Optional[float]]  # Список длин частей
+    round_radius: Optional[float] = None
     turbine: Optional[TurbineInfo] = None  # Включение информации о турбине
 
     class Config:
         from_attributes = True
+
 
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным

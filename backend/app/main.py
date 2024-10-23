@@ -42,9 +42,6 @@ from .utils import ValveCalculator, CalculationError
 from .dependencies import get_db
 from fastapi import FastAPI
 
-# Создание всех таблиц
-# models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Valve Calculation API")
 
 
