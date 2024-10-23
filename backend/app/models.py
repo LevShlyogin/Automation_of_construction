@@ -159,7 +159,7 @@ class CalculationResultDB(Base):
     __tablename__ = 'resultcalcs'
 
     id = Column(Integer, primary_key=True, index=True)
-    user_name = Column(String, nullable=False)
+    user_name = Column(String, nullable=True)
     stock_name = Column(String, ForeignKey('stocks.name'), nullable=False)
     stock = relationship("Valve", backref="calculation_results")
     turbine_name = Column(String, ForeignKey('turbines.name'), nullable=False)

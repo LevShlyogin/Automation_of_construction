@@ -56,7 +56,7 @@ def get_all_turbines(db: Session = Depends(get_db)):
     turbine_infos = [
         schemas.TurbineInfo(
             id=turbine.id,
-            turbin_name=turbine.turbin_name
+            turbin_name=turbine.name
         ) for turbine in turbines
     ]
     return turbine_infos
@@ -85,7 +85,7 @@ def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
     else:
         raise HTTPException(status_code=400, detail="Необходимо указать valve_id или valve_drawing.")
 
-    valve_drawing = valve_info.valve_drawing
+    valve_drawing = valve_info.name  # Изменено на name, чтобы соответствовать модели
 
     # Проверка на существующие результаты для данного чертежа
     existing_results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_drawing)
@@ -127,21 +127,21 @@ def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
     )
 
 
-@app.get("/valves/{valve_drawing}/results/", response_model=List[schemas.CalculationResultDB])
-def get_calculation_results(valve_drawing: str, db: Session = Depends(get_db)):
+@app.get("/valves/{valve_name}/results/", response_model=List[schemas.CalculationResultDB])
+def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """
-    Получает все результаты расчётов для заданного чертежа клапана.
+    Получает все результаты расчётов для заданного клапана по его имени.
     """
-    results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_drawing)
+    results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_name)  # Используем поле "name"
     if not results:
-        raise HTTPException(status_code=404, detail="Расчёты для данного чертежа клапана не найдены.")
+        raise HTTPException(status_code=404, detail="Расчёты для данного клапана не найдены.")
 
     # Преобразование результатов в Pydantic схемы
     calculation_results = [
         schemas.CalculationResultDB(
             id=result.id,
             date=result.date,
-            valve_drawing=result.valve_drawing,
+            valve_drawing=result.valve_drawing,  # здесь может остаться valve_drawing, если это поле в модели результата
             parameters=result.parameters,
             results=result.results
         ) for result in results
