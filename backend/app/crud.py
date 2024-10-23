@@ -69,11 +69,11 @@ def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.Tur
     valves = turbine.valves
     valve_infos = [schemas.ValveInfo(
         id=valve.id,
-        name=valve.name,  # Новое поле "name"
-        type=valve.type,  # Изменено на "type"
-        diameter=valve.diameter,  # Новое поле "diameter"
-        clearance=valve.clearance,  # Новое поле "clearance"
-        count_parts=valve.count_parts,  # Новое поле "count_parts"
+        name=valve.name,
+        type=valve.type,
+        diameter=valve.diameter,
+        clearance=valve.clearance,
+        count_parts=valve.count_parts,
         section_lengths=[
             valve.len_part1,
             valve.len_part2,
@@ -81,7 +81,7 @@ def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.Tur
             valve.len_part4,
             valve.len_part5
         ],
-        round_radius=valve.round_radius,  # Новое поле "round_radius"
+        round_radius=valve.round_radius,
         turbine=schemas.TurbineInfo(
             id=turbine.id,
             name=turbine.name
@@ -93,7 +93,7 @@ def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.Tur
 
 def get_valve_by_drawing(db: Session, valve_drawing: str) -> Optional[schemas.ValveInfo]:
     valve = db.query(models.Valve).options(joinedload(models.Valve.turbine)).filter(
-        models.Valve.name == valve_drawing).first()  # Использование нового поля "name"
+        models.Valve.name == valve_drawing).first()
     if valve is None:
         return None
     turbine = valve.turbine
@@ -167,6 +167,6 @@ def create_calculation_result(db: Session, valve_drawing: str, parameters: schem
 
 def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[models.CalculationResultDB]]:
     try:
-        return db.query(models.CalculationResultDB).filter(models.CalculationResultDB.valve_drawing == valve_drawing).order_by(models.CalculationResultDB.calc_timestamp.desc()).all()
+        return db.query(models.CalculationResultDB).filter(models.CalculationResultDB.stock.name == valve_drawing).order_by(models.CalculationResultDB.calc_timestamp.desc()).all()
     except Exception as e:
         raise Exception(f"An error occurred while retrieving results: {str(e)}")

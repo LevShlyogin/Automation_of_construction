@@ -37,7 +37,6 @@ from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from . import models, schemas, crud
-from .database import engine
 from .utils import ValveCalculator, CalculationError
 from .dependencies import get_db
 from fastapi import FastAPI
@@ -65,7 +64,7 @@ def get_all_turbines(db: Session = Depends(get_db)):
 
 
 @app.get("/turbines/{turbine_name}/valves/", response_model=schemas.TurbineValves)
-def get_valves_by_turbine_endpoint(turbine_name: str, db: Session = Depends(get_db)):
+def get_valves_by_turbine(turbine_name: str, db: Session = Depends(get_db)):
     turbine_valves = crud.get_valves_by_turbine(db, turbin_name=turbine_name)
     if turbine_valves is None:
         raise HTTPException(status_code=404, detail="Турбина не найдена.")

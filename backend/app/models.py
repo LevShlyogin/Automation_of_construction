@@ -116,8 +116,7 @@ class NewPassword(SQLModel):
 
 
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
-from sqlalchemy.orm import relationship, declarative_base
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
 Base = sqlalchemy.orm.declarative_base()
