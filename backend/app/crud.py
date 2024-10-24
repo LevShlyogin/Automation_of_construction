@@ -59,36 +59,36 @@ from backend.app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
 import json
-
+from sqlalchemy import text
 
 def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.TurbineValves]:
-    turbine = db.query(models.Turbine).filter(models.Turbine.name == turbin_name).first()
-    if not turbine:
-        return None
+    valves = db.query(models.Valve).join(models.Turbine, text("stocks.name = turbines.valves")).filter(models.Turbine.name == turbin_name).all()
 
-    valves = turbine.valves
-    valve_infos = [schemas.ValveInfo(
-        id=valve.id,
-        name=valve.name,
-        type=valve.type,
-        diameter=valve.diameter,
-        clearance=valve.clearance,
-        count_parts=valve.count_parts,
-        section_lengths=[
-            valve.len_part1,
-            valve.len_part2,
-            valve.len_part3,
-            valve.len_part4,
-            valve.len_part5
-        ],
-        round_radius=valve.round_radius,
-        turbine=schemas.TurbineInfo(
-            id=turbine.id,
-            name=turbine.name
+    if not valves:
+        return None  # Возвращаем None, если клапаны не найдены
+
+    all_valves = []
+    for valve in valves:
+        valve_info = schemas.ValveInfo(
+            id=valve.id,
+            name=valve.name,
+            type=valve.type,
+            diameter=valve.diameter,
+            clearance=valve.clearance,
+            count_parts=valve.count_parts,
+            section_lengths=[
+                valve.len_part1,
+                valve.len_part2,
+                valve.len_part3,
+                valve.len_part4,
+                valve.len_part5,
+            ],
+            round_radius=valve.round_radius,
+            turbine=schemas.TurbineInfo(id=valve.turbine_id, name=turbin_name),
         )
-    ) for valve in valves]
+        all_valves.append(valve_info)
 
-    return schemas.TurbineValves(count=len(valve_infos), valves=valve_infos)
+    return schemas.TurbineValves(count=len(all_valves), valves=all_valves)  # Изменено возвращаемое значение
 
 
 def get_valve_by_drawing(db: Session, valve_drawing: str) -> Optional[schemas.ValveInfo]:
