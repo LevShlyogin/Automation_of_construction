@@ -56,12 +56,9 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
 
 from sqlalchemy.orm import Session, joinedload
 from backend.app import models, schemas
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime, timezone
 import json
-from sqlalchemy import text
-
-import logging
 
 import logging
 
