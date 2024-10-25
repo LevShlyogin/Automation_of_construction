@@ -37,7 +37,7 @@ def create_test_calculation_result(db: Session, valve_name: str, input_data: dic
     calculation_result = models.CalculationResultDB(
         stock_name=valve_name,
         turbine_name="Test Turbine",
-        calc_timestamp=datetime.now(timezone.utc),
+        calc_timestamp=datetime.now(tizdmezone.utc),
         input_data=input_data,
         output_data=output_data
     )

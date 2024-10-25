@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import './TurbineSearch.css';
 
+
 type Turbine = {
   id: number;
-  turbin_name: string;
-  stocks: string[]; // Добавьте это поле, если каждая турбина имеет связанные штоки
+  name: string;  // Поле 'name' вместо 'turbin_name'
 };
+
 
 type Props = {
   onSelectTurbine: (turbine: Turbine) => void;
 };
+
 
 const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
   const [turbines, setTurbines] = useState<Turbine[]>([]);
@@ -17,34 +19,53 @@ const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
   const [loading, setLoading] = useState(true);  // Состояние для индикации загрузки
   const [error, setError] = useState<string | null>(null);  // Состояние для обработки ошибок
 
-  // Загружаем данные о турбинах при монтировании компонента
-  useEffect(() => {
-    const fetchTurbines = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:8000/turbines/');
-        if (!response.ok) {
-          throw new Error('Ошибка загрузки данных');
-        }
-        const data = await response.json();
-        setTurbines(data);  // Сохраняем полученные данные в состояние
-      } catch (error: any) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchTurbines();
-  }, []);
+  // Загружаем данные о турбинах при монтировании компонента
+useEffect(() => {
+  const fetchTurbines = async () => {
+    try {
+      console.log("Отправляем запрос к API...");
+
+
+      const response = await fetch('http://localhost:8000/turbines/', {
+        mode: 'no-cors'  // Убедись, что 'no-cors' убран, если он был
+      });
+
+
+      console.log("Статус ответа:", response.status);  // Лог статуса ответа
+
+
+      if (!response.ok) {
+        throw new Error(`Ошибка загрузки данных. Статус: ${response.status}`);
+      }
+
+
+      const data = await response.json();
+      console.log("Полученные данные:", data);  // Лог полученных данных
+      setTurbines(data);
+    } catch (error: any) {
+      console.error("Ошибка запроса:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  fetchTurbines();
+}, []);
+
 
   // Фильтруем турбины по введенному тексту
   const filteredTurbines = turbines.filter(turbine =>
-    turbine.turbin_name.toLowerCase().includes(searchTerm.toLowerCase())
+    turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
 
   // Обработка загрузки и ошибок
   if (loading) return <div>Загрузка турбин...</div>;
   if (error) return <div>Ошибка: {error}</div>;
+
 
   return (
     <div className="turbine-search">
@@ -61,16 +82,13 @@ const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
       <ul className="turbine-list">
         {filteredTurbines.map((turbine) => (
           <li key={turbine.id} className="turbine-item" onClick={() => onSelectTurbine(turbine)}>
-            <p className="turbine-name">{turbine.turbin_name}</p>
-            {/* Если турбина имеет связанные штоки */}
-            {turbine.stocks && (
-              <p className="turbine-stocks">Штоки: {turbine.stocks.join(', ')}</p>
-            )}
+            <p className="turbine-name">{turbine.name}</p>  {/* Исправлено на turbine.name */}
           </li>
         ))}
       </ul>
     </div>
   );
 };
+
 
 export default TurbineSearch;
