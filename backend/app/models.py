@@ -122,11 +122,13 @@ from datetime import datetime, timezone
 Base = sqlalchemy.orm.declarative_base()
 
 class Turbine(Base):
-    __tablename__ = 'turbines'
+    __tablename__ = 'unique_turbine'
     __table_args__ = {'schema': 'autocalc'}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True, index=True)
+
+    # Связь с Valve
     valves = relationship("Valve", back_populates="turbine")
 
     def __repr__(self):
@@ -136,7 +138,7 @@ class Valve(Base):
     __tablename__ = 'stocks'
     __table_args__ = {'schema': 'autocalc'}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False, unique=True, index=True)
     type = Column(String, nullable=True)
     diameter = Column(Float, nullable=True)
@@ -149,9 +151,14 @@ class Valve(Base):
     len_part5 = Column(Float, nullable=True)
     round_radius = Column(Float, nullable=True)
 
-    turbine_id = Column(Integer, ForeignKey('autocalc.turbines.id'), nullable=False)
+    # Внешний ключ на UniqueTurbine
+    turbine_id = Column(Integer, ForeignKey('autocalc.unique_turbine.id'), nullable=False)
 
+    # Связь с Turbine
     turbine = relationship("Turbine", back_populates="valves")
+
+    # Связь с CalculationResultDB
+    calculation_results = relationship("CalculationResultDB", back_populates="valve")
 
     def __repr__(self):
         return f"<Valve(name='{self.name}', valve_type='{self.type}')>"
@@ -160,15 +167,20 @@ class CalculationResultDB(Base):
     __tablename__ = 'resultcalcs'
     __table_args__ = {'schema': 'autocalc'}
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
     user_name = Column(String, nullable=True)
-    stock_id = Column(Integer, ForeignKey('autocalc.stocks.id'), nullable=False)
-    stock = relationship("Valve", backref="calculation_results")
-    turbine_id = Column(Integer, ForeignKey('autocalc.turbines.id'), nullable=False)
-    turbine = relationship("Turbine", backref="calculation_results")
+    stock_name = Column(String, nullable=False)
+    turbine_name = Column(String, nullable=False)
     calc_timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     input_data = Column(JSON, nullable=False)
     output_data = Column(JSON, nullable=False)
 
+    # Внешний ключ на Valve
+    valve_id = Column(Integer, ForeignKey('autocalc.stocks.id'), nullable=False)
+
+    # Связь с Valve
+    valve = relationship("Valve", back_populates="calculation_results")
+
+
     def __repr__(self):
-        return f"<CalculationResultDB(stock_name='{self.stock.name}', turbine_name='{self.turbine.name}')>"
+        return f"<CalculationResultDB(stock_name='{self.stock_name}', turbine_name='{self.turbine_name}')>"

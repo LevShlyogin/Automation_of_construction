@@ -4,7 +4,7 @@ from typing import Any, Type
 from sqlmodel import Session, select
 
 from backend.app.core.security import get_password_hash, verify_password
-from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate, CalculationResultDB
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -59,69 +59,58 @@ from backend.app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
 import json
-from sqlalchemy import text
 
-def get_valves_by_turbine(db: Session, turbin_name: str) -> Optional[schemas.TurbineValves]:
-    valves = db.query(models.Valve).join(models.Turbine, text("stocks.name = turbines.valves")).filter(models.Turbine.name == turbin_name).all()
+import logging
 
-    if not valves:
-        return None  # Возвращаем None, если клапаны не найдены
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    all_valves = []
-    for valve in valves:
-        valve_info = schemas.ValveInfo(
-            id=valve.id,
-            name=valve.name,
-            type=valve.type,
-            diameter=valve.diameter,
-            clearance=valve.clearance,
-            count_parts=valve.count_parts,
-            section_lengths=[
-                valve.len_part1,
-                valve.len_part2,
-                valve.len_part3,
-                valve.len_part4,
-                valve.len_part5,
-            ],
-            round_radius=valve.round_radius,
-            turbine=schemas.TurbineInfo(id=valve.turbine_id, name=turbin_name),
+def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.TurbineValves]:
+    try:
+        # Получаем турбину вместе с клапанами
+        turbine = db.query(models.Turbine)\
+            .filter(models.Turbine.name == turbine_name)\
+            .first()
+
+        if not turbine:
+            return None
+
+        # Получаем клапаны
+        valves = turbine.valves
+
+        # Создаем список ValveInfo объектов
+        valve_info_list = []
+        for valve in valves:
+            valve_info = schemas.ValveInfo(
+                id=valve.id,
+                name=valve.name,
+                type=valve.type,
+                diameter=valve.diameter,
+                clearance=valve.clearance,
+                count_parts=valve.count_parts,
+                len_part1=valve.len_part1,
+                len_part2=valve.len_part2,
+                len_part3=valve.len_part3,
+                len_part4=valve.len_part4,
+                len_part5=valve.len_part5,
+                round_radius=valve.round_radius
+            )
+            valve_info_list.append(valve_info)
+
+        return schemas.TurbineValves(
+            count=len(valve_info_list),
+            valves=valve_info_list
         )
-        all_valves.append(valve_info)
-
-    return schemas.TurbineValves(count=len(all_valves), valves=all_valves)  # Изменено возвращаемое значение
+    except Exception as e:
+        logger.error(f"Database error: {str(e)}")
+        raise
 
 
 def get_valve_by_drawing(db: Session, valve_drawing: str) -> Optional[schemas.ValveInfo]:
     valve = db.query(models.Valve).options(joinedload(models.Valve.turbine)).filter(
         models.Valve.name == valve_drawing).first()
-    if valve is None:
-        return None
-    turbine = valve.turbine
-    turbine_info = schemas.TurbineInfo(
-        id=turbine.id,
-        name=turbine.name
-    ) if turbine else None
-    return schemas.ValveInfo(
-        id=valve.id,
-        name=valve.name,
-        type=valve.type,
-        diameter=valve.diameter,
-        clearance=valve.clearance,
-        count_parts=valve.count_parts,
-        section_lengths=[
-            valve.len_part1,
-            valve.len_part2,
-            valve.len_part3,
-            valve.len_part4,
-            valve.len_part5
-        ],
-        round_radius=valve.round_radius,
-        turbine=turbine_info
-    )
-
-
-def get_valve_by_id(db: Session, valve_id: int) -> Optional[schemas.ValveInfo]:
-    valve = db.query(models.Valve).options(joinedload(models.Valve.turbine)).filter(models.Valve.id == valve_id).first()
     if valve is None:
         return None
     turbine = valve.turbine
@@ -165,8 +154,15 @@ def create_calculation_result(db: Session, valve_drawing: str, parameters: schem
         raise Exception(f"An error occurred while saving the calculation result: {str(e)}")
 
 
-def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[models.CalculationResultDB]]:
+def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[CalculationResultDB]]:
     try:
-        return db.query(models.CalculationResultDB).filter(models.CalculationResultDB.stock.name == valve_drawing).order_by(models.CalculationResultDB.calc_timestamp.desc()).all()
+        # Фильтрация по полю stock_name (имя клапана) в таблице resultcalcs
+        results = (
+            db.query(models.CalculationResultDB)
+            .filter(models.CalculationResultDB.stock_name == valve_drawing)  # Фильтр по имени клапана
+            .order_by(models.CalculationResultDB.calc_timestamp.desc())  # Сортировка по времени расчета
+            .all()
+        )
+        return results
     except Exception as e:
         raise Exception(f"An error occurred while retrieving results: {str(e)}")

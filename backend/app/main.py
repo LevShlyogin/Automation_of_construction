@@ -1,5 +1,4 @@
 import sentry_sdk
-from docutils.nodes import status
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
@@ -36,23 +35,25 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from . import models, schemas, crud
-from .utils import ValveCalculator, CalculationError
-from .dependencies import get_db
+from backend.app import models, schemas, crud
+from backend.app.utils import ValveCalculator, CalculationError
+from backend.app.dependencies import get_db
 from fastapi import FastAPI
+
 import logging
-from .database import Base
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 
 app = FastAPI(title="Valve Calculation API")
 
 
-@app.get("/turbines/test/")
-def test_turbine_endpoint():
-    return {"message": "Тестовый эндпоинт для турбин работает!"}
-
-
 @app.get("/turbines/", response_model=List[schemas.TurbineInfo])
-def get_all_turbines(db: Session = Depends(get_db)):
+async def get_all_turbines(db: Session = Depends(get_db)):
     turbines = db.query(models.Turbine).all()
     turbine_infos = [
         schemas.TurbineInfo(
@@ -64,42 +65,26 @@ def get_all_turbines(db: Session = Depends(get_db)):
 
 
 @app.get("/turbines/{turbine_name}/valves/", response_model=schemas.TurbineValves)
-def get_valves_by_turbine(turbine_name: str, db: Session = Depends(get_db)):
-    turbine_valves = crud.get_valves_by_turbine(db, turbin_name=turbine_name)
-    if turbine_valves is None:
-        raise HTTPException(status_code=404, detail="Турбина не найдена.")
-    return turbine_valves
+async def get_valves_by_turbine(turbine_name: str, db: Session = Depends(get_db)):
+    try:
+        turbine_valves = crud.get_valves_by_turbine(db, turbine_name=turbine_name)
+        if turbine_valves is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Турбина с именем {turbine_name} не найдена или у неё нет клапанов"
+            )
+        return turbine_valves
+    except Exception as e:
+        logger.error(f"Error getting valves for turbine {turbine_name}: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Внутренняя ошибка сервера: {str(e)}"
+        )
 
 
 @app.post("/calculate", response_model=schemas.CalculationResultDB)
-def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
-
-    # Выбор клапана по ID или по чертежу
-    if params.valve_id:
-        valve_info = crud.get_valve_by_id(db, valve_id=params.valve_id)
-        if valve_info is None:
-            raise HTTPException(status_code=404, detail="Клапан не найден по указанному ID.")
-    elif params.valve_drawing:
-        valve_info = crud.get_valve_by_drawing(db, valve_drawing=params.valve_drawing)
-        if valve_info is None:
-            raise HTTPException(status_code=404, detail="Клапан не найден по указанному чертежу.")
-    else:
-        raise HTTPException(status_code=400, detail="Необходимо указать valve_id или valve_drawing.")
-
-    valve_drawing = valve_info.name  # Изменено на name, чтобы соответствовать модели
-
-    # Проверка на существующие результаты для данного чертежа
-    existing_results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_drawing)
-    if existing_results and len(existing_results) > 0:
-        latest_result = existing_results[0]
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Для данного чертежа клапана уже существуют сохранённые результаты. Вы можете просмотреть их.",
-                "latest_result": latest_result.results,
-                "date": latest_result.date
-            }
-        )
+async def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
+    valve_info = params.valve_info  # Используем данные о клапане, переданные с фронтенда
 
     try:
         # Выполнение расчётов
@@ -113,36 +98,37 @@ def calculate(params: schemas.CalculationParams, db: Session = Depends(get_db)):
     # Сохранение результатов в базе данных
     new_result = crud.create_calculation_result(
         db=db,
-        valve_drawing=valve_drawing,
+        valve_drawing=valve_info.name,  # Используем переданные данные о клапане
         parameters=params,
         results=calculation_result
     )
 
-    # Преобразование словаря в объект схемы
+    # Возвращаем результат
     return schemas.CalculationResultDB(
         id=new_result.id,
         date=new_result.date,
-        valve_drawing=new_result.valve_drawing,
+        valve_drawing=valve_info.name,  # Используем переданные данные о клапане
         parameters=params,
         results=calculation_result
     )
 
 
 @app.get("/valves/{valve_name}/results/", response_model=List[schemas.CalculationResultDB])
-def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
+async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """
     Получает все результаты расчётов для заданного клапана по его имени.
     """
-    results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_name)  # Используем поле "name"
+    results = crud.get_results_by_valve_drawing(db, valve_drawing=valve_name)
+
     if not results:
-        raise HTTPException(status_code=404, detail="Расчёты для данного клапана не найдены.")
+        return []  # Возвращаем пустой список, если результаты не найдены
 
     # Преобразование результатов в Pydantic схемы
     calculation_results = [
         schemas.CalculationResultDB(
             id=result.id,
             date=result.date,
-            valve_drawing=result.valve_drawing,  # здесь может остаться valve_drawing, если это поле в модели результата
+            valve_drawing=result.valve_drawing,
             parameters=result.parameters,
             results=result.results
         ) for result in results
