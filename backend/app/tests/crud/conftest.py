@@ -52,9 +52,3 @@ def client(override_get_db, monkeypatch):
 
     client = TestClient(app)
     return client
-
-# Пример теста для /turbines/test/
-def test_turbine_endpoint(client):
-    response = client.get("/turbines/test/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Тестовый эндпоинт для турбин работает!"}
