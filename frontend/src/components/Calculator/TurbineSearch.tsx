@@ -28,7 +28,7 @@ useEffect(() => {
 
 
       const response = await fetch('http://localhost:8000/turbines/', {
-        mode: 'no-cors'  // Убедись, что 'no-cors' убран, если он был
+//         mode: 'no-cors'  // Убедись, что 'no-cors' убран, если он был
       });
 
 
