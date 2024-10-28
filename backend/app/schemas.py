@@ -40,6 +40,20 @@ class ValveInfo(BaseModel):
         from_attributes = True
 
 
+class ValveCreate(BaseModel):
+    name: str
+    type: Optional[str]
+    diameter: Optional[float]
+    clearance: Optional[float]
+    count_parts: Optional[int]
+    len_part1: Optional[float]
+    len_part2: Optional[float]
+    len_part3: Optional[float]
+    len_part4: Optional[float]
+    len_part5: Optional[float]
+    round_radius: Optional[float]
+    turbine_id: Optional[int]
+
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным
     valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
@@ -80,7 +94,7 @@ class CalculationResultDB(BaseModel):
     stock_name: str
     turbine_name: str
     calc_timestamp: datetime
-    input_data: dict[str, Any]
+    input_data: dict[str, Any]  # Замените JSON на Dict[str, Any]
     output_data: dict[str, Any]
 
     class Config:

@@ -120,12 +120,23 @@ async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_d
 @app.get("/valves", response_model=List[schemas.ValveInfo])
 async def get_valves(db: Session = Depends(get_db)):
     valves = db.query(models.Valve).all()
+
+    # Проверяем, что все клапаны имеют корректное имя.
+    for valve in valves:
+        if valve.name is None:
+            valve.name = "Unknown"  # Или какое-то другое значение по умолчанию
+
     return valves
 
 
-@app.post("/valves", response_model=schemas.ValveInfo)
-async def create_valve(valve: schemas.ValveInfo, db: Session = Depends(get_db)):
-    db_valve = models.Valve(
+@app.post("/valves/", response_model=schemas.ValveCreate)
+async def create_valve(valve: schemas.ValveCreate, db: Session = Depends(get_db)):
+    # Проверяем, что клапан с таким именем еще не существует
+    existing_valve = db.query(models.Valve).filter(models.Valve.name == valve.name).first()
+    if existing_valve:
+        raise HTTPException(status_code=400, detail="Valve with this name already exists.")
+
+    new_valve = models.Valve(
         name=valve.name,
         type=valve.type,
         diameter=valve.diameter,
@@ -139,10 +150,12 @@ async def create_valve(valve: schemas.ValveInfo, db: Session = Depends(get_db)):
         round_radius=valve.round_radius,
         turbine_id=valve.turbine_id
     )
-    db.add(db_valve)
+
+    db.add(new_valve)
     db.commit()
-    db.refresh(db_valve)
-    return db_valve
+    db.refresh(new_valve)
+
+    return new_valve
 
 
 @app.put("/valves/{valve_id}", response_model=schemas.ValveInfo)
@@ -165,6 +178,23 @@ async def update_valve(valve_id: int, valve: schemas.ValveInfo, db: Session = De
     db.commit()
     db.refresh(db_valve)
     return db_valve
+
+
+@app.delete("/valves/{valve_id}", response_model=dict)
+async def delete_valve(valve_id: int, db: Session = Depends(get_db)):
+    # Найдите клапан с заданным ID
+    valve = db.query(models.Valve).filter(models.Valve.id == valve_id).first()
+
+    # Если клапан не найден, верните ошибку
+    if valve is None:
+        raise HTTPException(status_code=404, detail="Valve not found")
+
+    # Удалите клапан из базы данных
+    db.delete(valve)
+    db.commit()
+
+    # Верните сообщение об успешном удалении
+    return {"message": "Valve successfully deleted"}
 
 
 # Вычисления
@@ -224,8 +254,8 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
             stock_name=result.stock_name,
             turbine_name=result.turbine_name,
             calc_timestamp=result.calc_timestamp,
-            input_data=schemas.CalculationParams(**result.input_data),  # Преобразование в Pydantic модель
-            output_data=schemas.CalculationResult(**result.output_data) # Преобразование в Pydantic модель
+            input_data=result.input_data,  # Преобразование в Pydantic модель
+            output_data=result.output_data # Преобразование в Pydantic модель
         ) for result in db_results
     ]
 

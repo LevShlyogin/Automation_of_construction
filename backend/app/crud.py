@@ -135,10 +135,12 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
             .order_by(models.CalculationResultDB.calc_timestamp.desc())
             .all()
         )
-        # Преобразование JSON в словари (или объекты Pydantic)
+        # Если данные уже являются словарями, то десериализация не нужна
         for result in results:
-            result.input_data = json.loads(result.input_data)
-            result.output_data = json.loads(result.output_data)
+            if isinstance(result.input_data, str):
+                result.input_data = json.loads(result.input_data)
+            if isinstance(result.output_data, str):
+                result.output_data = json.loads(result.output_data)
         return results
     except Exception as e:
         raise Exception(f"An error occurred while retrieving results: {str(e)}")
