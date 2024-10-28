@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Type
+from typing import Any
 
 from sqlmodel import Session, select
 
@@ -54,7 +54,7 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     return db_item
 
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from backend.app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
@@ -108,42 +108,15 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
         raise
 
 
-def get_valve_by_drawing(db: Session, valve_drawing: str) -> Optional[schemas.ValveInfo]:
-    valve = db.query(models.Valve).options(joinedload(models.Valve.turbine)).filter(
-        models.Valve.name == valve_drawing).first()
-    if valve is None:
-        return None
-    turbine = valve.turbine
-    turbine_info = schemas.TurbineInfo(
-        id=turbine.id,
-        name=turbine.name
-    ) if turbine else None
-    return schemas.ValveInfo(
-        id=valve.id,
-        name=valve.name,
-        type=valve.type,
-        diameter=valve.diameter,
-        clearance=valve.clearance,
-        count_parts=valve.count_parts,
-        section_lengths=[
-            valve.len_part1,
-            valve.len_part2,
-            valve.len_part3,
-            valve.len_part4,
-            valve.len_part5
-        ],
-        round_radius=valve.round_radius,
-        turbine=turbine_info
-    )
-
-
-def create_calculation_result(db: Session, valve_drawing: str, parameters: schemas.CalculationParams, results: schemas.CalculationResult) -> models.CalculationResultDB:
+def create_calculation_result(db: Session, parameters: schemas.CalculationParams, results: schemas.CalculationResult) -> CalculationResultDB:
     try:
-        db_result = models.CalculationResultDB(
-            valve_drawing=valve_drawing,
-            parameters=json.dumps(parameters.model_dump()),
-            results=json.dumps(results.model_dump()),
-            calc_timestamp=datetime.now(timezone.utc)
+        db_result = CalculationResultDB(
+            user_name="default_user",
+            stock_name=parameters.valve_drawing,
+            turbine_name=parameters.turbine_name,
+            calc_timestamp=datetime.now(timezone.utc),
+            input_data=json.dumps(parameters.model_dump()),
+            output_data=json.dumps(results.model_dump())
         )
         db.add(db_result)
         db.commit()
@@ -151,18 +124,21 @@ def create_calculation_result(db: Session, valve_drawing: str, parameters: schem
         return db_result
     except Exception as e:
         db.rollback()
-        raise Exception(f"An error occurred while saving the calculation result: {str(e)}")
+        raise Exception(f"При сохранении результата расчета произошла ошибка: {str(e)}")
 
 
-def get_results_by_valve_drawing(db: Session, valve_drawing: str) -> list[Type[CalculationResultDB]]:
+def get_results_by_valve_drawing(db: Session, valve_drawing: str):
     try:
-        # Фильтрация по полю stock_name (имя клапана) в таблице resultcalcs
         results = (
             db.query(models.CalculationResultDB)
-            .filter(models.CalculationResultDB.stock_name == valve_drawing)  # Фильтр по имени клапана
-            .order_by(models.CalculationResultDB.calc_timestamp.desc())  # Сортировка по времени расчета
+            .filter(models.CalculationResultDB.stock_name == valve_drawing)
+            .order_by(models.CalculationResultDB.calc_timestamp.desc())
             .all()
         )
+        # Преобразование JSON в словари (или объекты Pydantic)
+        for result in results:
+            result.input_data = json.loads(result.input_data)
+            result.output_data = json.loads(result.output_data)
         return results
     except Exception as e:
         raise Exception(f"An error occurred while retrieving results: {str(e)}")

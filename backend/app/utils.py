@@ -326,6 +326,7 @@ class ValveCalculator:
 
     def calculate_area2(self):
         """Выполняет расчеты для участка 2."""
+        logger.info("Starting calculation for area 1")
         if self.count_parts >= 2:
             if self.count_parts > 2:  # Исправлено с len_part3 на len_parts[2]
                 self.p_ejector = self.p_suctions[0]
