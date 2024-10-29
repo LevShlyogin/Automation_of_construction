@@ -54,6 +54,7 @@ class ValveCreate(BaseModel):
     round_radius: Optional[float]
     turbine_id: Optional[int]
 
+
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным
     valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана

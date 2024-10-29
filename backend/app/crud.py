@@ -108,7 +108,8 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
         raise
 
 
-def create_calculation_result(db: Session, parameters: schemas.CalculationParams, results: schemas.CalculationResult) -> CalculationResultDB:
+def create_calculation_result(db: Session, parameters: schemas.CalculationParams, results: schemas.CalculationResult,
+    valve_id: int) -> CalculationResultDB:
     try:
         db_result = CalculationResultDB(
             user_name="default_user",
@@ -116,7 +117,8 @@ def create_calculation_result(db: Session, parameters: schemas.CalculationParams
             turbine_name=parameters.turbine_name,
             calc_timestamp=datetime.now(timezone.utc),
             input_data=json.dumps(parameters.model_dump()),
-            output_data=json.dumps(results.model_dump())
+            output_data=json.dumps(results.model_dump()),
+            valve_id=valve_id
         )
         db.add(db_result)
         db.commit()

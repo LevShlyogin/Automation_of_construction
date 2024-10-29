@@ -224,7 +224,8 @@ async def calculate(params: schemas.CalculationParams, db: Session = Depends(get
     new_result = create_calculation_result(
         db=db,
         parameters=params,
-        results=calculation_result
+        results=calculation_result,
+        valve_id=valve.id
     )
 
     # Возвращаем результат
