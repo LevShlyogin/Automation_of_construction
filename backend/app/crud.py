@@ -1,6 +1,7 @@
 import uuid
 from typing import Any
 
+from fastapi import HTTPException, status
 from sqlmodel import Session, select
 
 from backend.app.core.security import get_password_hash, verify_password
@@ -68,6 +69,19 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.TurbineValves]:
+    """
+        Получает список клапанов для заданной турбины.
+
+        Args:
+            db: Сессия базы данных.
+            turbine_name: Название турбины.
+
+        Returns:
+            Список клапанов или None, если турбина не найдена.
+
+        Raises:
+            HTTPException: Если произошла ошибка базы данных (500).
+        """
     try:
         # Получаем турбину вместе с клапанами
         turbine = db.query(models.Turbine)\
@@ -104,12 +118,28 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
             valves=valve_info_list
         )
     except Exception as e:
-        logger.error(f"Database error: {str(e)}")
-        raise
+        logger.error(f"Ошибка базы данных при получении клапанов по турбине: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail=f"Не удалось получить клапаны: {e}")
 
 
 def create_calculation_result(db: Session, parameters: schemas.CalculationParams, results: schemas.CalculationResult,
     valve_id: int) -> CalculationResultDB:
+    """
+        Создает запись о результате расчета в базе данных.
+
+        Args:
+            db: Сессия базы данных.
+            parameters: Входные параметры расчета.
+            results: Результаты расчета.
+            valve_id: ID клапана.
+
+        Returns:
+            Созданный объект CalculationResultDB.
+
+        Raises:
+            HTTPException: Если произошла ошибка при сохранении результата (500).
+        """
     try:
         db_result = CalculationResultDB(
             user_name="default_user",
@@ -125,11 +155,26 @@ def create_calculation_result(db: Session, parameters: schemas.CalculationParams
         db.refresh(db_result)
         return db_result
     except Exception as e:
-        db.rollback()
-        raise Exception(f"При сохранении результата расчета произошла ошибка: {str(e)}")
+        db.rollback()  # Откатываем транзакцию в случае ошибки
+        logger.error(f"Ошибка базы данных при сохранении результата расчета: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось сохранить результат расчета: {e}")
 
 
 def get_results_by_valve_drawing(db: Session, valve_drawing: str):
+    """
+        Получает результаты расчетов по названию клапана.
+
+        Args:
+            db: Сессия базы данных.
+            valve_drawing: Название клапана.
+
+        Returns:
+            Список результатов расчетов.
+
+        Raises:
+            HTTPException: Если произошла ошибка при получении результатов (500).
+        """
     try:
         results = (
             db.query(models.CalculationResultDB)
@@ -145,4 +190,6 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
                 result.output_data = json.loads(result.output_data)
         return results
     except Exception as e:
-        raise Exception(f"An error occurred while retrieving results: {str(e)}")
+        logger.error(f"Ошибка базы данных при получении результатов по клапану: {str(e)}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось получить результаты: {e}")
