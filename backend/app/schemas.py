@@ -1,4 +1,4 @@
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, computed_field
 from datetime import datetime
@@ -40,6 +40,21 @@ class ValveInfo(BaseModel):
         from_attributes = True
 
 
+class ValveCreate(BaseModel):
+    name: str
+    type: Optional[str]
+    diameter: Optional[float]
+    clearance: Optional[float]
+    count_parts: Optional[int]
+    len_part1: Optional[float]
+    len_part2: Optional[float]
+    len_part3: Optional[float]
+    len_part4: Optional[float]
+    len_part5: Optional[float]
+    round_radius: Optional[float]
+    turbine_id: Optional[int]
+
+
 class CalculationParams(BaseModel):
     turbine_name: Optional[str] = None  # Сделаем необязательным
     valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
@@ -76,10 +91,12 @@ class ErrorResponse(BaseModel):
 
 class CalculationResultDB(BaseModel):
     id: int
-    date: datetime
-    valve_drawing: str
-    parameters: CalculationParams
-    results: CalculationResult
+    user_name: Optional[str] = None
+    stock_name: str
+    turbine_name: str
+    calc_timestamp: datetime
+    input_data: dict[str, Any]  # Замените JSON на Dict[str, Any]
+    output_data: dict[str, Any]
 
     class Config:
-        from_attributes = True
+            from_attributes = True
