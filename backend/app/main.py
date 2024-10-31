@@ -2,9 +2,11 @@ import json
 
 import sentry_sdk
 from fastapi import FastAPI
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute, APIRouter
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import FileResponse
 
+from app.results_to_vsdx import create_valve_diagram
 from backend.app.crud import create_calculation_result
 from backend.app.api.main import api_router
 from backend.app.core.config import settings
@@ -399,3 +401,34 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
         logger.error(f"Ошибка при удалении результата расчёта {result_id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось удалить результат расчёта: {e}")
+
+
+router = APIRouter()
+@router.post("/generate_valve_diagram/{calculation_id}", summary="Сгенерировать схему клапана")
+async def generate_valve_diagram(calculation_id: int, db: Session = Depends(get_db)):
+    try:
+        # Получаем результаты расчета из базы данных по ID
+        calculation_result = db.query(models.CalculationResult).filter(
+            models.CalculationResult.id == calculation_id).first()
+        if not calculation_result:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Результат расчета с ID '{calculation_id}' не найден")
+
+        # Получаем информацию о клапане
+        valve = db.query(models.Valve).filter(models.Valve.id == calculation_result.valve_id).first()
+        if not valve:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Клапан с ID '{calculation_result.valve_id}' не найден")
+
+        valve_info = schemas.ValveInfo.model_validate(valve)
+
+        # Создаём схему клапана
+        diagram_filename = create_valve_diagram(json.loads(calculation_result.output_data), valve_info)
+
+        # Возвращаем файл схемы
+        return FileResponse(diagram_filename, media_type='application/vnd.ms-visio.drawing',
+                            filename=diagram_filename)
+    except Exception as e:
+        logger.error(f"Ошибка при генерации схемы клапана: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось сгенерировать схему: {e}")
