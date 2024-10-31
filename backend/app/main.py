@@ -345,7 +345,7 @@ async def calculate(params: schemas.CalculationParams, db: Session = Depends(get
 
 
 # Результаты
-@app.get("/valves/{valve_name}/results/", response_model=List[schemas.CalculationResultDB])
+@app.get("/valves/{valve_name}/results/", response_model=List[schemas.CalculationResultDB], summary="Получить результат расчёта")
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """
     Получить список результатов расчётов для заданного клапана.
