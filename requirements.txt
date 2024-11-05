@@ -10,7 +10,7 @@ pydantic-settings~=2.5.2
 typing_extensions~=4.12.2
 passlib~=1.7.4
 SQLAlchemy~=2.0.34
-starlette~=0.38.5
+starlette~=0.40.0
 idna~=3.8
 anyio~=4.4.0
 h11~=0.14.0
@@ -42,3 +42,4 @@ tenacity~=9.0.0
 Jinja2~=3.1.4
 emails
 psycopg[binary,pool]
+scipy
