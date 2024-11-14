@@ -22,13 +22,9 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
-origins = [
-    "http://localhost:3001",  # Добавьте адрес вашего фронтенда
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["http://localhost:3001"],  # Указываем точный адрес frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
