@@ -1,28 +1,19 @@
-import json
-import sentry_sdk
-import logging
-
-import sentry_sdk
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.routing import APIRoute
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from typing import List
+from fastapi import Depends, HTTPException, Response, status, FastAPI
 
 from backend.app.crud import create_calculation_result
-from backend.app.api.main import api_router
 from backend.app.core.config import settings
-from backend.app.models import Turbine
-from backend.app.schemas import TurbineInfo
-from fastapi import Depends, HTTPException, Response, status
-from sqlalchemy.orm import Session
-from typing import List
-from backend.app import models, schemas, crud
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.dependencies import get_db
-from fastapi import FastAPI
+from backend.app import models, schemas, crud
+
+import json
+import logging
+import sentry_sdk
+from sqlalchemy.orm import Session
+from typing import List
+
 
 # Настройка логирования
 logging.basicConfig(
@@ -312,7 +303,7 @@ async def calculate(params: schemas.CalculationParams, db: Session = Depends(get
     :return: Результаты расчета
     """
     # Комментим на время для проверки работ расчётов
-    # valve_info = params.valve_info  # Используем данные о клапане, переданные с фронтенда
+    # valve_info = params.valve_info # Используем данные о клапане, переданные с фронтенда
     try:
         # Получение данных о клапане из базы данных по имени
         valve = db.query(models.Valve).filter(models.Valve.name == params.valve_drawing).first()
