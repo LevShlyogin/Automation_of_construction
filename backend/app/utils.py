@@ -3,12 +3,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, List
 
-import emails  # type: ignore
+import emails
 import jwt
 from jinja2 import Template
 
 from backend.app.schemas import CalculationResult
-# from jwt.exceptions import InvalidTokenError
 
 from backend.app.core.config import settings
 
