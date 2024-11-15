@@ -14,7 +14,6 @@ import sentry_sdk
 from sqlalchemy.orm import Session
 from typing import List
 
-
 # Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
@@ -39,7 +38,7 @@ app = FastAPI(
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001"],  # Адрес frontend
+    allow_origins=["http://localhost:3001"],  # Указываем точный адрес frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
