@@ -1,6 +1,10 @@
+/* ResultsPage.css */
 .calculation-results-page {
   text-align: center;
   margin-top: 20px;
+  max-width: 1280px; /* Ограничиваем ширину контейнера */
+  margin: 0 auto; /* Центрируем контейнер по горизонтали */
+  padding: 20px;
 }
 
 h2 {
@@ -9,13 +13,13 @@ h2 {
 }
 
 .previous-text {
-    text-align: center;
+  text-align: center;
 }
 
 .results-table {
   margin: 20px auto;
   border-collapse: collapse;
-  width: 80%;
+  width: 100%; /* Таблица занимает всю ширину контейнера */
 }
 
 .results-table th,
@@ -44,37 +48,43 @@ h2 {
 }
 
 .btn-green-excel {
-    background-color: #28a745;
-    color: white;
-    width: 200px;
-    border-radius: 10px;
-    height: 50px;
-    transition: transform 0.25s ease, background-color 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: 0px;
-    font-weight: bold;
+  background-color: #28a745;
+  color: white;
+  width: 200px;
+  border-radius: 10px;
+  height: 50px;
+  transition: transform 0.25s ease, background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 0px;
+  font-weight: bold;
 }
 
 .btn-green-excel:hover {
-    background-color: #106806;
-    transform: translateY(-2.5px); /* Эффект поднятия */
+  background-color: #106806;
+  transform: translateY(-2.5px); /* Эффект поднятия */
 }
 
 .btn-blue-db {
-    background-color: #007bff;
-    color: white;
-    width: 200px;
-    border-radius: 10px;
-    height: 50px;
-    transition: transform 0.25s ease, background-color 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    border: 0px;
-    font-weight: bold;
+  background-color: #007bff;
+  color: white;
+  width: 200px;
+  border-radius: 10px;
+  height: 50px;
+  transition: transform 0.25s ease, background-color 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border: 0px;
+  font-weight: bold;
 }
 
 .btn-blue-db:hover {
-    background-color: #1234dc;
-    transform: translateY(-2.5px); /* Эффект поднятия */
+  background-color: #1234dc;
+  transform: translateY(-2.5px); /* Эффект поднятия */
+}
+
+.btn-blue-db.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .save-status {

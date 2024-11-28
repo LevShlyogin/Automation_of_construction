@@ -21,21 +21,20 @@ const CalculatorPage: React.FC = () => {
 
   // При выборе штока
   const handleStockSelect = async (stock) => {
-      setSelectedStock(stock);
+    setSelectedStock(stock);
 
-      // Проверка наличия результатов
-      const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
-      const results = await response.json();
+    // Проверка наличия результатов
+    const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
+    const results = await response.json();
 
-      if (results.length > 0) {
-        // Сортируем результаты по времени и берем самый последний
-        const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        setLastCalculation(sortedResults[0]); // Берем последний по времени расчет
-      } else {
-        setLastCalculation(null); // Если результатов нет
-      }
+    if (results.length > 0) {
+      // Сортируем результаты по времени и берем самый последний
+      const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setLastCalculation(sortedResults[0]); // Берем последний по времени расчет
+    } else {
+      setLastCalculation(null); // Если результатов нет
+    }
   };
-
 
   // Логика после перерасчета
   const handleRecalculate = (recalculate: boolean) => {
@@ -49,18 +48,22 @@ const CalculatorPage: React.FC = () => {
   return (
     <div className="calculator-page">
       <header className="header">
-          <img src="logo.png" alt="Logo" className="logo" />
-          <h1 className="program-name">WSAPropertiesCalculator</h1>
-          <nav className="nav">
-            <a href="/">Калькулятор</a>
-            <a href="/about">О программе</a>
-            <a href="/help">Помощь</a>
-          </nav>
+        <img src="logo.png" alt="Logo" className="logo" />
+        <h1 className="program-name">WSAPropertiesCalculator</h1>
+        <nav className="nav">
+          <a href="/">Калькулятор</a>
+          <a href="/about">О программе</a>
+          <a href="/help">Помощь</a>
+        </nav>
       </header>
 
       <main className="main-content">
         {isResultPage ? (
-          <ResultsPage stockId={selectedStock.name} />
+          <ResultsPage
+            stockId={selectedStock.name}
+            inputData={lastCalculation?.input_data}
+            outputData={lastCalculation?.output_data}
+          />
         ) : !selectedTurbine ? (
           <TurbineSearch onSelectTurbine={handleTurbineSelect} />
         ) : !selectedStock ? (

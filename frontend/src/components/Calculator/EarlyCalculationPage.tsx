@@ -19,6 +19,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
   // Вывод входных и выходных данных в консоль для диагностики
   useEffect(() => {
     console.group(`Данные для штока: ${stockId}`);
+    console.log('lastCalculation:', lastCalculation);
     console.log('Входные данные:', inputData);
     console.log('Выходные данные:', {
       Gi: gi,
@@ -29,7 +30,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
       ejectorProps: ejectorProps
     });
     console.groupEnd();
-  }, [stockId, inputData, gi, pi_in, ti, hi, deaeratorProps, ejectorProps]);
+  }, [stockId, lastCalculation, inputData, gi, pi_in, ti, hi, deaeratorProps, ejectorProps]);
 
   return (
     <div className="detected-calculation">
@@ -38,55 +39,53 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
 
       {/* Входные данные */}
       <h3>Входные данные</h3>
-      <table className="calculation-table">
-        <thead>
-          <tr>
-            {Object.keys(inputData).length > 0 ? (
-              Object.keys(inputData).map((key) => (
+      {Object.keys(inputData).length > 0 ? (
+        <table className="calculation-table">
+          <thead>
+            <tr>
+              {Object.keys(inputData).map((key) => (
                 <th key={key}>{key}</th>
-              ))
-            ) : (
-              <th>Нет входных данных</th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {Object.keys(inputData).length > 0 ? (
+              ))}
+            </tr>
+          </thead>
+          <tbody>
             <tr>
               {Object.values(inputData).map((value, index) => (
                 <td key={index}>{value}</td>
               ))}
             </tr>
-          ) : (
-            <tr>
-              <td>Нет входных данных</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных входных данных.</p>
+      )}
 
       {/* Выходные данные */}
       <h3>Выходные данные</h3>
-      <table className="calculation-table">
-        <thead>
-          <tr>
-            <th>Gi</th>
-            <th>Pi_in</th>
-            <th>Ti</th>
-            <th>Hi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {gi.map((value, index) => (
-            <tr key={index}>
-              <td>{value}</td>
-              <td>{pi_in[index]}</td>
-              <td>{ti[index]}</td>
-              <td>{hi[index]}</td>
+      {gi.length > 0 ? (
+        <table className="calculation-table">
+          <thead>
+            <tr>
+              <th>Gi</th>
+              <th>Pi_in</th>
+              <th>Ti</th>
+              <th>Hi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {gi.map((value, index) => (
+              <tr key={index}>
+                <td>{value}</td>
+                <td>{pi_in[index]}</td>
+                <td>{ti[index]}</td>
+                <td>{hi[index]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных выходных данных.</p>
+      )}
 
       <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>
       <div className="buttons">
