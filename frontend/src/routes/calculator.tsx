@@ -8,74 +8,78 @@ import './CalculatorPage.css';
 
 const CalculatorPage: React.FC = () => {
   const [selectedTurbine, setSelectedTurbine] = useState(null);
-  const [selectedStock, setSelectedStock] = useState<string | null>(null);
-  const [isRecalculation, setIsRecalculation] = useState(false);
-  const [isResultPage, setIsResultPage] = useState(false); // Добавляем состояние для перехода на страницу результатов
+  const [selectedStock, setSelectedStock] = useState<any | null>(null);
+  const [lastCalculation, setLastCalculation] = useState<any | null>(null); // Для сохранения последнего расчета
+  const [isResultPage, setIsResultPage] = useState(false);
 
+  // При выборе турбины
   const handleTurbineSelect = (turbine) => {
-	setSelectedTurbine(turbine);
-	setSelectedStock(null);
-	setIsResultPage(false); // Сброс страницы результатов при новом поиске
+    setSelectedTurbine(turbine);
+    setSelectedStock(null);
+    setIsResultPage(false);
   };
 
-  const handleStockSelect = (stock) => {
-	setSelectedStock(stock);
+  // При выборе штока
+  const handleStockSelect = async (stock) => {
+      setSelectedStock(stock);
+
+      // Проверка наличия результатов
+      const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
+      const results = await response.json();
+
+      if (results.length > 0) {
+        // Сортируем результаты по времени и берем самый последний
+        const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setLastCalculation(sortedResults[0]); // Берем последний по времени расчет
+      } else {
+        setLastCalculation(null); // Если результатов нет
+      }
   };
 
+
+  // Логика после перерасчета
   const handleRecalculate = (recalculate: boolean) => {
-	setIsRecalculation(recalculate);
-	if (!recalculate) {
-  	setIsResultPage(true); // Переход на страницу результатов при нажатии "Нет"
-	} else {
-  	setSelectedStock(null); // Очищаем шток для повторного ввода
-	}
-  };
-
-  const handleSubmit = (data) => {
-	// Проверяем и отправляем данные
-	if (validateInputs(data)) {
-  	console.log('Данные отправлены');
-  	setIsResultPage(true); // Переход на страницу результатов
-	} else {
-  	alert('Пожалуйста, заполните все поля корректно.');
-	}
-  };
-
-  const validateInputs = (data) => {
-	// Проверяем, что все поля содержат числа
-	return Object.values(data).every(value => !isNaN(parseFloat(value)));
+    if (!recalculate) {
+      setIsResultPage(true); // Переход на страницу результатов при отказе от перерасчета
+    } else {
+      setLastCalculation(null); // Обнуление последнего расчета для ввода новых данных
+    }
   };
 
   return (
-	<div className="calculator-page">
-  	<header className="header">
-    	<img src="logo.png" alt="Logo" className="logo" />
-    	<h1 className="program-name">WSAPropertiesCalculator</h1>
-    	<nav className="nav">
-      	<a href="/">Калькулятор</a>
-      	<a href="/about">О программе</a>
-      	<a href="/help">Помощь</a>
-    	</nav>
-  	</header>
+    <div className="calculator-page">
+      <header className="header">
+          <img src="logo.png" alt="Logo" className="logo" />
+          <h1 className="program-name">WSAPropertiesCalculator</h1>
+          <nav className="nav">
+            <a href="/">Калькулятор</a>
+            <a href="/about">О программе</a>
+            <a href="/help">Помощь</a>
+          </nav>
+      </header>
 
-  	<main className="main-content">
-    	{isResultPage ? (
-      	<ResultsPage stockId={selectedStock} />
-    	) : !selectedTurbine ? (
-      	<TurbineSearch onSelectTurbine={handleTurbineSelect} />
-    	) : !selectedStock ? (
-      	<StockSelection turbine={selectedTurbine} onSelectStock={handleStockSelect} />
-    	) : !isRecalculation ? (
-      	<EarlyCalculationPage stockId={selectedStock} onRecalculate={handleRecalculate} />
-    	) : (
-      	<StockInputPage stockId={selectedStock} onSubmit={handleSubmit} />
-    	)}
-  	</main>
+      <main className="main-content">
+        {isResultPage ? (
+          <ResultsPage stockId={selectedStock.name} />
+        ) : !selectedTurbine ? (
+          <TurbineSearch onSelectTurbine={handleTurbineSelect} />
+        ) : !selectedStock ? (
+          <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect} />
+        ) : lastCalculation ? (
+          <EarlyCalculationPage
+            stockId={selectedStock.name}
+            lastCalculation={lastCalculation}
+            onRecalculate={handleRecalculate}
+          />
+        ) : (
+          <StockInputPage stock={selectedStock} onSubmit={handleRecalculate} />
+        )}
+      </main>
 
-  	<footer className="footer">
-    	<p>© WSAPropsCalculator. АО "Уральский турбинный завод", 2024.</p>
-  	</footer>
-	</div>
+      <footer className="footer">
+        <p>© WSAPropsCalculator. АО "Уральский турбинный завод", 2024.</p>
+      </footer>
+    </div>
   );
 };
 

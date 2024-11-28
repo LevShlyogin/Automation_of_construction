@@ -2,43 +2,78 @@ import React, { useState } from 'react';
 import './StockInputPage.css';
 
 type Props = {
-  stockId: string;
+  stock: any;
   onSubmit: (data: any) => void;
 };
 
-const StockInputPage: React.FC<Props> = ({ stockId, onSubmit }) => {
-  const [formData, setFormData] = useState({
-	p0: '',
-	t0: '',
-	p1: '',
-	p2: ''
+const StockInputPage: React.FC<Props> = ({ stock, onSubmit }) => {
+  const [inputData, setInputData] = useState({
+    gi: Array(stock.countParts).fill(''),
+    pi_in: '',
+    ti: '',
+    hi: ''
   });
 
-  const handleChange = (e) => {
-	const { name, value } = e.target;
-	setFormData(prevData => ({
-  	...prevData,
-  	[name]: value
-	}));
+  const handleInputChange = (e, index = null) => {
+    const { name, value } = e.target;
+
+    if (index !== null) {
+      setInputData((prevData) => {
+        const newValues = [...prevData[name]];
+        newValues[index] = value;
+        return { ...prevData, [name]: newValues };
+      });
+    } else {
+      setInputData((prevData) => ({ ...prevData, [name]: value }));
+    }
   };
 
-  const handleSubmit = (e) => {
-	e.preventDefault();
-	onSubmit(formData); // Передаем данные формы для валидации и отправки
+  const handleSubmit = () => {
+    onSubmit(inputData);
   };
 
   return (
-	<div className="stock-input-page">
-  	<h2>Шток {stockId}</h2>
-  	<h3>Введите недостающие данные</h3>
-  	<form onSubmit={handleSubmit}>
-    	<input type="text" name="p0" placeholder="P0" className="value-input" value={formData.p0} onChange={handleChange} />
-    	<input type="text" name="t0" placeholder="T0" className="value-input" value={formData.t0} onChange={handleChange} />
-    	<input type="text" name="p1" placeholder="P1" className="value-input" value={formData.p1} onChange={handleChange} />
-    	<input type="text" name="p2" placeholder="P2" className="value-input" value={formData.p2} onChange={handleChange} />
-    	<button type="submit" className="btn-stock">Отправить</button>
-  	</form>
-	</div>
+    <div className="stock-input-page">
+      <h2>Ввод данных для штока {stock.name}</h2>
+
+      <h3>Ввод значений Gi для {stock.countParts} частей:</h3>
+      {inputData.gi.map((value, index) => (
+        <input
+          key={index}
+          type="number"
+          name="gi"
+          value={value}
+          placeholder={`Gi для части ${index + 1}`}
+          onChange={(e) => handleInputChange(e, index)}
+        />
+      ))}
+
+      <input
+        type="number"
+        name="pi_in"
+        placeholder="Введите Pi_in"
+        value={inputData.pi_in}
+        onChange={handleInputChange}
+      />
+      <input
+        type="number"
+        name="ti"
+        placeholder="Введите Ti"
+        value={inputData.ti}
+        onChange={handleInputChange}
+      />
+      <input
+        type="number"
+        name="hi"
+        placeholder="Введите Hi"
+        value={inputData.hi}
+        onChange={handleInputChange}
+      />
+
+      <button className="submit-btn" onClick={handleSubmit}>
+        Отправить
+      </button>
+    </div>
   );
 };
 

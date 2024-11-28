@@ -1,25 +1,72 @@
-import React from 'react';
-import './EarlyCalculationPage.css'; // Подключаем стили
+import React, { useEffect } from 'react';
+import './EarlyCalculationPage.css';
 
 type Props = {
   stockId: string;
+  lastCalculation: any;
   onRecalculate: (recalculate: boolean) => void;
 };
 
-const EarlyCalculationPage: React.FC<Props> = ({ stockId, onRecalculate }) => {
-  // Example data
-  const gi = [1000.0, 900.0, 800.0, 700.0, 600.0];
-  const pi_in = [10.0, 9.0, 8.0, 7.0, 6.0];
-  const ti = [300.0, 290.0, 280.0, 270.0, 260.0];
-  const hi = [2800.0, 2700.0, 2600.0, 2500.0, 2400.0];
-  const deaeratorProps = [500.0, 150.0, 0.1, 850.0];
-  const ejectorProps = [100.0, 80.0, 0.2, 700.0];
+const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRecalculate }) => {
+  const gi = lastCalculation?.output_data.Gi || [];
+  const pi_in = lastCalculation?.output_data.Pi_in || [];
+  const ti = lastCalculation?.output_data.Ti || [];
+  const hi = lastCalculation?.output_data.Hi || [];
+  const deaeratorProps = lastCalculation?.output_data.deaerator_props || [];
+  const ejectorProps = lastCalculation?.output_data.ejector_props || [];
+  const inputData = lastCalculation?.input_data || {}; // Входные данные
+
+  // Вывод входных и выходных данных в консоль для диагностики
+  useEffect(() => {
+    console.group(`Данные для штока: ${stockId}`);
+    console.log('Входные данные:', inputData);
+    console.log('Выходные данные:', {
+      Gi: gi,
+      Pi_in: pi_in,
+      Ti: ti,
+      Hi: hi,
+      deaeratorProps: deaeratorProps,
+      ejectorProps: ejectorProps
+    });
+    console.groupEnd();
+  }, [stockId, inputData, gi, pi_in, ti, hi, deaeratorProps, ejectorProps]);
 
   return (
     <div className="detected-calculation">
       <h2>Шток {stockId}</h2>
       <h3>Обнаружен предыдущий расчет</h3>
 
+      {/* Входные данные */}
+      <h3>Входные данные</h3>
+      <table className="calculation-table">
+        <thead>
+          <tr>
+            {Object.keys(inputData).length > 0 ? (
+              Object.keys(inputData).map((key) => (
+                <th key={key}>{key}</th>
+              ))
+            ) : (
+              <th>Нет входных данных</th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {Object.keys(inputData).length > 0 ? (
+            <tr>
+              {Object.values(inputData).map((value, index) => (
+                <td key={index}>{value}</td>
+              ))}
+            </tr>
+          ) : (
+            <tr>
+              <td>Нет входных данных</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+
+      {/* Выходные данные */}
+      <h3>Выходные данные</h3>
       <table className="calculation-table">
         <thead>
           <tr>
@@ -41,30 +88,14 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, onRecalculate }) => {
         </tbody>
       </table>
 
-      <h3>Свойства деаэратор и эжектора</h3>
-      <table className="props-table">
-        <thead>
-          <tr>
-            <th>Тип</th>
-            <th>Значение</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Деаэратор</td>
-            <td>{deaeratorProps.join(', ')}</td>
-          </tr>
-          <tr>
-            <td>Эжектор</td>
-            <td>{ejectorProps.join(', ')}</td>
-          </tr>
-        </tbody>
-      </table>
-
       <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>
       <div className="buttons">
-        <button onClick={() => onRecalculate(false)} className="btn red">Нет</button>
-        <button onClick={() => onRecalculate(true)} className="btn green">Да</button>
+        <button onClick={() => onRecalculate(false)} className="btn red">
+          Нет
+        </button>
+        <button onClick={() => onRecalculate(true)} className="btn green">
+          Да
+        </button>
       </div>
     </div>
   );

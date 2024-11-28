@@ -20,7 +20,8 @@ from backend.app.schemas import (
 )  # Предполагая, что эти схемы определены
 from backend.app.dependencies import get_db  # Зависимость для получения сессии БД
 from backend.app.utils import ValveCalculator, CalculationError
-from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, get_valves_by_turbine  # CRUD функции
+from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
+    get_valves_by_turbine  # CRUD функции
 
 # Настройка логирования
 logging.basicConfig(
@@ -29,8 +30,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
+
 
 # Инициализация Sentry, если требуется
 if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
@@ -55,6 +58,7 @@ app.add_middleware(
 # Создаем экземпляр APIRouter
 api_router = APIRouter()
 
+
 # ------ Маршруты для турбин ------
 
 @api_router.get("/turbines/", response_model=List[TurbineInfo], summary="Получить все турбины", tags=["turbines"])
@@ -68,9 +72,12 @@ async def get_all_turbines(db: Session = Depends(get_db)):
         return turbine_infos
     except Exception as e:
         logger.error(f"Ошибка при получении всех турбин: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось получить турбины: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось получить турбины: {e}")
 
-@api_router.get("/turbines/{turbine_name}/valves/", response_model=TurbineValves, summary="Получить клапаны по имени турбины", tags=["turbines"])
+
+@api_router.get("/turbines/{turbine_name}/valves/", response_model=TurbineValves,
+                summary="Получить клапаны по имени турбины", tags=["turbines"])
 async def get_valves_by_turbine_endpoint(turbine_name: str, db: Session = Depends(get_db)):
     """
     Получить список клапанов для заданной турбины.
@@ -78,13 +85,16 @@ async def get_valves_by_turbine_endpoint(turbine_name: str, db: Session = Depend
     try:
         turbine_valves = get_valves_by_turbine(db, turbine_name=turbine_name)
         if turbine_valves is None:
-            raise HTTPException(status_code=404, detail=f"Турбина с именем '{turbine_name}' не найдена или у неё нет клапанов")
+            raise HTTPException(status_code=404,
+                                detail=f"Турбина с именем '{turbine_name}' не найдена или у неё нет клапанов")
         return turbine_valves
     except Exception as e:
         logger.error(f"Ошибка при получении клапанов для турбины {turbine_name}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Внутренняя ошибка сервера: {e}")
 
-@api_router.post("/turbines", response_model=TurbineInfo, status_code=status.HTTP_201_CREATED, summary="Создать турбину", tags=["turbines"])
+
+@api_router.post("/turbines", response_model=TurbineInfo, status_code=status.HTTP_201_CREATED,
+                 summary="Создать турбину", tags=["turbines"])
 async def create_turbine(turbine: TurbineInfo, db: Session = Depends(get_db)):
     """
     Создать новую турбину.
@@ -97,9 +107,12 @@ async def create_turbine(turbine: TurbineInfo, db: Session = Depends(get_db)):
         return db_turbine
     except Exception as e:
         logger.error(f"Ошибка при создании турбины: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось создать турбину: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось создать турбину: {e}")
 
-@api_router.delete("/turbines/{turbine_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить турбину", tags=["turbines"])
+
+@api_router.delete("/turbines/{turbine_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить турбину",
+                   tags=["turbines"])
 async def delete_turbine(turbine_id: int, db: Session = Depends(get_db)):
     """
     Удалить турбину по ID.
@@ -113,7 +126,9 @@ async def delete_turbine(turbine_id: int, db: Session = Depends(get_db)):
         return {"message": f"Турбина '{db_turbine.name}' успешно удалена"}
     except Exception as e:
         logger.error(f"Ошибка при удалении турбины: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось удалить турбину: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось удалить турбину: {e}")
+
 
 # ------ Маршруты для клапанов ------
 
@@ -132,7 +147,9 @@ async def get_valves(db: Session = Depends(get_db)):
         logger.error(f"Ошибка при получении всех клапанов: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Внутренняя ошибка сервера: {e}")
 
-@api_router.post("/valves/", response_model=ValveInfo, status_code=status.HTTP_201_CREATED, summary="Создать клапан", tags=["valves"])
+
+@api_router.post("/valves/", response_model=ValveInfo, status_code=status.HTTP_201_CREATED, summary="Создать клапан",
+                 tags=["valves"])
 async def create_valve(valve: ValveCreate, db: Session = Depends(get_db)):
     """
     Создать новый клапан.
@@ -165,6 +182,7 @@ async def create_valve(valve: ValveCreate, db: Session = Depends(get_db)):
         logger.error(f"Ошибка при создании клапана: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось создать клапан: {e}")
 
+
 @api_router.put("/valves/{valve_id}", response_model=ValveInfo, summary="Обновить клапан", tags=["valves"])
 async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(get_db)):
     """
@@ -193,7 +211,9 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
         return db_valve
     except Exception as e:
         logger.error(f"Ошибка при обновлении клапана {valve_id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось обновить клапан: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось обновить клапан: {e}")
+
 
 @api_router.delete("/valves/{valve_id}", response_model=dict, summary="Удалить клапан", tags=["valves"])
 async def delete_valve(valve_id: int, db: Session = Depends(get_db)):
@@ -211,7 +231,9 @@ async def delete_valve(valve_id: int, db: Session = Depends(get_db)):
         logger.error(f"Ошибка при удалении клапана {valve_id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось удалить клапан: {e}")
 
-@api_router.get("/valves/{valve_name}/turbine", response_model=TurbineInfo, summary="Получить турбину по имени клапана", tags=["valves"])
+
+@api_router.get("/valves/{valve_name}/turbine", response_model=TurbineInfo, summary="Получить турбину по имени клапана",
+                tags=["valves"])
 async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_db)):
     """
     Получить турбину по имени клапана.
@@ -219,7 +241,8 @@ async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_d
     try:
         valve = db.query(Valve).filter(Valve.name == valve_name).first()
         if not valve:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Клапан с именем '{valve_name}' не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Клапан с именем '{valve_name}' не найден")
 
         turbine = db.query(Turbine).filter(Turbine.id == valve.turbine_id).first()
         if not turbine:
@@ -230,9 +253,11 @@ async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_d
         logger.error(f"Ошибка при получении турбины для клапана {valve_name}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Внутренняя ошибка сервера: {e}")
 
+
 # ------ Маршруты для вычислений ------
 
-@api_router.post("/calculate", response_model=CalculationResultDBSchema, summary="Выполнить расчет", tags=["calculations"])
+@api_router.post("/calculate", response_model=CalculationResultDBSchema, summary="Выполнить расчет",
+                 tags=["calculations"])
 async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
     """
     Выполнить расчет на основе параметров.
@@ -240,7 +265,8 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
     try:
         valve = db.query(Valve).filter(Valve.name == params.valve_drawing).first()
         if not valve:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Клапан с именем '{params.valve_drawing}' не найден")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Клапан с именем '{params.valve_drawing}' не найден")
 
         valve_info = ValveInfo.model_validate(valve)
 
@@ -268,11 +294,14 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=ce.message)
     except Exception as e:
         logger.error(f"Ошибка при выполнении расчётов: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось выполнить расчёты: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось выполнить расчёты: {e}")
+
 
 # ------ Маршруты для результатов ------
 
-@api_router.get("/valves/{valve_name}/results/", response_model=List[CalculationResultDBSchema], summary="Получить результаты расчётов", tags=["results"])
+@api_router.get("/valves/{valve_name}/results/", response_model=List[CalculationResultDBSchema],
+                summary="Получить результаты расчётов", tags=["results"])
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """
     Получить список результатов расчётов для заданного клапана.
@@ -283,24 +312,41 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
         if not db_results:
             return []
 
-        calculation_results = [
-            CalculationResultDBSchema(
-                id=result.id,
-                user_name=result.user_name,
-                stock_name=result.stock_name,
-                turbine_name=result.turbine_name,
-                calc_timestamp=result.calc_timestamp,
-                input_data=json.loads(result.input_data),
-                output_data=json.loads(result.output_data)
-            ) for result in db_results
-        ]
+        calculation_results = []
+        for result in db_results:
+            input_data = result.input_data
+            output_data = result.output_data
+
+            # Проверяем, если input_data или output_data - строка, конвертируем её в dict
+            if isinstance(input_data, str):
+                input_data = json.loads(input_data)
+            if isinstance(output_data, str):
+                output_data = json.loads(output_data)
+
+            calculation_results.append(
+                CalculationResultDBSchema(
+                    id=result.id,
+                    user_name=result.user_name,
+                    stock_name=result.stock_name,
+                    turbine_name=result.turbine_name,
+                    calc_timestamp=result.calc_timestamp,
+                    input_data=input_data,
+                    output_data=output_data,
+                )
+            )
 
         return calculation_results
+
     except Exception as e:
         logger.error(f"Ошибка при получении результатов расчётов для клапана {valve_name}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось получить результаты расчётов: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Не удалось получить результаты расчётов: {e}",
+        )
 
-@api_router.delete("/results/{result_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить результат расчёта", tags=["results"])
+
+@api_router.delete("/results/{result_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить результат расчёта",
+                   tags=["results"])
 async def delete_calculation_result(result_id: int, db: Session = Depends(get_db)):
     """
     Удалить результат расчёта по ID.
@@ -314,7 +360,9 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except Exception as e:
         logger.error(f"Ошибка при удалении результата расчёта {result_id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Не удалось удалить результат расчёта: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Не удалось удалить результат расчёта: {e}")
+
 
 # Подключаем маршруты к приложению
 app.include_router(api_router, prefix=settings.API_V1_STR)
