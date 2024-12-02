@@ -4,7 +4,7 @@ import './EarlyCalculationPage.css';
 type Props = {
   stockId: string;
   lastCalculation: any;
-  onRecalculate: (recalculate: boolean) => void;
+  onRecalculate: (recalculate: boolean, initialData?: any) => void;
 };
 
 const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRecalculate }) => {
@@ -92,7 +92,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <button onClick={() => onRecalculate(false)} className="btn red">
           Нет
         </button>
-        <button onClick={() => onRecalculate(true)} className="btn green">
+        <button onClick={() => onRecalculate(true, inputData)} className="btn green">
           Да
         </button>
       </div>

@@ -1,31 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './StockInputPage.css';
 
 type Props = {
   stock: any;
   onSubmit: (data: any) => void;
+  initialData?: any;
 };
 
-const StockInputPage: React.FC<Props> = ({ stock, onSubmit }) => {
+const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
+  const [countParts, setCountParts] = useState(2);
+
   const [inputData, setInputData] = useState({
-    gi: Array(stock.countParts).fill(''),
-    pi_in: '',
-    ti: '',
-    hi: ''
+    turbine_name: '',
+    valve_drawing: '',
+    valve_id: '',
+    temperature_start: '',
+    t_air: '',
+    count_valves: countParts,
+    p_ejector: Array(countParts).fill(''),
+    p_values: Array(3).fill(''),
   });
 
-  const handleInputChange = (e, index = null) => {
+  useEffect(() => {
+    if (initialData) {
+      setInputData(initialData);
+      setCountParts(initialData.count_valves);
+    }
+  }, [initialData]);
+
+  const handleInputChange = (e, index = null, arrayName = '') => {
     const { name, value } = e.target;
 
-    if (index !== null) {
+    if (index !== null && arrayName) {
       setInputData((prevData) => {
-        const newValues = [...prevData[name]];
+        const newValues = [...prevData[arrayName]];
         newValues[index] = value;
-        return { ...prevData, [name]: newValues };
+        return { ...prevData, [arrayName]: newValues };
       });
     } else {
       setInputData((prevData) => ({ ...prevData, [name]: value }));
     }
+  };
+
+  const handleCountPartsChange = (e) => {
+    const value = parseInt(e.target.value);
+    setCountParts(value);
+    setInputData((prevData) => ({
+      ...prevData,
+      count_valves: value,
+      p_ejector: Array(value).fill(''),
+    }));
   };
 
   const handleSubmit = () => {
@@ -34,43 +58,98 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit }) => {
 
   return (
     <div className="stock-input-page">
-      <h2>Ввод данных для штока {stock.name}</h2>
+      <h2 className="title">Ввод данных для штока {stock.name}</h2>
 
-      <h3>Ввод значений Gi для {stock.countParts} частей:</h3>
-      {inputData.gi.map((value, index) => (
+      {/* Выбор количества частей */}
+      <div className="input-container">
+        <label htmlFor="countParts" className="input-label">
+          Количество частей (от 2 до 4):
+        </label>
+        <select
+          id="countParts"
+          value={countParts}
+          onChange={handleCountPartsChange}
+          className="stock-input"
+        >
+          {[2, 3, 4].map((value) => (
+            <option key={value} value={value}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Ввод значений для p_ejector */}
+      <h3 className="input-label">Введите значения для p_ejector:</h3>
+      {inputData.p_ejector.map((value, index) => (
         <input
-          key={index}
+          key={`p_ejector-${index}`}
           type="number"
-          name="gi"
+          name={`p_ejector-${index}`}
+          placeholder={`p_ejector для части ${index + 1}`}
           value={value}
-          placeholder={`Gi для части ${index + 1}`}
-          onChange={(e) => handleInputChange(e, index)}
+          onChange={(e) => handleInputChange(e, index, 'p_ejector')}
+          className="value-input"
         />
       ))}
 
+      {/* Ввод значений для p_values */}
+      <h3 className="input-label">Введите значения для p_values (3 элемента):</h3>
+      {inputData.p_values.map((value, index) => (
+        <input
+          key={`p_values-${index}`}
+          type="number"
+          name={`p_values-${index}`}
+          placeholder={`p_value ${index + 1}`}
+          value={value}
+          onChange={(e) => handleInputChange(e, index, 'p_values')}
+          className="value-input"
+        />
+      ))}
+
+      {/* Остальные параметры */}
       <input
-        type="number"
-        name="pi_in"
-        placeholder="Введите Pi_in"
-        value={inputData.pi_in}
+        type="text"
+        name="turbine_name"
+        placeholder="Название турбины"
+        value={inputData.turbine_name}
         onChange={handleInputChange}
+        className="value-input"
+      />
+      <input
+        type="text"
+        name="valve_drawing"
+        placeholder="Чертеж штока"
+        value={inputData.valve_drawing}
+        onChange={handleInputChange}
+        className="value-input"
       />
       <input
         type="number"
-        name="ti"
-        placeholder="Введите Ti"
-        value={inputData.ti}
+        name="valve_id"
+        placeholder="ID штока"
+        value={inputData.valve_id}
         onChange={handleInputChange}
+        className="value-input"
       />
       <input
         type="number"
-        name="hi"
-        placeholder="Введите Hi"
-        value={inputData.hi}
+        name="temperature_start"
+        placeholder="Начальная температура"
+        value={inputData.temperature_start}
         onChange={handleInputChange}
+        className="value-input"
+      />
+      <input
+        type="number"
+        name="t_air"
+        placeholder="Температура воздуха"
+        value={inputData.t_air}
+        onChange={handleInputChange}
+        className="value-input"
       />
 
-      <button className="submit-btn" onClick={handleSubmit}>
+      <button className="btn-stock" onClick={handleSubmit}>
         Отправить
       </button>
     </div>

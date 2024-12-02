@@ -7,42 +7,84 @@ import ResultsPage from '../components/Calculator/ResultsPage';
 import './CalculatorPage.css';
 
 const CalculatorPage: React.FC = () => {
-  const [selectedTurbine, setSelectedTurbine] = useState(null);
-  const [selectedStock, setSelectedStock] = useState<any | null>(null);
-  const [lastCalculation, setLastCalculation] = useState<any | null>(null); // Для сохранения последнего расчета
-  const [isResultPage, setIsResultPage] = useState(false);
+  const [selectedTurbine, setSelectedTurbine] = useState<any | null>(null); // Выбранная турбина
+  const [selectedStock, setSelectedStock] = useState<any | null>(null); // Выбранный шток
+  const [lastCalculation, setLastCalculation] = useState<any | null>(null); // Последний расчет для штока
+  const [isLoading, setIsLoading] = useState(false); // Состояние загрузки
+  const [isResultPage, setIsResultPage] = useState(false); // Переход на страницу результатов
 
-  // При выборе турбины
+  // Обработка выбора турбины
   const handleTurbineSelect = (turbine) => {
     setSelectedTurbine(turbine);
     setSelectedStock(null);
     setIsResultPage(false);
   };
 
-  // При выборе штока
+  // Обработка выбора штока и загрузка предыдущих расчетов
   const handleStockSelect = async (stock) => {
     setSelectedStock(stock);
+    setIsLoading(true);
 
-    // Проверка наличия результатов
-    const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
-    const results = await response.json();
+    try {
+      const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
+      if (!response.ok) {
+        throw new Error(`Ошибка загрузки результатов: ${response.status}`);
+      }
 
-    if (results.length > 0) {
-      // Сортируем результаты по времени и берем самый последний
-      const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-      setLastCalculation(sortedResults[0]); // Берем последний по времени расчет
-    } else {
-      setLastCalculation(null); // Если результатов нет
+      const results = await response.json();
+      if (results.length > 0) {
+        // Берем последний по времени расчет
+        const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        setLastCalculation(sortedResults[0]);
+      } else {
+        setLastCalculation(null);
+      }
+    } catch (error) {
+      console.error('Ошибка при загрузке данных:', error);
+      setLastCalculation(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Логика после перерасчета
+  // Обработка перерасчета или отказа
   const handleRecalculate = (recalculate: boolean) => {
     if (!recalculate) {
-      setIsResultPage(true); // Переход на страницу результатов при отказе от перерасчета
+      setIsResultPage(true); // Переход на страницу результатов
     } else {
-      setLastCalculation(null); // Обнуление последнего расчета для ввода новых данных
+      setLastCalculation(null); // Сброс последнего расчета для ввода новых данных
     }
+  };
+
+  // Рендер компонентов в зависимости от состояния
+  const renderContent = () => {
+    if (isResultPage) {
+      return (
+        <ResultsPage
+          stockId={selectedStock.name}
+          inputData={lastCalculation?.input_data}
+          outputData={lastCalculation?.output_data}
+        />
+      );
+    }
+
+    if (!selectedTurbine) {
+      return <TurbineSearch onSelectTurbine={handleTurbineSelect} />;
+    }
+
+    if (!selectedStock) {
+      return <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect} />;
+    }
+
+    if (isLoading) {
+      return <div>Загрузка предыдущих расчетов...</div>;
+    }
+
+    if (lastCalculation) {
+      return <EarlyCalculationPage stockId={selectedStock.name} lastCalculation={lastCalculation} onRecalculate={handleRecalculate} />;
+    }
+
+    return <StockInputPage stock={selectedStock} onSubmit={handleRecalculate} />;
   };
 
   return (
@@ -57,27 +99,7 @@ const CalculatorPage: React.FC = () => {
         </nav>
       </header>
 
-      <main className="main-content">
-        {isResultPage ? (
-          <ResultsPage
-            stockId={selectedStock.name}
-            inputData={lastCalculation?.input_data}
-            outputData={lastCalculation?.output_data}
-          />
-        ) : !selectedTurbine ? (
-          <TurbineSearch onSelectTurbine={handleTurbineSelect} />
-        ) : !selectedStock ? (
-          <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect} />
-        ) : lastCalculation ? (
-          <EarlyCalculationPage
-            stockId={selectedStock.name}
-            lastCalculation={lastCalculation}
-            onRecalculate={handleRecalculate}
-          />
-        ) : (
-          <StockInputPage stock={selectedStock} onSubmit={handleRecalculate} />
-        )}
-      </main>
+      <main className="main-content">{renderContent()}</main>
 
       <footer className="footer">
         <p>© WSAPropsCalculator. АО "Уральский турбинный завод", 2024.</p>
