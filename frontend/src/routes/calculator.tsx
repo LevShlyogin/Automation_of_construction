@@ -7,57 +7,91 @@ import ResultsPage from '../components/Calculator/ResultsPage';
 import './CalculatorPage.css';
 
 const CalculatorPage: React.FC = () => {
-  const [selectedTurbine, setSelectedTurbine] = useState<any | null>(null); // Выбранная турбина
-  const [selectedStock, setSelectedStock] = useState<any | null>(null); // Выбранный шток
-  const [lastCalculation, setLastCalculation] = useState<any | null>(null); // Последний расчет для штока
-  const [isLoading, setIsLoading] = useState(false); // Состояние загрузки
-  const [isResultPage, setIsResultPage] = useState(false); // Переход на страницу результатов
+  const [selectedTurbine, setSelectedTurbine] = useState<any | null>(null);
+  const [selectedStock, setSelectedStock] = useState<any | null>(null);
+  const [lastCalculation, setLastCalculation] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResultPage, setIsResultPage] = useState(false);
 
   // Обработка выбора турбины
   const handleTurbineSelect = (turbine) => {
     setSelectedTurbine(turbine);
     setSelectedStock(null);
     setIsResultPage(false);
+    setLastCalculation(null);
   };
 
   // Обработка выбора штока и загрузка предыдущих расчетов
   const handleStockSelect = async (stock) => {
-    setSelectedStock(stock);
-    setIsLoading(true);
+      setSelectedStock(stock);
+      setIsLoading(true);
 
-    try {
-      const response = await fetch(`http://localhost:8000/api/valves/${stock.name}/results/`);
-      if (!response.ok) {
-        throw new Error(`Ошибка загрузки результатов: ${response.status}`);
-      }
+      try {
+        const stockNameEncoded = encodeURIComponent(stock.name);
+        const response = await fetch(`http://localhost:8000/api/valves/${stockNameEncoded}/results/`);
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки результатов: ${response.status}`);
+        }
 
-      const results = await response.json();
-      if (results.length > 0) {
-        // Берем последний по времени расчет
-        const sortedResults = results.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        setLastCalculation(sortedResults[0]);
-      } else {
+        const results = await response.json();
+        if (results.length > 0) {
+          const sortedResults = results.sort(
+            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+          );
+          setLastCalculation(sortedResults[0]);
+        } else {
+          setLastCalculation(null);
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
         setLastCalculation(null);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error('Ошибка при загрузке данных:', error);
-      setLastCalculation(null);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Обработка перерасчета или отказа
   const handleRecalculate = (recalculate: boolean) => {
     if (!recalculate) {
-      setIsResultPage(true); // Переход на страницу результатов
+      setIsResultPage(true);
     } else {
-      setLastCalculation(null); // Сброс последнего расчета для ввода новых данных
+      setLastCalculation(null);
+    }
+  };
+
+  // Обработка отправки данных с StockInputPage
+  const handleStockInputSubmit = async (inputData) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inputData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ошибка HTTP: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      // Set the calculation result and navigate to the results page
+      setLastCalculation(result);
+      setIsResultPage(true);
+    } catch (error) {
+      console.error('Ошибка при отправке данных:', error);
+      // Optionally, display an error message to the user
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Рендер компонентов в зависимости от состояния
   const renderContent = () => {
+    if (isLoading) {
+      return <div>Загрузка данных...</div>;
+    }
+
     if (isResultPage) {
       return (
         <ResultsPage
@@ -76,15 +110,17 @@ const CalculatorPage: React.FC = () => {
       return <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect} />;
     }
 
-    if (isLoading) {
-      return <div>Загрузка предыдущих расчетов...</div>;
-    }
-
     if (lastCalculation) {
-      return <EarlyCalculationPage stockId={selectedStock.name} lastCalculation={lastCalculation} onRecalculate={handleRecalculate} />;
+      return (
+        <EarlyCalculationPage
+          stockId={selectedStock.name}
+          lastCalculation={lastCalculation}
+          onRecalculate={handleRecalculate}
+        />
+      );
     }
 
-    return <StockInputPage stock={selectedStock} onSubmit={handleRecalculate} />;
+    return <StockInputPage stock={selectedStock} turbine={selectedTurbine} onSubmit={handleStockInputSubmit} />;
   };
 
   return (

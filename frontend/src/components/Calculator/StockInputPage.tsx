@@ -3,17 +3,18 @@ import './StockInputPage.css';
 
 type Props = {
   stock: any;
+  turbine: any;
   onSubmit: (data: any) => void;
-  initialData?: any; // Добавляем пропс для начальных данных
+  initialData?: any;
 };
 
-const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
+const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData }) => {
   const [countParts, setCountParts] = useState(2);
 
   const [inputData, setInputData] = useState({
-    turbine_name: stock.turbine_name || '',
-    valve_drawing: stock.valve_drawing || '',
-    valve_id: stock.valve_id || '',
+    turbine_name: turbine.name || '',
+    valve_drawing: stock.name || '',
+    valve_id: stock.id || '',
     temperature_start: '',
     t_air: '',
     count_valves: countParts,
@@ -30,20 +31,21 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
 
   const handleInputChange = (e, index = null, arrayName = '') => {
     const { name, value } = e.target;
+    const parsedValue = value === '' ? '' : parseFloat(value);
 
     if (index !== null && arrayName) {
       setInputData((prevData) => {
         const newValues = [...prevData[arrayName]];
-        newValues[index] = value;
+        newValues[index] = parsedValue;
         return { ...prevData, [arrayName]: newValues };
       });
     } else {
-      setInputData((prevData) => ({ ...prevData, [name]: value }));
+      setInputData((prevData) => ({ ...prevData, [name]: parsedValue }));
     }
   };
 
   const handleCountPartsChange = (e) => {
-    const value = parseInt(e.target.value);
+    const value = parseInt(e.target.value, 10);
     setCountParts(value);
     setInputData((prevData) => ({
       ...prevData,
@@ -53,7 +55,12 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
   };
 
   const handleSubmit = () => {
-    console.log('Submitting data:', inputData); // Отладочное сообщение
+    console.log('Submitting data:', inputData);
+    console.log('Stock values:', {
+      name: stock.name,
+      id: stock.id,
+    });
+
     onSubmit(inputData);
   };
 
@@ -81,51 +88,61 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
       </div>
 
       {/* Ввод значений для p_ejector */}
-      <h3 className="input-label">Введите значения для p_ejector:</h3>
-      {inputData.p_ejector.map((value, index) => (
-        <input
-          key={`p_ejector-${index}`}
-          type="number"
-          name={`p_ejector-${index}`}
-          placeholder={`p_ejector для части ${index + 1}`}
-          value={value}
-          onChange={(e) => handleInputChange(e, index, 'p_ejector')}
-          className="value-input"
-        />
-      ))}
+      <div className="input-group">
+        <h3 className="input-label">Введите значения для p_ejector:</h3>
+        {inputData.p_ejector.map((value, index) => (
+          <input
+            key={`p_ejector-${index}`}
+            type="number"
+            step="any"
+            placeholder={`p_ejector для части ${index + 1}`}
+            value={value}
+            onChange={(e) => handleInputChange(e, index, 'p_ejector')}
+            className="value-input"
+          />
+        ))}
+      </div>
 
       {/* Ввод значений для p_values */}
-      <h3 className="input-label">Введите значения для p_values (3 элемента):</h3>
-      {inputData.p_values.map((value, index) => (
+      <div className="input-group">
+        <h3 className="input-label">Введите значения для p_values (3 элемента):</h3>
+        {inputData.p_values.map((value, index) => (
+          <input
+            key={`p_values-${index}`}
+            type="number"
+            step="any"
+            placeholder={`p_value ${index + 1}`}
+            value={value}
+            onChange={(e) => handleInputChange(e, index, 'p_values')}
+            className="value-input"
+          />
+        ))}
+      </div>
+
+      {/* Ввод температурных значений */}
+      <div className="input-group">
+        <h3 className="input-label">Введите температурные значения:</h3>
         <input
-          key={`p_values-${index}`}
           type="number"
-          name={`p_values-${index}`}
-          placeholder={`p_value ${index + 1}`}
-          value={value}
-          onChange={(e) => handleInputChange(e, index, 'p_values')}
+          step="any"
+          name="temperature_start"
+          placeholder="Начальная температура"
+          value={inputData.temperature_start}
+          onChange={handleInputChange}
           className="value-input"
         />
-      ))}
+        <input
+          type="number"
+          step="any"
+          name="t_air"
+          placeholder="Температура воздуха"
+          value={inputData.t_air}
+          onChange={handleInputChange}
+          className="value-input"
+        />
+      </div>
 
-      {/* Остальные параметры */}
-      <input
-        type="number"
-        name="temperature_start"
-        placeholder="Начальная температура"
-        value={inputData.temperature_start}
-        onChange={handleInputChange}
-        className="value-input"
-      />
-      <input
-        type="number"
-        name="t_air"
-        placeholder="Температура воздуха"
-        value={inputData.t_air}
-        onChange={handleInputChange}
-        className="value-input"
-      />
-
+      {/* Кнопка отправки */}
       <button className="btn-stock" onClick={handleSubmit}>
         Отправить
       </button>
