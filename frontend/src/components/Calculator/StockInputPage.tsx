@@ -4,16 +4,16 @@ import './StockInputPage.css';
 type Props = {
   stock: any;
   onSubmit: (data: any) => void;
-  initialData?: any;
+  initialData?: any; // Добавляем пропс для начальных данных
 };
 
 const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
   const [countParts, setCountParts] = useState(2);
 
   const [inputData, setInputData] = useState({
-    turbine_name: '',
-    valve_drawing: '',
-    valve_id: '',
+    turbine_name: stock.turbine_name || '',
+    valve_drawing: stock.valve_drawing || '',
+    valve_id: stock.valve_id || '',
     temperature_start: '',
     t_air: '',
     count_valves: countParts,
@@ -53,6 +53,7 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
   };
 
   const handleSubmit = () => {
+    console.log('Submitting data:', inputData); // Отладочное сообщение
     onSubmit(inputData);
   };
 
@@ -108,30 +109,6 @@ const StockInputPage: React.FC<Props> = ({ stock, onSubmit, initialData }) => {
       ))}
 
       {/* Остальные параметры */}
-      <input
-        type="text"
-        name="turbine_name"
-        placeholder="Название турбины"
-        value={inputData.turbine_name}
-        onChange={handleInputChange}
-        className="value-input"
-      />
-      <input
-        type="text"
-        name="valve_drawing"
-        placeholder="Чертеж штока"
-        value={inputData.valve_drawing}
-        onChange={handleInputChange}
-        className="value-input"
-      />
-      <input
-        type="number"
-        name="valve_id"
-        placeholder="ID штока"
-        value={inputData.valve_id}
-        onChange={handleInputChange}
-        className="value-input"
-      />
       <input
         type="number"
         name="temperature_start"

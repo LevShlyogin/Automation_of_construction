@@ -11,6 +11,11 @@ type Props = {
 const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {} }) => {
   const [isSaved, setIsSaved] = useState(false);
 
+  // Функция для округления чисел
+  const roundNumber = (num: number, decimals: number = 4) => {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  };
+
   // Вывод данных в консоль
   useEffect(() => {
     console.group(`Результаты для штока: ${stockId}`);
@@ -53,6 +58,18 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
     const outputDataFlat = flattenData(outputData);
     const outputWs = XLSX.utils.json_to_sheet(outputDataFlat, { header: Object.keys(outputData) });
     XLSX.utils.book_append_sheet(wb, outputWs, 'Output Data');
+
+    // Добавление ejector_props и deaerator_props в Excel
+    if (outputData.ejector_props) {
+      const ejectorPropsFlat = outputData.ejector_props.map((item: any) => ({
+        g: roundNumber(item.g),
+        h: roundNumber(item.h),
+        p: roundNumber(item.p),
+        t: roundNumber(item.t),
+      }));
+      const ejectorWs = XLSX.utils.json_to_sheet(ejectorPropsFlat, { header: ['g', 'h', 'p', 't'] });
+      XLSX.utils.book_append_sheet(wb, ejectorWs, 'Ejector Props');
+    }
 
     XLSX.writeFile(wb, `Results_${stockId}.xlsx`);
   };
@@ -102,11 +119,40 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
           </thead>
           <tbody>
             <tr>
-              {Object.values(outputData).map((value, index) => (
-                <td key={index}>
-                  {Array.isArray(value) ? value.join(', ') : value.toString()}
-                </td>
-              ))}
+              {Object.keys(outputData).map((key, index) => {
+                const value = outputData[key];
+                if (key === 'ejector_props') {
+                  return (
+                    <td key={index}>
+                      {Array.isArray(value) ? (
+                        value.map((item, idx) => (
+                          <div key={idx}>
+                            {Object.keys(item).map((subKey) => (
+                              <div key={subKey}>
+                                {subKey}: {roundNumber(item[subKey])}
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      ) : (
+                        <div>
+                          {Object.keys(value).map((subKey) => (
+                            <div key={subKey}>
+                              {subKey}: {roundNumber(value[subKey])}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  );
+                } else {
+                  return (
+                    <td key={index}>
+                      {Array.isArray(value) ? value.map(v => roundNumber(v)).join(', ') : roundNumber(value)}
+                    </td>
+                  );
+                }
+              })}
             </tr>
           </tbody>
         </table>

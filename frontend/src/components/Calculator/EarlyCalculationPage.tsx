@@ -4,7 +4,7 @@ import './EarlyCalculationPage.css';
 type Props = {
   stockId: string;
   lastCalculation: any;
-  onRecalculate: (recalculate: boolean, initialData?: any) => void;
+  onRecalculate: (recalculate: boolean) => void;
 };
 
 const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRecalculate }) => {
@@ -15,6 +15,11 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
   const deaeratorProps = lastCalculation?.output_data.deaerator_props || [];
   const ejectorProps = lastCalculation?.output_data.ejector_props || [];
   const inputData = lastCalculation?.input_data || {}; // Входные данные
+
+  // Функция для округления чисел
+  const roundNumber = (num: number, decimals: number = 4) => {
+    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  };
 
   // Вывод входных и выходных данных в консоль для диагностики
   useEffect(() => {
@@ -37,10 +42,9 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
       <h2>Шток {stockId}</h2>
       <h3>Обнаружен предыдущий расчет</h3>
 
-      {/* Входные данные */}
       <h3>Входные данные</h3>
       {Object.keys(inputData).length > 0 ? (
-        <table className="calculation-table">
+        <table className="results-table">
           <thead>
             <tr>
               {Object.keys(inputData).map((key) => (
@@ -51,7 +55,9 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           <tbody>
             <tr>
               {Object.values(inputData).map((value, index) => (
-                <td key={index}>{value}</td>
+                <td key={index}>
+                  {Array.isArray(value) ? value.join(', ') : value.toString()}
+                </td>
               ))}
             </tr>
           </tbody>
@@ -60,7 +66,6 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <p>Нет доступных входных данных.</p>
       )}
 
-      {/* Выходные данные */}
       <h3>Выходные данные</h3>
       {gi.length > 0 ? (
         <table className="calculation-table">
@@ -75,10 +80,10 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           <tbody>
             {gi.map((value, index) => (
               <tr key={index}>
-                <td>{value}</td>
-                <td>{pi_in[index]}</td>
-                <td>{ti[index]}</td>
-                <td>{hi[index]}</td>
+                <td>{roundNumber(value)}</td>
+                <td>{roundNumber(pi_in[index])}</td>
+                <td>{roundNumber(ti[index])}</td>
+                <td>{roundNumber(hi[index])}</td>
               </tr>
             ))}
           </tbody>
@@ -87,12 +92,55 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <p>Нет доступных выходных данных.</p>
       )}
 
+      {/* Отображение ejector_props */}
+      <h3>Ejector Properties</h3>
+      {ejectorProps.length > 0 ? (
+        <table className="calculation-table">
+          <thead>
+            <tr>
+              <th>g</th>
+              <th>h</th>
+              <th>p</th>
+              <th>t</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ejectorProps.map((prop, index) => (
+              <tr key={index}>
+                <td>{roundNumber(prop.g)}</td>
+                <td>{roundNumber(prop.h)}</td>
+                <td>{roundNumber(prop.p)}</td>
+                <td>{roundNumber(prop.t)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных данных для ejector_props.</p>
+      )}
+
+      {/* Отображение deaerator_props */}
+      <h3>Deaerator Properties</h3>
+      {deaeratorProps.length > 0 ? (
+        <table className="calculation-table">
+          <tbody>
+            <tr>
+              {deaeratorProps.map((value, index) => (
+                <td key={index}>{roundNumber(value)}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных данных для deaerator_props.</p>
+      )}
+
       <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>
       <div className="buttons">
         <button onClick={() => onRecalculate(false)} className="btn red">
           Нет
         </button>
-        <button onClick={() => onRecalculate(true, inputData)} className="btn green">
+        <button onClick={() => onRecalculate(true)} className="btn green">
           Да
         </button>
       </div>
