@@ -23,8 +23,8 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
 
   // Вывод входных и выходных данных в консоль для диагностики
   useEffect(() => {
-    console.group(`Данные для штока: ${stockId}`);
-    console.log('lastCalculation:', lastCalculation);
+    console.group(`Данные для клапана: ${stockId}`);
+    console.log('Последний расчёт:', lastCalculation);
     console.log('Входные данные:', inputData);
     console.log('Выходные данные:', {
       Gi: gi,
@@ -39,7 +39,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
 
   return (
     <div className="detected-calculation">
-      <h2>Шток {stockId}</h2>
+      <h2>Клапан {stockId}</h2>
       <h3>Обнаружен предыдущий расчет</h3>
 
       <h3>Входные данные</h3>
@@ -47,9 +47,14 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <table className="results-table">
           <thead>
             <tr>
-              {Object.keys(inputData).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
+              <th>Название турбины</th>
+              <th>Чертёж клапана</th>
+              <th>id клапана</th>
+              <th>Начальная температура</th>
+              <th>Температура воздуха</th>
+              <th>Количество участков</th>
+              <th>Выходные давления</th>
+              <th>Входные давления</th>
             </tr>
           </thead>
           <tbody>
@@ -71,10 +76,10 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <table className="calculation-table">
           <thead>
             <tr>
-              <th>Gi</th>
-              <th>Pi_in</th>
-              <th>Ti</th>
-              <th>Hi</th>
+              <th>Расход, т/ч</th>
+              <th>Давление , МПа</th>
+              <th>Температура , С</th>
+              <th>Энтальпия , кДж/кг</th>
             </tr>
           </thead>
           <tbody>
@@ -93,7 +98,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
       )}
 
       {/* Отображение ejector_props */}
-      <h3>Ejector Properties</h3>
+      <h3>Параметры эжекторов</h3>
       {ejectorProps.length > 0 ? (
         <table className="calculation-table">
           <thead>
@@ -116,11 +121,11 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           </tbody>
         </table>
       ) : (
-        <p>Нет доступных данных для ejector_props.</p>
+        <p>Нет доступных данных для параметров эжекторов.</p>
       )}
 
       {/* Отображение deaerator_props */}
-      <h3>Deaerator Properties</h3>
+      <h3>Параметры деаэратора</h3>
       {deaeratorProps.length > 0 ? (
         <table className="calculation-table">
           <tbody>
@@ -132,7 +137,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           </tbody>
         </table>
       ) : (
-        <p>Нет доступных данных для deaerator_props.</p>
+        <p>Нет доступных данных для параметров деаэратора.</p>
       )}
 
       <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>

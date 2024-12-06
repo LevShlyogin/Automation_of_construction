@@ -18,7 +18,7 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
 
   // Вывод данных в консоль
   useEffect(() => {
-    console.group(`Результаты для штока: ${stockId}`);
+    console.group(`Результаты для клапана: ${stockId}`);
     console.log('inputData:', inputData);
     console.log('outputData:', outputData);
     console.groupEnd();
@@ -51,27 +51,15 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
 
     // Преобразование inputData в плоский формат
     const inputDataFlat = flattenData(inputData);
-    const inputWs = XLSX.utils.json_to_sheet(inputDataFlat, { header: Object.keys(inputData) });
-    XLSX.utils.book_append_sheet(wb, inputWs, 'Input Data');
+    const inputWs = XLSX.utils.json_to_sheet(inputDataFlat, { header: ['Название турбины', 'Чертёж клапана', 'id клапана', 'Начальная температура', 'Температура воздуха', 'Количество участков', 'Выходные давления', 'Входные давления'] });
+    XLSX.utils.book_append_sheet(wb, inputWs, 'Входные данные');
 
     // Преобразование outputData в плоский формат
     const outputDataFlat = flattenData(outputData);
-    const outputWs = XLSX.utils.json_to_sheet(outputDataFlat, { header: Object.keys(outputData) });
-    XLSX.utils.book_append_sheet(wb, outputWs, 'Output Data');
+    const outputWs = XLSX.utils.json_to_sheet(outputDataFlat, { header: ['Расход, т/ч', 'Давление , МПа', 'Температура , С', 'Энтальпия , кДж/кг', 'Параметры эжекторов', 'Параметры деаэратора'] });
+    XLSX.utils.book_append_sheet(wb, outputWs, 'Выходные данные');
 
-    // Добавление ejector_props и deaerator_props в Excel
-    if (outputData.ejector_props) {
-      const ejectorPropsFlat = outputData.ejector_props.map((item: any) => ({
-        g: roundNumber(item.g),
-        h: roundNumber(item.h),
-        p: roundNumber(item.p),
-        t: roundNumber(item.t),
-      }));
-      const ejectorWs = XLSX.utils.json_to_sheet(ejectorPropsFlat, { header: ['g', 'h', 'p', 't'] });
-      XLSX.utils.book_append_sheet(wb, ejectorWs, 'Ejector Props');
-    }
-
-    XLSX.writeFile(wb, `Results_${stockId}.xlsx`);
+    XLSX.writeFile(wb, `Расчет_${stockId}.xlsx`);
   };
 
   // Обработчик для отображения сообщения о сохранении в базе данных
@@ -81,16 +69,21 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
 
   return (
     <div className="calculation-results-page">
-      <h2>Результаты расчетов для штока: {stockId}</h2>
+      <h2>Результаты расчётов для клапана: {stockId}</h2>
 
       <h3>Входные данные</h3>
       {Object.keys(inputData).length > 0 ? (
         <table className="results-table">
           <thead>
             <tr>
-              {Object.keys(inputData).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
+              <th>Название турбины</th>
+              <th>Чертёж клапана</th>
+              <th>id клапана</th>
+              <th>Начальная температура</th>
+              <th>Температура воздуха</th>
+              <th>Количество участков</th>
+              <th>Выходные давления</th>
+              <th>Входные давления</th>
             </tr>
           </thead>
           <tbody>
@@ -108,52 +101,59 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
       )}
 
       <h3>Выходные данные</h3>
-      {Object.keys(outputData).length > 0 ? (
+      {outputData.Gi && outputData.Gi.length > 0 ? (
         <table className="results-table">
           <thead>
             <tr>
-              {Object.keys(outputData).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
+              <th>Расход, т/ч</th>
+              <th>Давление , МПа</th>
+              <th>Температура , С</th>
+              <th>Энтальпия , кДж/кг</th>
+              <th>Параметры эжекторов</th>
+              <th>Параметры деаэратора</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              {Object.keys(outputData).map((key, index) => {
-                const value = outputData[key];
-                if (key === 'ejector_props') {
-                  return (
-                    <td key={index}>
-                      {Array.isArray(value) ? (
-                        value.map((item, idx) => (
-                          <div key={idx}>
-                            {Object.keys(item).map((subKey) => (
-                              <div key={subKey}>
-                                {subKey}: {roundNumber(item[subKey])}
-                              </div>
-                            ))}
-                          </div>
-                        ))
-                      ) : (
-                        <div>
-                          {Object.keys(value).map((subKey) => (
-                            <div key={subKey}>
-                              {subKey}: {roundNumber(value[subKey])}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </td>
-                  );
-                } else {
-                  return (
-                    <td key={index}>
-                      {Array.isArray(value) ? value.map(v => roundNumber(v)).join(', ') : roundNumber(value)}
-                    </td>
-                  );
-                }
-              })}
-            </tr>
+            {outputData.Gi.map((value, index) => (
+              <tr key={index}>
+                <td>{roundNumber(value)}</td>
+                <td>{roundNumber(outputData.Pi_in[index])}</td>
+                <td>{roundNumber(outputData.Ti[index])}</td>
+                <td>{roundNumber(outputData.Hi[index])}</td>
+                <td>
+                  {outputData.ejector_props && outputData.ejector_props[index] ? (
+                    Object.entries(outputData.ejector_props[index]).map(([key, val]) => `${key}: ${roundNumber(val)}`).join(', ')
+                  ) : (
+                    '-'
+                  )}
+                </td>
+                <td>
+                  {outputData.deaerator_props && outputData.deaerator_props[index] !== undefined ? (
+                    roundNumber(outputData.deaerator_props[index])
+                  ) : (
+                    '-'
+                  )}
+                </td>
+              </tr>
+            ))}
+            {outputData.ejector_props && outputData.ejector_props.length > outputData.Gi.length && (
+              outputData.ejector_props.slice(outputData.Gi.length).map((item, idx) => (
+                <tr key={`ejector-extra-${idx}`}>
+                  <td colSpan={4}>-</td>
+                  <td>{Object.entries(item).map(([key, val]) => `${key}: ${roundNumber(val)}`).join(', ')}</td>
+                  <td>-</td>
+                </tr>
+              ))
+            )}
+            {outputData.deaerator_props && outputData.deaerator_props.length > outputData.Gi.length && (
+              outputData.deaerator_props.slice(outputData.Gi.length).map((value, idx) => (
+                <tr key={`deaerator-extra-${idx}`}>
+                  <td colSpan={4}>-</td>
+                  <td>-</td>
+                  <td>{roundNumber(value)}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       ) : (

@@ -66,7 +66,7 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
 
   return (
     <div className="stock-input-page">
-      <h2 className="title">Ввод данных для штока {stock.name}</h2>
+      <h2 className="title">Ввод данных для клапана {stock.name}</h2>
 
       {/* Выбор количества частей */}
       <div className="input-container">
