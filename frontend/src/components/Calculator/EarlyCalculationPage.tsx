@@ -98,7 +98,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
       )}
 
       {/* Отображение ejector_props */}
-      <h3>Параметры эжекторов</h3>
+      <h3>Параметры потребителей</h3>
       {ejectorProps.length > 0 ? (
         <table className="calculation-table">
           <thead>
@@ -121,11 +121,11 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           </tbody>
         </table>
       ) : (
-        <p>Нет доступных данных для параметров эжекторов.</p>
+        <p>Нет доступных данных для параметров потребителей.</p>
       )}
 
       {/* Отображение deaerator_props */}
-      <h3>Параметры деаэратора</h3>
+      <h3>Потребитель 1</h3>
       {deaeratorProps.length > 0 ? (
         <table className="calculation-table">
           <tbody>
@@ -137,7 +137,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
           </tbody>
         </table>
       ) : (
-        <p>Нет доступных данных для параметров деаэратора.</p>
+        <p>Нет доступных данных для потребителя 1.</p>
       )}
 
       <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>

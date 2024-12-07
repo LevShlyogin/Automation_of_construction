@@ -109,8 +109,8 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
               <th>Давление , МПа</th>
               <th>Температура , С</th>
               <th>Энтальпия , кДж/кг</th>
-              <th>Параметры эжекторов</th>
-              <th>Параметры деаэратора</th>
+              <th>Параметры потребителей</th>
+              <th>Потребитель 1</th>
             </tr>
           </thead>
           <tbody>

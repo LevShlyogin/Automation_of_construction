@@ -87,33 +87,33 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
         </select>
       </div>
 
-      {/* Ввод значений для p_ejector */}
-      <div className="input-group">
-        <h3 className="input-label">Введите значения для p_ejector:</h3>
-        {inputData.p_ejector.map((value, index) => (
-          <input
-            key={`p_ejector-${index}`}
-            type="number"
-            step="any"
-            placeholder={`p_ejector для части ${index + 1}`}
-            value={value}
-            onChange={(e) => handleInputChange(e, index, 'p_ejector')}
-            className="value-input"
-          />
-        ))}
-      </div>
-
       {/* Ввод значений для p_values */}
       <div className="input-group">
-        <h3 className="input-label">Введите значения для p_values (3 элемента):</h3>
+        <h3 className="input-label">Введите входные давления:</h3>
         {inputData.p_values.map((value, index) => (
           <input
             key={`p_values-${index}`}
             type="number"
             step="any"
-            placeholder={`p_value ${index + 1}`}
+            placeholder={`Давление ${index + 1}`}
             value={value}
             onChange={(e) => handleInputChange(e, index, 'p_values')}
+            className="value-input"
+          />
+        ))}
+      </div>
+
+      {/* Ввод значений для p_ejector */}
+      <div className="input-group">
+        <h3 className="input-label">Введите выходные давления:</h3>
+        {inputData.p_ejector.map((value, index) => (
+          <input
+            key={`p_ejector-${index}`}
+            type="number"
+            step="any"
+            placeholder={`Потребитель ${index + 1}`}
+            value={value}
+            onChange={(e) => handleInputChange(e, index, 'p_ejector')}
             className="value-input"
           />
         ))}
