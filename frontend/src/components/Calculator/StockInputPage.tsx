@@ -19,7 +19,7 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
     t_air: '',
     count_valves: countParts,
     p_ejector: Array(countParts).fill(''),
-    p_values: Array(3).fill(''),
+    p_values: Array(countParts).fill(''),
   });
 
   useEffect(() => {
@@ -51,6 +51,7 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
       ...prevData,
       count_valves: value,
       p_ejector: Array(value).fill(''),
+      p_values: Array(value).fill(''), // Синхронизация входных давлений
     }));
   };
 
