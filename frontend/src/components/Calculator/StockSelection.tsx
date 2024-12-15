@@ -59,6 +59,7 @@ const StockSelection: React.FC<Props> = ({ turbine, onSelectValve }) => {
         {valves.map((valve) => (
           <li key={valve.id} className="stock-item" onClick={() => onSelectValve(valve)}>
             <p className="stock-name">{valve.name}</p>
+            <p className="stock-type">{valve.type}</p>
           </li>
         ))}
       </ul>

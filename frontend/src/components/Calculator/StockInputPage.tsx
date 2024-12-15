@@ -17,7 +17,7 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
     valve_id: stock.id || '',
     temperature_start: '',
     t_air: '',
-    count_valves: countParts,
+    count_valves: 3, // Количество клапанов
     p_ejector: Array(countParts).fill(''),
     p_values: Array(countParts).fill(''),
   });
@@ -25,11 +25,11 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
   useEffect(() => {
     if (initialData) {
       setInputData(initialData);
-      setCountParts(initialData.count_valves);
+      setCountParts(initialData.p_values?.length || 2);
     }
   }, [initialData]);
 
-  const handleInputChange = (e, index = null, arrayName = '') => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, index: number | null = null, arrayName: string = '') => {
     const { name, value } = e.target;
     const parsedValue = value === '' ? '' : parseFloat(value);
 
@@ -44,14 +44,13 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
     }
   };
 
-  const handleCountPartsChange = (e) => {
+  const handleCountPartsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = parseInt(e.target.value, 10);
     setCountParts(value);
     setInputData((prevData) => ({
       ...prevData,
-      count_valves: value,
       p_ejector: Array(value).fill(''),
-      p_values: Array(value).fill(''), // Синхронизация входных давлений
+      p_values: Array(value).fill(''),
     }));
   };
 
@@ -86,6 +85,22 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Ввод количества клапанов */}
+      <div className="input-container">
+        <label htmlFor="countValves" className="input-label">
+          Количество клапанов:
+        </label>
+        <input
+          id="countValves"
+          type="number"
+          min="1"
+          value={inputData.count_valves}
+          onChange={(e) => handleInputChange(e)}
+          name="count_valves"
+          className="value-input"
+        />
       </div>
 
       {/* Ввод значений для p_values */}

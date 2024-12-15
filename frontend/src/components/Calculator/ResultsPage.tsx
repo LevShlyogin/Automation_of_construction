@@ -109,8 +109,6 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
               <th>Давление , МПа</th>
               <th>Температура , С</th>
               <th>Энтальпия , кДж/кг</th>
-              <th>Параметры потребителей</th>
-              <th>Потребитель 1</th>
             </tr>
           </thead>
           <tbody>
@@ -120,44 +118,58 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
                 <td>{roundNumber(outputData.Pi_in[index])}</td>
                 <td>{roundNumber(outputData.Ti[index])}</td>
                 <td>{roundNumber(outputData.Hi[index])}</td>
-                <td>
-                  {outputData.ejector_props && outputData.ejector_props[index] ? (
-                    Object.entries(outputData.ejector_props[index]).map(([key, val]) => `${key}: ${roundNumber(val)}`).join(', ')
-                  ) : (
-                    '-'
-                  )}
-                </td>
-                <td>
-                  {outputData.deaerator_props && outputData.deaerator_props[index] !== undefined ? (
-                    roundNumber(outputData.deaerator_props[index])
-                  ) : (
-                    '-'
-                  )}
-                </td>
               </tr>
             ))}
-            {outputData.ejector_props && outputData.ejector_props.length > outputData.Gi.length && (
-              outputData.ejector_props.slice(outputData.Gi.length).map((item, idx) => (
-                <tr key={`ejector-extra-${idx}`}>
-                  <td colSpan={4}>-</td>
-                  <td>{Object.entries(item).map(([key, val]) => `${key}: ${roundNumber(val)}`).join(', ')}</td>
-                  <td>-</td>
-                </tr>
-              ))
-            )}
-            {outputData.deaerator_props && outputData.deaerator_props.length > outputData.Gi.length && (
-              outputData.deaerator_props.slice(outputData.Gi.length).map((value, idx) => (
-                <tr key={`deaerator-extra-${idx}`}>
-                  <td colSpan={4}>-</td>
-                  <td>-</td>
-                  <td>{roundNumber(value)}</td>
-                </tr>
-              ))
-            )}
           </tbody>
         </table>
       ) : (
         <p>Нет доступных выходных данных.</p>
+      )}
+
+      <h3>Параметры потребителей</h3>
+      {outputData.ejector_props && outputData.ejector_props.length > 0 ? (
+        <table className="results-table">
+          <thead>
+            <tr>
+              {Object.keys(outputData.ejector_props[0]).map((key, index) => (
+                <th key={index}>{key}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {outputData.ejector_props.map((item, index) => (
+              <tr key={index}>
+                {Object.entries(item).map(([key, val], idx) => (
+                  <td key={idx}>{roundNumber(val)}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных параметров потребителей.</p>
+      )}
+
+      <h3>Потребитель 1</h3>
+      {outputData.deaerator_props && outputData.deaerator_props.length > 0 ? (
+        <table className="results-table">
+          <thead>
+            <tr>
+              {outputData.deaerator_props.map((value, index) => (
+                <th key={index}>{index + 1}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              {outputData.deaerator_props.map((value, index) => (
+                <td key={index}>{roundNumber(value)}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      ) : (
+        <p>Нет доступных данных для потребителя 1.</p>
       )}
 
       <div className="buttons">
