@@ -61,7 +61,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
             <tr>
               {Object.values(inputData).map((value, index) => (
                 <td key={index}>
-                  {Array.isArray(value) ? value.join(', ') : value.toString()}
+                  {Array.isArray(value) ? value.join(', ') : String(value)}
                 </td>
               ))}
             </tr>
@@ -83,7 +83,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
             </tr>
           </thead>
           <tbody>
-            {gi.map((value, index) => (
+            {gi.map((value: any, index: number) => (
               <tr key={index}>
                 <td>{roundNumber(value)}</td>
                 <td>{roundNumber(pi_in[index])}</td>
@@ -110,7 +110,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
             </tr>
           </thead>
           <tbody>
-            {ejectorProps.map((prop, index) => (
+            {ejectorProps.map((prop: any, index: number) => (
               <tr key={index}>
                 <td>{roundNumber(prop.g)}</td>
                 <td>{roundNumber(prop.h)}</td>
@@ -130,7 +130,7 @@ const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRec
         <table className="calculation-table">
           <tbody>
             <tr>
-              {deaeratorProps.map((value, index) => (
+              {deaeratorProps.map((value: any, index: number) => (
                 <td key={index}>{roundNumber(value)}</td>
               ))}
             </tr>

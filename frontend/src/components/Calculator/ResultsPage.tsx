@@ -112,7 +112,7 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
             </tr>
           </thead>
           <tbody>
-            {outputData.Gi.map((value, index) => (
+            {outputData.Gi.map((value: any, index: number) => (
               <tr key={index}>
                 <td>{roundNumber(value)}</td>
                 <td>{roundNumber(outputData.Pi_in[index])}</td>
@@ -137,9 +137,9 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
             </tr>
           </thead>
           <tbody>
-            {outputData.ejector_props.map((item, index) => (
+            {outputData.ejector_props.map((item: any, index: number) => (
               <tr key={index}>
-                {Object.entries(item).map(([key, val], idx) => (
+                {Object.entries(item).map(([_, val]: [string, any], idx) => (
                   <td key={idx}>{roundNumber(val)}</td>
                 ))}
               </tr>
@@ -155,14 +155,14 @@ const ResultsPage: React.FC<Props> = ({ stockId, inputData = {}, outputData = {}
         <table className="results-table">
           <thead>
             <tr>
-              {outputData.deaerator_props.map((value, index) => (
+              {outputData.deaerator_props.map((_: any, index: number) => (
                 <th key={index}>{index + 1}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             <tr>
-              {outputData.deaerator_props.map((value, index) => (
+              {outputData.deaerator_props.map((value: any, index: number) => (
                 <td key={index}>{roundNumber(value)}</td>
               ))}
             </tr>

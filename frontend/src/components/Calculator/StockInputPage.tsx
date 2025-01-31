@@ -34,7 +34,7 @@ const StockInputPage: React.FC<Props> = ({ stock, turbine, onSubmit, initialData
     const parsedValue = value === '' ? '' : parseFloat(value);
 
     if (index !== null && arrayName) {
-      setInputData((prevData) => {
+      setInputData((prevData: any) => {
         const newValues = [...prevData[arrayName]];
         newValues[index] = parsedValue;
         return { ...prevData, [arrayName]: newValues };

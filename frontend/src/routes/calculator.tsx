@@ -14,7 +14,7 @@ const CalculatorPage: React.FC = () => {
   const [isResultPage, setIsResultPage] = useState(false);
 
   // Обработка выбора турбины
-  const handleTurbineSelect = (turbine) => {
+  const handleTurbineSelect = (turbine: any) => {
     setSelectedTurbine(turbine);
     setSelectedStock(null);
     setIsResultPage(false);
@@ -22,7 +22,7 @@ const CalculatorPage: React.FC = () => {
   };
 
   // Обработка выбора штока и загрузка предыдущих расчетов
-  const handleStockSelect = async (stock) => {
+  const handleStockSelect = async (stock: any) => {
       setSelectedStock(stock);
       setIsLoading(true);
 
@@ -36,7 +36,7 @@ const CalculatorPage: React.FC = () => {
         const results = await response.json();
         if (results.length > 0) {
           const sortedResults = results.sort(
-            (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+            (a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           );
           setLastCalculation(sortedResults[0]);
         } else {
@@ -60,7 +60,7 @@ const CalculatorPage: React.FC = () => {
   };
 
   // Обработка отправки данных с StockInputPage
-  const handleStockInputSubmit = async (inputData) => {
+  const handleStockInputSubmit = async (inputData: any) => {
     setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8000/api/calculate', {
