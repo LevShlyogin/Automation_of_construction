@@ -31,12 +31,12 @@ COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
 
 COPY ./app /app/app
 
+RUN pip install --no-cache-dir -r requirements.txt
+
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
-
-RUN pip install --no-cache-dir -r requirements.txt
 
 # Открываем порт
 EXPOSE 8000
