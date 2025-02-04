@@ -26,31 +26,31 @@
 
 ### Dashboard Login
 
-[![API docs](img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Dashboard - Admin
 
-[![API docs](img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Dashboard - Create User
 
-[![API docs](img/dashboard-create.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/dashboard-create.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Dashboard - Items
 
-[![API docs](img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Dashboard - User Settings
 
-[![API docs](img/dashboard-user-settings.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/dashboard-user-settings.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Dashboard - Dark Mode
 
-[![API docs](img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ### Interactive API Documentation
 
-[![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
+[![API docs](../img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
 
 ## How To Use It
 
@@ -138,7 +138,7 @@ Before deploying it, make sure you change at least the values for:
 
 You can (and should) pass these as environment variables from secrets.
 
-Read the [deployment.md](./deployment.md) docs for more details.
+Read the [deployment.md](../deployment.md) docs for more details.
 
 ### Generate Secret Keys
 
@@ -222,11 +222,11 @@ Frontend docs: [frontend/README.md](./frontend/README.md).
 
 ## Deployment
 
-Deployment docs: [deployment.md](./deployment.md).
+Deployment docs: [deployment.md](../deployment.md).
 
 ## Development
 
-General development docs: [development.md](./development.md).
+General development docs: [development.md](../development.md).
 
 This includes using Docker Compose, custom local domains, `.env` configurations, etc.
 
