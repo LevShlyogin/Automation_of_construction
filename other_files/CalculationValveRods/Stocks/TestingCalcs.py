@@ -5,7 +5,7 @@ from time import sleep
 from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate fric resist, softening coef and air props
 from seuif97 import *  # SteamPH and SteamPT (ph and pt)
 
-from CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
+from other_files.CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
 
 '''
 Functions PART (additional + steam/air)

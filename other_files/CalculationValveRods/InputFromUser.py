@@ -1,5 +1,5 @@
 # Импортируем функцию find_BP_clapans из модуля ClapansByTurbin.py
-from CalculationValveRods.DATABASE.ClapansByTurbin import find_BP_clapans
+from other_files.CalculationValveRods.DATABASE.ClapansByTurbin import find_BP_clapans
 
 
 def entry_to_DB() -> [int, str, []]:
