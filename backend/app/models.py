@@ -175,7 +175,7 @@ class CalculationResultDB(Base):
     input_data = Column(JSON, nullable=False)
     output_data = Column(JSON, nullable=False)
 
-    # Внешний ключ на Valve
+    # Внешний ключ на Valve - обязательно применять на бд
     valve_id = Column(Integer, ForeignKey('autocalc.stocks.id'), nullable=False)
 
     # Связь с Valve

@@ -1,53 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TurbineSearch.css';
 
 type Turbine = {
+  id: number;
   name: string;
-  stocks: string[];
 };
-
-const turbines: Turbine[] = [
-  { name: 'Турбина N-123', stocks: ['NT-123456', 'NT-123457', 'NT-123458'] },
-  { name: 'Турбина A-100', stocks: ['NT-654321', 'NT-654322'] },
-  { name: 'Турбина C-200', stocks: ['NT-333444'] },
-  { name: 'Турбина E-223', stocks: ['NT-123456', 'NT-123457', 'NT-123458'] },
-  { name: 'Турбина K-250', stocks: ['NT-654321', 'NT-654322'] },
-  { name: 'Турбина Z-567', stocks: ['NT-333444'] },
-];
 
 type Props = {
   onSelectTurbine: (turbine: Turbine) => void;
 };
 
 const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
+  const [turbines, setTurbines] = useState<Turbine[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTurbines = async () => {
+      try {
+        console.log("Отправляем запрос к API...");
+
+        const response = await fetch('http://localhost:8000/api/turbines/');
+        console.log("Статус ответа:", response.status);
+
+        if (!response.ok) {
+          throw new Error(`Ошибка загрузки данных. Статус: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Полученные данные:", data);
+        setTurbines(data);
+      } catch (error: any) {
+        console.error("Ошибка запроса:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTurbines();
+  }, []);
 
   const filteredTurbines = turbines.filter(turbine =>
-	turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
+    turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (loading) return <div>Загрузка турбин...</div>;
+  if (error) return <div>Ошибка: {error}</div>;
+
   return (
-	<div className="turbine-search">
-  	<h2 className="title">Введите название турбины</h2>
-  	<div className="search-bar">
-    	<input
-      	type="text"
-      	placeholder="A-100"
-      	value={searchTerm}
-      	onChange={(e) => setSearchTerm(e.target.value)}
-      	className="search-input"
-    	/>
-     	{/*<button className="search-button">Поиск</button>*/}
-  	</div>
-  	<ul className="turbine-list">
-    	{filteredTurbines.map((turbine, index) => (
-      	<li key={index} className="turbine-item" onClick={() => onSelectTurbine(turbine)}>
-        	<p className="turbine-name">{turbine.name}</p>
-        	<p className="turbine-stocks">{turbine.stocks.join(', ')}</p>
-      	</li>
-    	))}
-  	</ul>
-	</div>
+    <div className="turbine-search">
+      <h2 className="title">Введите название турбины</h2>
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="A-100"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
+      </div>
+      <ul className="turbine-list">
+        {filteredTurbines.map((turbine) => (
+          <li key={turbine.id} className="turbine-item" onClick={() => onSelectTurbine(turbine)}>
+            <p className="turbine-name">{turbine.name}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

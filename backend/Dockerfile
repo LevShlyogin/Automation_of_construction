@@ -27,15 +27,18 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=/app
 
-COPY ./scripts /app/scripts
-
-COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
 
 COPY ./app /app/app
+
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
+
+# Открываем порт
+EXPOSE 8000
 
 CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
