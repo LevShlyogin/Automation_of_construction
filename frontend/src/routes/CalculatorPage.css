@@ -1,0 +1,82 @@
+.calculator-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f1f1f1;
+    padding: 10px 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-wrap: nowrap;
+    flex-direction: row;
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.header-logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.header-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #334;
+}
+
+.header a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #000000;
+  padding: 8px 12px;
+  background-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease, border 0.3s ease;
+  border: 2px solid transparent; /* Добавляем прозрачную границу по умолчанию */
+  border-radius: 5px; /* Для закругленных краев */
+}
+
+.header a:hover {
+  text-decoration: none;
+  border-color: #357993; /* Цвет обводки при наведении */
+}
+
+.logo {
+    height: 50px;
+    margin-left: 15px;
+    margin-right: 10px;
+}
+
+.program-name {
+  font-size: 24px;
+  margin: 0;
+}
+
+.nav a {
+  margin-left: 10px;
+  text-decoration: none;
+  color: #000000;
+  font-size: 16px;
+}
+
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    color: #3b3b3b;
+}
