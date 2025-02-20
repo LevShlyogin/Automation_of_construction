@@ -2,7 +2,7 @@ WSAProperties~=0.2.1
 seuif97==1.2.0
 psycopg2~=2.9.9
 prettytable~=3.11.0
-fastapi~=0.114.0
+fastapi==0.114.2
 uvicorn~=0.30.6
 pydantic~=2.9.1
 pydantic_core~=2.23.3
@@ -10,7 +10,7 @@ pydantic-settings~=2.5.2
 typing_extensions~=4.12.2
 passlib~=1.7.4
 SQLAlchemy~=2.0.34
-starlette~=0.40.0
+starlette>=0.37.2,<0.39.0
 idna~=3.8
 anyio~=4.4.0
 h11~=0.14.0
