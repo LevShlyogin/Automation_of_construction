@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://user:password@db:5432/database
+      DATABASE_URL: postgresql://user:password@database:5432/database
 
   frontend:
     build: ./frontend
