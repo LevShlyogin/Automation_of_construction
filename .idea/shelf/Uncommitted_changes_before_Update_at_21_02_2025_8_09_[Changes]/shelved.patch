@@ -1,0 +1,164 @@
+Index: .idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57__Changes_2.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57__Changes_2.xml b/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57__Changes_2.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57__Changes_2.xml	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
++++ /dev/null	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2" date="1725908274194" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 09.09.2024 23:57 [Changes]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00__Changes_.xml
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00__Changes_.xml
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00__Changes_.xml	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
++++ /dev/null	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]" date="1724392848306" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 23.08.2024 11:00 [Changes]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Update_at_23_08_2024_11_00_[Changes]/shelved.patch	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
++++ /dev/null	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
+@@ -1,23 +0,0 @@
+-Index: CalculationValveRods/Stocks/StockRazchetsKlapans.py
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>import numpy as np\r\nfrom scipy.interpolate import interp1d\r\nfrom math import pi\r\nfrom seuif97 import *  # SteamPH and SteamPT (ph and pt)\r\nfrom WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate fric resist, softening coef and air props\r\nfrom CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB\r\nfrom typing import Tuple  # CleanCoding\r\nfrom sys import exit\r\nfrom time import sleep\r\n\r\n'''\r\nFunctions PART (additional + steam/air)\r\n'''\r\n\r\n\r\n# Вспомогательная функция для нахождения G пара, или же воздуха для последней части\r\ndef G_find(last_part, ALFA, P_first, P_second, v):\r\n    if last_part:\r\n        # Определение параметров воздуха последнего участка\r\n        G = max(0.001, ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6)\r\n    else:\r\n        # Определение параметров пара от первого до предпоследнего участка\r\n        G = ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6\r\n    return G\r\n\r\n\r\n# Функция для определения параметров пара участка\r\ndef part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=False, W=50):\r\n    if P_first == P_second:\r\n        P_first += 0.03\r\n    kin_vis = v * din_vis\r\n    delta_speed = 1\r\n    while not (-0.001 < delta_speed < 0.001):\r\n        Re = (W * 2 * delta_clearance) / kin_vis\r\n        ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5\r\n        G = G_find(last_part, ALFA, P_first, P_second, v)\r\n        delta_speed = W - v * G / (3.6 * S)\r\n        if delta_speed <= 0.001:\r\n            W += max(0.001, W)\r\n        elif delta_speed >= 0.001:\r\n            W -= max(0.001, W * 0.9)\r\n    Re = (W * 2 * delta_clearance) / kin_vis\r\n    ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5\r\n    G = G_find(last_part, ALFA, P_first, P_second, v)\r\n    return G\r\n\r\n\r\ndef exit_err(error_text=\"Неизвестная ошибка\"):\r\n    \"\"\"\r\n    Функция для прекращения работы программы при некорректных данных\r\n    \"\"\"\r\n    print(error_text)\r\n    sleep(3)\r\n    exit()\r\n\r\n\r\n'''\r\nVariables & INPUTs PART\r\n\r\nGeneral geometric parameters\r\nradius_rounding                                       - Radius of inlet rounding or chamfer size\r\ndelta_clearance                                       - Radial clearance\r\ndiameter_stock                                        - Stem diameter\r\nlen_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section (to meters)\r\n'''\r\n\r\ncount_finded, needed_BPs, BPs_info = entry_to_DB()\r\n\r\n# Этого нет в таблице, из которой импортится\r\nprint(\"\\nОбнаружены недостающие параметры для подсчетов!\")\r\ntemperature_start_DB = float(input(\"Введите T0: \"))\r\npressure_start_DB = float(input(\"Введите P0: \"))\r\npout1 = float(input(\"Введите Pout1: \"))\r\npout2 = float(input(\"Введите Pout2: \"))\r\nh_air = float(input(\"Введите h_air: \"))\r\nt_air = float(input(\"Введите t_air: \"))\r\n\r\npressure_deaerator = pout1 # Add from database\r\npressure_ejector = pout2 # Add from database\r\ntemperature_start_valve = temperature_start_DB\r\npressure_start_valve = pressure_start_DB\r\nenthalpy_steam = pt(pressure_start_valve * 98066.5, temperature_start_valve, 4) / 4186.8\r\n\r\nradius_rounding_DB = BPs_info[11]  # Радиус скругления\r\ndelta_clearance_DB = BPs_info[5]  # Расчетный зазор либо Точность изготовления (хз)\r\ndiameter_stock_DB = BPs_info[2]  # Диаметр штока\r\nlen_part1_DB = BPs_info[6]  # Длина участка 1\r\nlen_part2_DB = BPs_info[7]  # Длина участка 2\r\nlen_part3_DB = BPs_info[8]  # Длина участка 3\r\nlen_part4_DB = BPs_info[9]  # Длина участка 4\r\nlen_part5_DB = BPs_info[10]  # Длина участка 5\r\n\r\n# print(radius_rounding_DB, delta_clearance_DB, diameter_stock_DB,\r\n#       len_part1_DB, len_part2_DB, len_part3_DB, len_part4_DB, len_part5_DB)\r\n\r\nradius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else None\r\ndelta_clearance = delta_clearance_DB / 1000 if delta_clearance_DB is not None else None\r\ndiameter_stock = diameter_stock_DB / 1000 if diameter_stock_DB is not None else None\r\nlen_part1 = len_part1_DB / 1000 if len_part1_DB is not None else exit_err(\"Нет данных об участке 1\")\r\nlen_part2 = len_part2_DB / 1000 if len_part2_DB is not None else exit_err(\"Нет данных об участке 2\")\r\nlen_part3 = len_part3_DB / 1000 if len_part3_DB is not None else None\r\nlen_part4 = len_part4_DB / 1000 if len_part4_DB is not None else None\r\nlen_part5 = len_part5_DB / 1000 if len_part5_DB is not None else None\r\n\r\ncount_valves = count_finded  # Number of valves\r\ncount_parts = sum([1 if i is not None else 0 for i in [len_part1, len_part2, len_part3, len_part4, len_part5]])\r\nP1, P2, P3, P4, P5, P6 = [float(input(f\"Введите параметр P{i}: \")) if i <= count_parts else None for i in range(1, 7)]\r\n# Maybe P will need to be converted, that is, multiplied by 98066.5\r\nproportional_coef = radius_rounding / (delta_clearance * 2)  # Proportionality coeff\r\nS = delta_clearance * pi * diameter_stock  # Clearance area\r\n\r\n# Calculate inlet softening coefficient (same for all sections)\r\nKSI = ksi_calc(proportional_coef)\r\n\r\n''' \r\nDefining parameters by parts\r\n'''\r\n\r\n# Props find for area 1\r\nif len_part1:\r\n    if len_part2:\r\n        h_part1 = enthalpy_steam\r\n        v_part1 = ph(P1, h_part1 * 4186.8, 3)\r\n        t_part1 = ph(P1, h_part1 * 4186.8, 1)\r\n        din_vis_part1 = ph(P1, h_part1 * 4186.8, 24)\r\n        G1_part1 = part_props_detection(P1, P2, v_part1, din_vis_part1, len_part1)\r\n\r\n# Props find for area 2\r\nif len_part2:\r\n    if len_part3:\r\n        h_part2 = enthalpy_steam\r\n        v_part2 = ph(P2, h_part2 * 4186.8, 3)\r\n        t_part2 = ph(P2, h_part2 * 4186.8, 1)\r\n        din_vis_part2 = ph(P2, h_part2 * 4186.8, 24)\r\n        G2_part2 = part_props_detection(P2, P3, v_part2, din_vis_part2, len_part2)\r\n\r\n# Props find for area 3\r\nif len_part3:\r\n    if len_part4:\r\n        h_part3 = enthalpy_steam\r\n        v_part3 = ph(P3, h_part3 * 4186.8, 3)\r\n        t_part3 = ph(P3, h_part3 * 4186.8, 1)\r\n        din_vis_part3 = ph(P3, h_part3 * 4186.8, 24)\r\n        G3_part3 = part_props_detection(P3, P4, v_part3, din_vis_part3, len_part3)\r\n    else:\r\n        h_part3 = h_air\r\n        t_part3 = t_air\r\n        v_part3 = air_calc(t_part3, 1)\r\n        din_vis_part3 = lambda_calc(t_part3)\r\n        G3_part3 = part_props_detection(P3, 1.03, v_part3, din_vis_part3, len_part3, last_part=True)\r\n\r\n# Props find for area 4\r\nif len_part4:\r\n    if len_part5:\r\n        h_part4 = enthalpy_steam\r\n        v_part4 = ph(P4, h_part4 * 4186.8, 3)\r\n        t_part4 = ph(P4, h_part4 * 4186.8, 1)\r\n        din_vis_part4 = ph(P4, h_part4 * 4186.8, 24)\r\n        G4_part4 = part_props_detection(P4, P5, v_part4, din_vis_part4, len_part4)\r\n    else:\r\n        h_part4 = h_air\r\n        t_part4 = t_air\r\n        v_part4 = air_calc(t_part4, 1)\r\n        din_vis_part4 = lambda_calc(t_part4)\r\n        G4_part4 = part_props_detection(P4, 1.03, v_part4, din_vis_part4, len_part4, last_part=True)\r\n\r\n# Props find for area 5\r\nif len_part5:\r\n    h_part5 = h_air\r\n    t_part5 = t_air\r\n    v_part5 = air_calc(t_part5, 1)\r\n    din_vis_part5 = lambda_calc(t_part5)\r\n    G5_part5 = part_props_detection(P5, 1.03, v_part5, din_vis_part5, len_part5, last_part=True)\r\n\r\n''' \r\nDetermination of parameters by suction PART \r\n'''\r\n\r\n\r\n# Определение параметров отсоса в деаэратор\r\ndef deaerator_options(G1_part1: float, G2_part2: float, h_part2: float, pressure_deaerator: float, count_valves: int) \\\r\n        -> Tuple[float, float, float, float]:\r\n    \"\"\"\r\n    Рассчитывает параметры отсоса в деаэратор.\r\n\r\n    Args:\r\n        G1_part1: Расход пара на первой секции.\r\n        G2_part2: Расход пара на второй секции.\r\n        h_part2: Энтальпия пара на второй секции.\r\n        pressure_deaerator: Давление в деаэраторе.\r\n        count_valves: Количество секций клапана.\r\n\r\n    Returns:\r\n        Кортеж из расхода, температуры, давления и энтальпии пара в деаэраторе.\r\n    \"\"\"\r\n    g_deaerator = (G1_part1 - G2_part2) * count_valves\r\n    h_deaerator = h_part2\r\n    t_deaerator = ph(pressure_deaerator * 98066.5, h_deaerator * 4186.8, 1)\r\n    return g_deaerator, t_deaerator, pressure_deaerator, h_deaerator\r\n\r\n\r\n# Определение параметров отсоса в эжектор уплотнений\r\ndef ejector_options(G2_part2: float, h_part2: float, G_part3: float,\r\n                    h_part3: float, G_part4: float, h_part4: float, pressure_ejector: float,\r\n                    count_parts: int) -> Tuple[float, float, float, float]:\r\n    \"\"\"\r\n    Рассчитывает параметры отсоса в эжектор уплотнений.\r\n\r\n    Args:\r\n        G1: Расход пара на первой секции.\r\n        G2_part2: Расход пара на второй секции.\r\n        h_part2: Энтальпия пара на второй секции.\r\n        G_part3: Расход пара на третьей секции.\r\n        h_part3: Энтальпия пара на третьей секции.\r\n        G_part4: Расход пара на четвертой секции (если есть).\r\n        h_part4: Энтальпия пара на четвертой секции (если есть).\r\n        pressure_ejector: Давление в эжекторе.\r\n        count_parts: Количество секций клапана.\r\n\r\n    Returns:\r\n        Кортеж из расхода, температуры, давления и энтальпии пара в эжекторе.\r\n    \"\"\"\r\n    if count_parts == 3:\r\n        # Один отсос в эжектор\r\n        g_ejector = G2_part2 + G_part3\r\n        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3) / (G2_part2 + G_part3)\r\n        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)\r\n        return g_ejector, t_ejector, pressure_ejector, h_ejector\r\n    elif count_parts == 4:\r\n        # Два отсоса в эжектор\r\n        g_ejector = G2_part2 + G_part3 + G_part4\r\n        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3 + h_part4 * G_part4) / (G2_part2 + G_part3 + G_part4)\r\n        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)\r\n        return g_ejector, t_ejector, pressure_ejector, h_ejector\r\n    elif count_parts == 5:\r\n        # Три отсоса в эжектор\r\n        g_ejector = G2_part2 + G_part3 + G_part4\r\n        h_ejector = (h_part2 * G2_part2 + h_part3 * G_part3 + h_part4 * G_part4) / (G2_part2 + G_part3 + G_part4)\r\n        t_ejector = ph(pressure_ejector * 98066.5, h_ejector * 4186.8, 1)\r\n        return g_ejector, t_ejector, pressure_ejector, h_ejector\r\n    else:\r\n        raise ValueError(\"Неверное количество секций клапана.\")\r\n\r\n\r\n# Основная функция для расчета параметров отсоса\r\ndef calculate_steam_venting(G1: float, G2: float, h_part2: float, G_part3: float, h_part3: float, G_part4: float,\r\n                            h_part4: float, pressure_deaerator: float, pressure_ejector: float, count_valves: int) \\\r\n        -> Tuple[Tuple[float, float, float, float], list[Tuple[float, float, float, float]]]:\r\n    \"\"\"\r\n    Рассчитывает параметры отсоса пара для всех секций клапана.\r\n\r\n    Args:\r\n        G1: Расход пара на первой секции.\r\n        G2: Расход пара на второй секции.\r\n        h_part2: Энтальпия пара на второй секции.\r\n        G_part3: Расход пара на третьей секции.\r\n        h_part3: Энтальпия пара на третьей секции.\r\n        G_part4: Расход пара на четвертой секции (если есть).\r\n        h_part4: Энтальпия пара на четвертой секции (если есть).\r\n        pressure_deaerator: Давление в деаэраторе.\r\n        pressure_ejector: Давление в эжекторе.\r\n        count_valves: Количество секций клапана.\r\n\r\n    Returns:\r\n        Кортеж, содержащий параметры отсоса в деаэратор и список параметров отсоса в эжектор для каждой секции.\r\n    \"\"\"\r\n    deaerator_params = deaerator_options(G1, G2, h_part2, pressure_deaerator, count_valves)\r\n\r\n    ejector_params = []\r\n    if count_valves > 3:\r\n        ejector_params.append(ejector_options(G1, G2, h_part2, G_part3, h_part3, G_part4,\r\n                                              h_part4, pressure_ejector, count_valves))\r\n    if count_valves > 4:\r\n        ejector_params.append(ejector_options(G1, G2, h_part2, G_part3, h_part3, G_part4,\r\n                                              h_part4, pressure_ejector, count_valves))\r\n\r\n    return deaerator_params, ejector_params\r\n\r\n\r\nnotChosen_typeCalc = False\r\nwhile notChosen_typeCalc:\r\n    type_calc_SAM = int(input(\"Выберите способ вычисления: введите число 1 либо 2\"))\r\n    if type_calc_SAM == 1:\r\n        # t_part2 = steamPH(pressure_ejector * 98066.5, h_part2 * 4186.8, 2)\r\n        # t_ejector = (ClapanModel.t_vozd * G_part3 + t_part2 * G_part2) / (G_part2 + G_part3)\r\n        # h_ejector = steamPT(pressure_ejector * 98066.5, t_ejector, 3) / 4186.8\r\n        notChosen_typeCalc = True\r\n    elif type_calc_SAM == 2:\r\n        # h_ejector = (h_part2 * G_part2 + h_part3 * G_part3) / (G_part2 + G_part3)\r\n        # t_ejector = steamPH(pressure_ejector * 98066.5, h_ejector * 4186.8, 2)\r\n        notChosen_typeCalc = True\r\n    else:\r\n        print(\"Ввод не распознан.\")\r\n\r\n# # Определение суммарного расхода пара на штока клапанов\r\n# g_valve = G_part1 * count_valves\r\n# # Определение суммарного расхода воздуха\r\n# g_vozd = G_part3 * count_valves\r\n\r\n''' \r\nVariables OUTPUT PART \r\n\r\nG, h, t, p... bla bla bla\r\n'''\r\n\r\nprint(\"FULL OUTPUT END\")\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/CalculationValveRods/Stocks/StockRazchetsKlapans.py b/CalculationValveRods/Stocks/StockRazchetsKlapans.py
+---- a/CalculationValveRods/Stocks/StockRazchetsKlapans.py	(revision f2485c6148179fd7dbab6398cf119032e2cce39e)
+-+++ b/CalculationValveRods/Stocks/StockRazchetsKlapans.py	(date 1724384956407)
+-@@ -93,9 +93,9 @@
+- # print(radius_rounding_DB, delta_clearance_DB, diameter_stock_DB,
+- #       len_part1_DB, len_part2_DB, len_part3_DB, len_part4_DB, len_part5_DB)
+- 
+--radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else None
+--delta_clearance = delta_clearance_DB / 1000 if delta_clearance_DB is not None else None
+--diameter_stock = diameter_stock_DB / 1000 if diameter_stock_DB is not None else None
+-+radius_rounding = radius_rounding_DB / 1000 if radius_rounding_DB is not None else exit_err("Нет данных о радиусе скругления")
+-+delta_clearance = delta_clearance_DB / 1000 if delta_clearance_DB is not None else exit_err("Нет данных о зазоре")
+-+diameter_stock = diameter_stock_DB / 1000 if diameter_stock_DB is not None else exit_err("Нет данных об ")
+- len_part1 = len_part1_DB / 1000 if len_part1_DB is not None else exit_err("Нет данных об участке 1")
+- len_part2 = len_part2_DB / 1000 if len_part2_DB is not None else exit_err("Нет данных об участке 2")
+- len_part3 = len_part3_DB / 1000 if len_part3_DB is not None else None
+Index: .idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2/shelved.patch
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2/shelved.patch
+deleted file mode 100644
+--- a/.idea/shelf/Uncommitted_changes_before_Checkout_at_09_09_2024_23_57_[Changes]2/shelved.patch	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
++++ /dev/null	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
+@@ -1,89 +0,0 @@
+-Index: README.md
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>WaterProperties. ML Automation of construction\r\n===============\r\n\r\nIntroduction\r\n---------------\r\n\r\nThis library is a collection of functions for calculating various thermodynamic properties of water and steam. The library is based on the international formulation IAPWS (International Association for the Properties of Water and Steam) and allows for the calculation of properties of water and steam over a wide range of temperatures and pressures.\r\n\r\n![SchemeWork.png](https://habrastorage.org/r/w1560/getpro/habr/upload_files/b71/af3/fda/b71af3fda61c88ee3a6f3d3e6149554b.jpg)\r\n\r\nThe module also is based on the following article:\\\r\n[Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)\\\r\nWhich is written in the Visual Basic programming language.\r\n\r\nQuick Guide\r\n---------------\r\n\r\nInstall library, use the `pip install WSAProperties` construct.\\\r\nUsing the library is as simple and convenient as possible:\r\n\r\nFirst, import everything or needed functions from the library (use the `from WSAProperties import *` construct).\\\r\nSecond, you can use any function from the library (use the `WSAProperties.Any_Function` construct).\r\n\r\n### Example Usage\r\n\r\n```python\r\nimport WSAProperties\r\n\r\nt = 25  # temperature in degrees Celsius\r\np = 101325  # pressure in Pascals\r\n\r\n# calculate the density of water\r\ndensity = WSAProperties.Density(t, p)\r\nprint(\"Density of water:\", density, \"kg/m^3\")\r\n\r\n# calculate the specific entropy of water\r\nentropy = WSAProperties.Specific_Entropy(t, p)\r\nprint(\"Specific entropy of water:\", entropy, \"J/kg·K\")\r\n```\r\n\r\n### Functions\r\n\r\nThe purpose of each of the functions is contained directly in the name.\r\n\r\n#### _Water and steam part_\r\nThe part of water and steam in library includes the following functions:\r\n\r\n* `Region(t, p)`\r\n* `Density3(t, p)`\r\n* `Helmholtz_Energy(t, ro)`\r\n* `Pressure3(t, ro)`\r\n* `Specific_Energy3(t, ro)`\r\n* `Specific_Entropy3(t, ro)`\r\n* `Specific_Enthalpy3(t, ro)`\r\n* `Heat_Isobary3(t, ro)`\r\n* `Heat_Isochorny3(t, ro)`\r\n* `Sound_Speed3(t, ro)`\r\n* `Gibbs_Energy(t, p)`\r\n* `Specific_Volume(t, p)`\r\n* `Density(t, p)`\r\n* `Specific_Energy(t, p)`\r\n* `Specific_Entropy(t, p)`\r\n* `Specific_Enthalpy(t, p)`\r\n* `Heat_Capacity_Isobaric(t, p)`\r\n* `Heat_Capacity_Isochoric(t, p)`\r\n* `Speed_Sound(t, p)`\r\n* `Saturation_Temperature(p)`\r\n* `Saturation_Pressure(t)`\r\n* `Border_Temperature(p)`\r\n* `Border_Pressure(t)`\r\n* `Viscosity(t, p)`\r\n* `Density_MI(t, p)`\r\n* `Specific_Enthalpy_MI(t, p)`\r\n* `JF(t, p, Trigger, reg)`\\\r\n\r\n#### _Air Part_\r\nLibrary also have formuls and thermal properties calculations for air:\r\n* `air_calc(A, B)`\r\n\r\n#### _Additional Funcs Part_\r\nThese functions are rarely used and do not belong to one of the W/S/A.\\\r\nThey are needed to determine the additional features:\r\n* `lambda_calc(B)`\r\n* `ksi_calc(A)`\r\n\r\nReferences\r\n--------------\r\n\r\n* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)\r\n* [IAPWS](http://www.iapws.org/)\r\n* [IAPWS Documentation](http://www.iapws.org/relguide/IAPWS-95.html)\r\n\r\n#### Mikhail and Lev's DevTeam\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+-diff --git a/README.md b/README.md
+---- a/README.md	(revision 09644d02de84efae52cd5ad288c05555d4e3cf26)
+-+++ b/README.md	(date 1725908268780)
+-@@ -6,7 +6,7 @@
+- 
+- This library is a collection of functions for calculating various thermodynamic properties of water and steam. The library is based on the international formulation IAPWS (International Association for the Properties of Water and Steam) and allows for the calculation of properties of water and steam over a wide range of temperatures and pressures.
+- 
+--![SchemeWork.png](https://habrastorage.org/r/w1560/getpro/habr/upload_files/b71/af3/fda/b71af3fda61c88ee3a6f3d3e6149554b.jpg)
+-+![SchemeWork.png](SchemeWork.png)
+- 
+- The module also is based on the following article:\
+- [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)\
+-@@ -15,35 +15,33 @@
+- Quick Guide
+- ---------------
+- 
+--Install library, use the `pip install WSAProperties` construct.\
+-+Install library, use the `pip install WaterProperties` construct.\
+- Using the library is as simple and convenient as possible:
+- 
+--First, import everything or needed functions from the library (use the `from WSAProperties import *` construct).\
+--Second, you can use any function from the library (use the `WSAProperties.Any_Function` construct).
+-+First, import everything or needed functions from the library (use the `from WaterProperties import *` construct).\
+-+Second, you can use any function from the library (use the `WaterProperties.Any_Function` construct).
+- 
+- ### Example Usage
+- 
+- ```python
+--import WSAProperties
+-+import WaterProperties
+- 
+- t = 25  # temperature in degrees Celsius
+- p = 101325  # pressure in Pascals
+- 
+- # calculate the density of water
+--density = WSAProperties.Density(t, p)
+-+density = WaterProperties.Density(t, p)
+- print("Density of water:", density, "kg/m^3")
+- 
+- # calculate the specific entropy of water
+--entropy = WSAProperties.Specific_Entropy(t, p)
+-+entropy = WaterProperties.Specific_Entropy(t, p)
+- print("Specific entropy of water:", entropy, "J/kg·K")
+- ```
+- 
+- ### Functions
+- 
+--The purpose of each of the functions is contained directly in the name.
+--
+--#### _Water and steam part_
+--The part of water and steam in library includes the following functions:
+-+The purpose of each of the functions is contained directly in the name.\
+-+The library includes the following functions:
+- 
+- * `Region(t, p)`
+- * `Density3(t, p)`
+-@@ -71,23 +69,13 @@
+- * `Viscosity(t, p)`
+- * `Density_MI(t, p)`
+- * `Specific_Enthalpy_MI(t, p)`
+--* `JF(t, p, Trigger, reg)`\
+--
+--#### _Air Part_
+--Library also have formuls and thermal properties calculations for air:
+--* `air_calc(A, B)`
+--
+--#### _Additional Funcs Part_
+--These functions are rarely used and do not belong to one of the W/S/A.\
+--They are needed to determine the additional features:
+--* `lambda_calc(B)`
+--* `ksi_calc(A)`
+-+* `JF(t, p, Trigger, reg)`
+- 
+- References
+- --------------
+- 
+--* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)
+- * [IAPWS](http://www.iapws.org/)
+- * [IAPWS Documentation](http://www.iapws.org/relguide/IAPWS-95.html)
+-+* [Library of functions for calculating the properties of water and steam](https://habr.com/ru/articles/712656/)
+- 
+- #### Mikhail and Lev's DevTeam
+Index: .idea/vcs.xml
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+deleted file mode 100644
+--- a/.idea/vcs.xml	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
++++ /dev/null	(revision d8c7e33c44b01d4ded6e19f31a4f1685dfd92a89)
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+-  </component>
+-</project>
+\ No newline at end of file
