@@ -3,44 +3,29 @@ FROM python:3.10
 WORKDIR /app/
 
 # Install uv
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
 COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
 
-# Place executables in the environment at the front of the path
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
 ENV PATH="/app/.venv/bin:$PATH"
-
-# Compile bytecode
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
 ENV UV_COMPILE_BYTECODE=1
-
-# uv Cache
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#caching
 ENV UV_LINK_MODE=copy
+ENV PYTHONPATH=/app
 
-# Install dependencies
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
+# Сначала копируем только необходимые файлы для зависимостей
+COPY ./pyproject.toml ./uv.lock ./requirements.txt /app/
 
-ENV PYTHONPATH=/app/backend
-
-COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
-
-COPY . /backend/app
-
+# Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Sync the project
-# Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync
+# Затем копируем код приложения в правильную директорию
+COPY ./app /app/app
+COPY ./alembic.ini /app/
 
+# Добавьте эту строку, если ваш код пытается импортировать из 'backend'
 RUN ln -s /app /app/backend
 
-# Открываем порт
+# Пропускаем шаг uv sync, который вызывает ошибку
+# RUN --mount=type=cache,target=/root/.cache/uv uv sync
+
 EXPOSE 8000
 
-CMD ["fastapi", "run", "--workers", "4", "backend/app/main.py"]
+CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
