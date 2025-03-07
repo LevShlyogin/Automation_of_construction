@@ -13,8 +13,9 @@ ENV PYTHONPATH=/app
 # Сначала копируем только необходимые файлы для зависимостей
 COPY ./pyproject.toml ./uv.lock ./requirements.txt /app/
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+# Устанавливаем зависимости и явно устанавливаем fastapi[standard]
+RUN pip install --no-cache-dir -r requirements.txt && \
+    pip install "fastapi[standard]>=0.114.2,<1.0.0"
 
 # Затем копируем код приложения в правильную директорию
 COPY ./app /app/app
@@ -23,9 +24,7 @@ COPY ./alembic.ini /app/
 # Добавьте эту строку, если ваш код пытается импортировать из 'backend'
 RUN ln -s /app /app/backend
 
-# Пропускаем шаг uv sync, который вызывает ошибку
-# RUN --mount=type=cache,target=/root/.cache/uv uv sync
-
 EXPOSE 8000
 
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
+# Вместо fastapi CLI используйте uvicorn напрямую
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
