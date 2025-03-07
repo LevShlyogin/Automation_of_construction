@@ -1,6 +1,6 @@
 FROM python:3.10
 
-WORKDIR /app/
+WORKDIR /backend/
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -25,11 +25,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/backend
 
-COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /backend/
 
-COPY . /app
+COPY ./backend /backend/backend
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -41,4 +41,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Открываем порт
 EXPOSE 8000
 
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
+CMD ["fastapi", "run", "--workers", "4", "backend/app/main.py"]
