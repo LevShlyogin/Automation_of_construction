@@ -8,7 +8,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
 
 # Place executables in the environment at the front of the path
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/backend/.venv/bin:$PATH"
 
 # Compile bytecode
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
@@ -29,7 +29,7 @@ ENV PYTHONPATH=/backend
 
 COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /backend/
 
-COPY ./backend /backend/backend
+COPY . /backend
 
 RUN pip install --no-cache-dir -r requirements.txt
 
