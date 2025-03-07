@@ -1,6 +1,6 @@
 FROM python:3.10
 
-WORKDIR /backend/
+WORKDIR /app/
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -8,7 +8,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
 
 # Place executables in the environment at the front of the path
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#using-the-environment
-ENV PATH="/backend/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH"
 
 # Compile bytecode
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#compiling-bytecode
@@ -25,11 +25,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
-ENV PYTHONPATH=/backend
+ENV PYTHONPATH=/app
 
-COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /backend/
+COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
 
-COPY ./app /app/backend
+COPY ./app /app/app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -41,4 +41,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Открываем порт
 EXPOSE 8000
 
-CMD ["fastapi", "run", "--workers", "4", "backend/app/main.py"]
+CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
