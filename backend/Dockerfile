@@ -29,7 +29,7 @@ ENV PYTHONPATH=/app
 
 COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
 
-COPY ./app /app/app
+COPY . /app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
