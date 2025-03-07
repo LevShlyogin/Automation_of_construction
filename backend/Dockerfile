@@ -25,11 +25,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app/backend
 
 COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /app/
 
-COPY ./app /app/app
+COPY . /backend/app
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -38,7 +38,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
+RUN ln -s /app /app/backend
+
 # Открываем порт
 EXPOSE 8000
 
-CMD ["fastapi", "run", "--workers", "4", "app/main.py"]
+CMD ["fastapi", "run", "--workers", "4", "backend/app/main.py"]
