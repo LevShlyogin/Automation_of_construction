@@ -29,7 +29,7 @@ ENV PYTHONPATH=/backend
 
 COPY ./pyproject.toml ./uv.lock ./alembic.ini ./requirements.txt /backend/
 
-COPY . /backend
+COPY ./app /app/backend
 
 RUN pip install --no-cache-dir -r requirements.txt
 
