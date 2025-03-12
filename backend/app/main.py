@@ -49,7 +49,7 @@ app = FastAPI(
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3001"],  # Укажите адрес вашего фронтенда
+    allow_origins=["http://frontend"],  # Укажите адрес вашего фронтенда
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

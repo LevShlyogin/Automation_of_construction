@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://postgres:Neh,byf66@localhost:5432/postgres
+      DATABASE_URL: postgresql://postgres:Neh,byf66@db:5432/postgres
 
   frontend:
     build: ./frontend
@@ -23,7 +23,7 @@ services:
 
   db:
     image: postgres:15
-    container_name: localhost
+    container_name: db
     restart: always
     environment:
       POSTGRES_USER: postgres

@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 # Настройка строки подключения к базе данных
-SQLALCHEMY_DATABASE_URL = "postgresql://postgres:Neh,byf66@localhost:5432/postgres"
+SQLALCHEMY_DATABASE_URL = "postgresql://postgres:Neh,byf66@db:5432/postgres"
 
 # Создаем движок (engine) для подключения к базе данных
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
