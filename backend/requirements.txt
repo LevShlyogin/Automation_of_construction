@@ -43,3 +43,4 @@ Jinja2~=3.1.4
 emails
 psycopg[binary,pool]
 scipy
+alembic
