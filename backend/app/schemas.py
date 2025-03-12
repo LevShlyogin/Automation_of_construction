@@ -1,7 +1,8 @@
+from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, computed_field
-from datetime import datetime
+
 
 class TurbineInfo(BaseModel):
     id: int
@@ -99,4 +100,4 @@ class CalculationResultDB(BaseModel):
     output_data: dict[str, Any]
 
     class Config:
-            from_attributes = True
+        from_attributes = True
