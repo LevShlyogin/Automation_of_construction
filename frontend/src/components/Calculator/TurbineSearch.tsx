@@ -21,7 +21,7 @@ const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
       try {
         console.log("Отправляем запрос к API...");
 
-        const response = await fetch('http://backend:8000/api/turbines/');
+        const response = await fetch('http://10.43.0.105:8000/api/turbines/');
         console.log("Статус ответа:", response.status);
 
         if (!response.ok) {
