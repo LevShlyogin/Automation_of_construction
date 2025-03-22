@@ -30,6 +30,7 @@ services:
       POSTGRES_PASSWORD: Neh,byf66
       POSTGRES_DB: postgres
     volumes:
+      - ./db/init.dump:/docker-entrypoint-initdb.d/init.dump
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
