@@ -32,7 +32,7 @@ const StockSelection: React.FC<Props> = ({ turbine, onSelectValve }) => {
       try {
         // Кодируем имя турбины перед использованием в URL
         const turbineNameEncoded = encodeURIComponent(turbine.name);
-        const response = await fetch(`http://localhost:8000/api/turbines/${turbineNameEncoded}/valves`);
+        const response = await fetch(`http://backend:8000/api/turbines/${turbineNameEncoded}/valves`);
         if (!response.ok) {
           throw new Error(`Ошибка загрузки данных. Статус: ${response.status}`);
         }

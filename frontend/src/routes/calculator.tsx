@@ -28,7 +28,7 @@ const CalculatorPage: React.FC = () => {
 
       try {
         const stockNameEncoded = encodeURIComponent(stock.name);
-        const response = await fetch(`http://localhost:8000/api/valves/${stockNameEncoded}/results/`);
+        const response = await fetch(`http://backend:8000/api/valves/${stockNameEncoded}/results/`);
         if (!response.ok) {
           throw new Error(`Ошибка загрузки результатов: ${response.status}`);
         }
@@ -63,7 +63,7 @@ const CalculatorPage: React.FC = () => {
   const handleStockInputSubmit = async (inputData: any) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:8000/api/calculate', {
+      const response = await fetch('http://backend:8000/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(inputData),
