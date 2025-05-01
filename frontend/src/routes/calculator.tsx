@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+// Добавляем импорт createFileRoute
+import { createFileRoute } from '@tanstack/react-router';
+
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
 import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
 import StockInputPage from '../components/Calculator/StockInputPage';
 import ResultsPage from '../components/Calculator/ResultsPage';
-import './CalculatorPage.css';
+import './CalculatorPage.css'; // Этот CSS нужно будет убрать после рефакторинга стилей
 
-const CalculatorPage: React.FC = () => {
+// --- Создаем и экспортируем Route для TanStack Router ---
+export const Route = createFileRoute('/calculator')({
+  component: CalculatorPage, // Указываем основной компонент этой страницы
+  // Здесь можно добавить loader, beforeLoad, validateSearch и т.д., если нужно будет
+});
+
+// Основной компонент страницы остается как есть (но помним про рефакторинг fetch, стилей и т.д.)
+function CalculatorPage() {
   const [selectedTurbine, setSelectedTurbine] = useState<any | null>(null);
   const [selectedStock, setSelectedStock] = useState<any | null>(null);
   const [lastCalculation, setLastCalculation] = useState<any | null>(null);
@@ -27,6 +37,7 @@ const CalculatorPage: React.FC = () => {
       setIsLoading(true);
 
       try {
+        // !!! ВАЖНО: Этот fetch нужно будет переписать на API клиент + TanStack Query !!!
         const stockNameEncoded = encodeURIComponent(stock.name);
         const response = await fetch(`http://10.43.0.105:8000/api/valves/${stockNameEncoded}/results/`);
         if (!response.ok) {
@@ -63,6 +74,7 @@ const CalculatorPage: React.FC = () => {
   const handleStockInputSubmit = async (inputData: any) => {
     setIsLoading(true);
     try {
+       // !!! ВАЖНО: Этот fetch нужно будет переписать на API клиент + TanStack Query !!!
       const response = await fetch('http://10.43.0.105:8000/api/calculate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,13 +135,16 @@ const CalculatorPage: React.FC = () => {
     return <StockInputPage stock={selectedStock} turbine={selectedTurbine} onSubmit={handleStockInputSubmit} />;
   };
 
+  // !!! ВАЖНО: Этот header и footer нужно будет удалить, т.к. страница
+  // будет рендериться внутри _layout.tsx, у которого уже есть Sidebar !!!
   return (
     <div className="calculator-page">
       <header className="header">
-        <img src="logo.png" alt="Logo" className="logo" />
+        <img src="/logo.png" alt="Logo" className="logo" />
         <h1 className="program-name">WSAPropertiesCalculator</h1>
         <nav className="nav">
-          <a href="/">Калькулятор</a>
+            {/* !!! ВАЖНО: Эти <a> теги нужно заменить на <Link> из TanStack Router !!! */}
+          <a href="/calculator">Калькулятор</a>
           <a href="/about">О программе</a>
           <a href="/help">Помощь</a>
         </nav>
@@ -143,5 +158,3 @@ const CalculatorPage: React.FC = () => {
     </div>
   );
 };
-
-export default CalculatorPage;
