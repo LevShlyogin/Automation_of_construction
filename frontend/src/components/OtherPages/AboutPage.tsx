@@ -1,15 +1,17 @@
 import React from 'react';
-import './AboutPage.css'; // Подключаем стили
+import { Link } from '@tanstack/react-router';
+import { Button, Container, Heading, Text } from '@chakra-ui/react';
+// Убрали импорт './AboutPage.css';
 
 const AboutPage: React.FC = () => {
   return (
-	<div className="about-page">
-  	<h1>О программе</h1>
-  	<p>Эта программа предназначена для расчета параметров турбин и их штоков.</p>
-  	<form action="/" method="get">
-        <button className="back-button" type="submit">На главную</button>
-    </form>
-	</div>
+    <Container centerContent py={10} textAlign="center">
+      <Heading as="h1" size="lg" mb={4}>О программе</Heading>
+      <Text mb={6}>Эта программа предназначена для расчета параметров турбин и их штоков.</Text>
+      <Button as={Link} to="/" variant="primary">
+        На главную
+      </Button>
+    </Container>
   );
 };
 

@@ -1,15 +1,17 @@
 import React from 'react';
-import './HelpPage.css'; // Подключаем стили
+import { Link } from '@tanstack/react-router';
+import { Button, Container, Heading, Text } from '@chakra-ui/react';
+// Убрали импорт './HelpPage.css';
 
 const HelpPage: React.FC = () => {
   return (
-	<div className="help-page">
-        <h1>Помощь</h1>
-        <p>Здесь вы найдете ответы на часто задаваемые вопросы и инструкцию по использованию.</p>
-        <form action="/" method="get">
-            <button className="back-button" type="submit">На главную</button>
-        </form>
-	</div>
+    <Container centerContent py={10} textAlign="center">
+        <Heading as="h1" size="lg" mb={4}>Помощь</Heading>
+        <Text mb={6}>Здесь вы найдете ответы на часто задаваемые вопросы и инструкцию по использованию.</Text>
+        <Button as={Link} to="/" variant="primary">
+            На главную
+        </Button>
+    </Container>
   );
 };
 
