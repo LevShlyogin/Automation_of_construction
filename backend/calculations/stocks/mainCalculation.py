@@ -1,18 +1,15 @@
 from math import pi
-from seuif97 import *  # SteamPH and SteamPT (ph and pt)
-from WSAProperties import air_calc, ksi_calc, lambda_calc  # Calculate friction resist, softening coefficient and air props
-<<<<<<<< HEAD:other_files/CalculationValveRods/Stocks/StockRazchetsKlapans.py
-from other_files.CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
-========
-from backend.calculations.database.userInput import entry_to_DB  # Func for import variables from DB
->>>>>>>> origin/backend-react-fastapi:backend/calculations/stocks/mainCalculation.py
-from typing import Tuple  # CleanCoding
+from seuif97 import *
+from WSAProperties import air_calc, ksi_calc, lambda_calc
+from backend.calculations.database.userInput import entry_database
+from typing import Tuple
 from sys import exit
 from time import sleep
 
 '''
 Functions PART (additional + steam/air)
 '''
+
 
 # Вспомогательная функция для нахождения G пара, или же воздуха для последней части
 def G_find(last_part, ALFA, P_first, P_second, v):
@@ -32,8 +29,9 @@ def G_find(last_part, ALFA, P_first, P_second, v):
     """
     G = ALFA * S * ((P_first ** 2 - P_second ** 2) / (P_first * v)) ** 0.5 * 3.6
     if last_part:
-        G = max(0.001, G) # Для последнего участка G не может быть меньше 0.001
+        G = max(0.001, G)
     return G
+
 
 def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=False, W_min=1, W_max=1000):
     """
@@ -53,28 +51,30 @@ def part_props_detection(P_first, P_second, v, din_vis, len_part, last_part=Fals
             float: Значение G.
     """
     if P_first == P_second:
-        P_first += 0.003 # Корректировка давления, если оно одинаково
-    P_first *= 10 ** 6 # Преобразование давления из бар в Паскали
-    P_second *= 10 ** 6 # Преобразование давления из бар в Паскали
-    kin_vis = v * din_vis # Вычисление кинематической вязкости
+        P_first += 0.003  # Корректировка давления, если оно одинаково
+    P_first *= 10 ** 6  # Преобразование давления из бар в Паскали
+    P_second *= 10 ** 6  # Преобразование давления из бар в Паскали
+    kin_vis = v * din_vis  # Вычисление кинематической вязкости
 
-    while W_max - W_min > 0.001: # Цикл бинарного поиска
-        W_mid = (W_min + W_max) / 2 # Вычисление середины диапазона
-        Re = (W_mid * 2 * delta_clearance) / kin_vis # Вычисление числа Рейнольдса
-        ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5 # Вычисление коэффициента ALFA
-        G = G_find(last_part, ALFA, P_first, P_second, v) # Вычисление G
-        delta_speed = W_mid - v * G / (3.6 * S) # Вычисление разности скоростей
+    while W_max - W_min > 0.001:  # Цикл бинарного поиска
+        W_mid = (W_min + W_max) / 2  # Вычисление середины диапазона
+        Re = (W_mid * 2 * delta_clearance) / kin_vis  # Вычисление числа Рейнольдса
+        ALFA = 1 / (1 + KSI + (
+                0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5  # Вычисление коэффициента ALFA
+        G = G_find(last_part, ALFA, P_first, P_second, v)  # Вычисление G
+        delta_speed = W_mid - v * G / (3.6 * S)  # Вычисление разности скоростей
 
         if delta_speed > 0:
-            W_max = W_mid # Сужение диапазона поиска
+            W_max = W_mid  # Сужение диапазона поиска
         else:
-            W_min = W_mid # Сужение диапазона поиска
+            W_min = W_mid  # Сужение диапазона поиска
 
-    W_result = (W_min + W_max) / 2 # Получение приближенного значения W
-    Re = (W_result * 2 * delta_clearance) / kin_vis # Вычисление числа Рейнольдса
-    ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5 # Вычисление коэффициента ALFA
-    G = G_find(last_part, ALFA, P_first, P_second, v) # Вычисление G
+    W_result = (W_min + W_max) / 2  # Получение приближенного значения W
+    Re = (W_result * 2 * delta_clearance) / kin_vis  # Вычисление числа Рейнольдса
+    ALFA = 1 / (1 + KSI + (0.5 * lambda_calc(Re) * len_part) / delta_clearance) ** 0.5  # Вычисление коэффициента ALFA
+    G = G_find(last_part, ALFA, P_first, P_second, v)  # Вычисление G
     return G
+
 
 def exit_err(error_text="Неизвестная ошибка"):
     """
@@ -87,6 +87,8 @@ def exit_err(error_text="Неизвестная ошибка"):
     print(error_text)
     sleep(3)
     exit()
+    return None
+
 
 def convert_pressure_to_mpa(pressure):
     """
@@ -97,12 +99,12 @@ def convert_pressure_to_mpa(pressure):
     """
     # Словарь для хранения коэффициентов перевода в МПа
     conversion_factors = {
-        1: 1e-6,# Паскаль в МПа
-        2: 1e-3,# кПа в МПа
-        3: 0.0980665,# кгс/см² в МПа
-        4: 0.101325,# техническая атмосфера в МПа
-        5: 0.1,# бар в МПа
-        6: 0.101325# физическая атмосфера в МПа
+        1: 1e-6,  # Паскаль в МПа
+        2: 1e-3,  # кПа в МПа
+        3: 0.0980665,  # кгс/см² в МПа
+        4: 0.101325,  # техническая атмосфера в МПа
+        5: 0.1,  # бар в МПа
+        6: 0.101325  # физическая атмосфера в МПа
     }
     # Выводим меню выбора единиц измерения
     print("Выберите единицы измерения:", "1 - Па", "2 - кПа", "3 - кгс/см²", "4 - атм (техническая атмосфера)",
@@ -118,6 +120,7 @@ def convert_pressure_to_mpa(pressure):
     mpa_pressure = pressure * conversion_factors[unit]
     return mpa_pressure
 
+
 def kKal_to_kJ_kg(kKal):
     """
         Перевод килокалорий (kKal) в килоджоули на килограмм (kJ/kg).
@@ -129,6 +132,7 @@ def kKal_to_kJ_kg(kKal):
             Количество килоджоулей на килограмм (kJ/kg).
     """
     return kKal * 4.184 / 1000  # 1 ккал = 4.184 kJ, делим на 1000 для kJ/kg
+
 
 # Определение параметров отсоса в деаэратор
 def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h_part2: float, G_part1: float,
@@ -162,6 +166,7 @@ def deaerator_options(p_deaerator: float, count_parts: int, count_valves: int, h
     else:
         exit_err("Неверное количество секций клапана.")
     return g_deaerator, t_deaerator, p_deaerator, h_deaerator
+
 
 # Определение параметров отсоса в эжектор уплотнений
 def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_part2: float, h_part2: float,
@@ -197,7 +202,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         t_ejector = ph(p_ejector, h_ejector, 1)
     elif count_parts == 4:
         # Два отсоса в эжектор
-        g_first_suction = (G_part2 - G_part3 - G_part4) * count_valves# Расход пара в первый отсос в деаэратор.
+        g_first_suction = (G_part2 - G_part3 - G_part4) * count_valves  # Расход пара в первый отсос в деаэратор.
         g_second_suction = abs(G_part3 - G_part4) * count_valves  # Расход смеси во второй отсос в деаэратор.
         # Энтальпия смеси во втором отсосе в деаэратор.
         h_second_suction = (h_part4 * G_part4 + h_part3 * G_part3) / (G_part4 + G_part3)
@@ -222,6 +227,7 @@ def ejector_options(p_ejector: float, count_parts: int, count_valves: int, G_par
         exit_err("Неверное количество секций клапана.")
     return g_ejector, t_ejector, p_ejector, h_ejector
 
+
 def get_float_input(prompt):
     """
         Получает вещественное число от пользователя с обработкой ошибок.
@@ -231,6 +237,7 @@ def get_float_input(prompt):
             return float(input(prompt))
         except ValueError:
             print("Пожалуйста, введите корректное число.")
+
 
 def get_int_input(prompt):
     """
@@ -242,6 +249,7 @@ def get_int_input(prompt):
         except ValueError:
             print("Пожалуйста, введите корректное целое число.")
 
+
 def convert_to_meters(value, description):
     """
         Конвертирует значение в метры, с обработкой отсутствующих данных.
@@ -250,6 +258,8 @@ def convert_to_meters(value, description):
         return float(value) / 1000
     else:
         exit_err(f"Нет данных о {description}")
+        return None
+
 
 def get_pressure_input(index, count_parts):
     """
@@ -258,6 +268,7 @@ def get_pressure_input(index, count_parts):
     if index <= count_parts:
         return convert_pressure_to_mpa(get_float_input(f"Введите параметр P{index}: "))
     return 0.0
+
 
 '''
 Variables & inputs PART
@@ -268,7 +279,7 @@ diameter_stock                                        - Stem diameter
 len_part1, len_part2, len_part3, len_part4, len_part5 - Lengths of each section (to meters)
 '''
 
-count_finded, needed_BPs, BPs_info = entry_to_DB()
+count_finded, needed_BPs, BPs_info = entry_database()
 
 # Этого нет в таблице, из которой импортируется
 print("\nОбнаружены недостающие параметры для подсчетов!")
@@ -279,15 +290,15 @@ count_valves = get_int_input("Введите количество клапано
 
 # Извлечение данных из BPs_info с проверкой
 radius_rounding_DB = BPs_info[11]  # Радиус скругления
-delta_clearance_DB = BPs_info[5]   # Расчетный зазор
-diameter_stock_DB = BPs_info[2]    # Диаметр штока
-len_parts_DB = BPs_info[6:11]      # Длины участков
+delta_clearance_DB = BPs_info[5]  # Расчетный зазор
+diameter_stock_DB = BPs_info[2]  # Диаметр штока
+len_parts_DB = BPs_info[6:11]  # Длины участков
 
 # Конвертация данных
 radius_rounding = convert_to_meters(radius_rounding_DB, "радиусе скругления")
 delta_clearance = convert_to_meters(delta_clearance_DB, "зазоре")
 diameter_stock = convert_to_meters(diameter_stock_DB, "диаметре штока")
-len_parts = [convert_to_meters(length,  f"участке {i+1}") for i, length in enumerate(len_parts_DB)]
+len_parts = [convert_to_meters(length, f"участке {i + 1}") for i, length in enumerate(len_parts_DB)]
 
 # Подсчет количества непустых участков
 count_parts = sum(1 for length in len_parts if length is not None)
@@ -326,7 +337,7 @@ if len_part1:
 
 # Props find for area 2
 if len_part2:
-    #If parts of valve more than 2
+    # If parts of valve more than 2
     if len_part3:
         p_ejector = convert_pressure_to_mpa(float(input("Введите P_ejector: ")))
         h_part2 = enthalpy_steam

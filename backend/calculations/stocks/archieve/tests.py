@@ -8,7 +8,7 @@ from seuif97 import *  # SteamPH and SteamPT (ph and pt)
 <<<<<<<< HEAD:other_files/CalculationValveRods/Stocks/TestingCalcs.py
 from other_files.CalculationValveRods.InputFromUser import entry_to_DB  # Func for import variables from DB
 ========
-from calculations.database.userInput import entry_to_DB  # Func for import variables from DB
+from calculations.database.userInput import entry_database  # Func for import variables from DB
 >>>>>>>> origin/backend-react-fastapi:backend/calculations/stocks/archieve/tests.py
 
 '''
@@ -97,7 +97,7 @@ def convert_pressure_to_mpa(pressure):
     return mpa_pressure
 
 
-count_finded, needed_BPs, BPs_info = entry_to_DB()
+count_finded, needed_BPs, BPs_info = entry_database()
 print(count_finded, needed_BPs, BPs_info, sep=", ")
 
 # Этого нет в таблице, из которой импортится

@@ -1,13 +1,9 @@
-<<<<<<<< HEAD:other_files/CalculationValveRods/InputFromUser.py
-# Импортируем функцию find_BP_clapans из модуля ClapansByTurbin.py
-from other_files.CalculationValveRods.DATABASE.ClapansByTurbin import find_BP_clapans
-========
-# Импортируем функцию find_BP_clapans из модуля clapanFind.py
+from typing import Any
+
 from backend.calculations.database.clapanFind import find_BP_clapans
->>>>>>>> origin/backend-react-fastapi:backend/calculations/database/userInput.py
 
 
-def entry_to_DB() -> [int, str, []]:
+def entry_database() -> tuple[Any, int, list[Any]]:
     # Бесконечный цикл для запроса названия турбины у пользователя
     while True:
         turbin_name = input("Введите название турбины: ")  # Ввод названия турбины

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 from backend.app.core.config import settings
-from backend.app.models import Turbine, Valve, CalculationResultDB  # Предполагая, что эти модели определены
+from backend.app.models import Turbine, Valve, CalculationResultDB
 from backend.app.schemas import (
     TurbineInfo,
     ValveInfo,
@@ -17,13 +17,12 @@ from backend.app.schemas import (
     TurbineValves,
     CalculationParams,
     CalculationResultDB as CalculationResultDBSchema,
-)  # Предполагая, что эти схемы определены
+)
 from backend.app.dependencies import get_db  # Зависимость для получения сессии БД
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
     get_valves_by_turbine  # CRUD функции
 
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -35,32 +34,27 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
 
 
-# Инициализация Sentry, если требуется
 if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
     sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
 
-# Создаем экземпляр приложения FastAPI
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
 
-# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Укажите адрес вашего фронтенда
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Создаем экземпляр APIRouter
 api_router = APIRouter()
 
 
 # ------ Маршруты для турбин ------
-
 @api_router.get("/turbines/", response_model=List[TurbineInfo], summary="Получить все турбины", tags=["turbines"])
 async def get_all_turbines(db: Session = Depends(get_db)):
     """
@@ -131,7 +125,6 @@ async def delete_turbine(turbine_id: int, db: Session = Depends(get_db)):
 
 
 # ------ Маршруты для клапанов ------
-
 @api_router.get("/valves", response_model=List[ValveInfo], summary="Получить все клапаны", tags=["valves"])
 async def get_valves(db: Session = Depends(get_db)):
     """
@@ -255,7 +248,6 @@ async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_d
 
 
 # ------ Маршруты для вычислений ------
-
 @api_router.post("/calculate", response_model=CalculationResultDBSchema, summary="Выполнить расчет",
                  tags=["calculations"])
 async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
@@ -299,7 +291,6 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
 
 
 # ------ Маршруты для результатов ------
-
 @api_router.get("/valves/{valve_name}/results/", response_model=List[CalculationResultDBSchema],
                 summary="Получить результаты расчётов", tags=["results"])
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
@@ -317,7 +308,6 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
             input_data = result.input_data
             output_data = result.output_data
 
-            # Проверяем, если input_data или output_data - строка, конвертируем её в dict
             if isinstance(input_data, str):
                 input_data = json.loads(input_data)
             if isinstance(output_data, str):
@@ -364,5 +354,4 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
                             detail=f"Не удалось удалить результат расчёта: {e}")
 
 
-# Подключаем маршруты к приложению
 app.include_router(api_router, prefix=settings.API_V1_STR)
