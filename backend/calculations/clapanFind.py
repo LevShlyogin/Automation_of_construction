@@ -1,7 +1,6 @@
 import psycopg2
 from prettytable import PrettyTable
 
-# Конфигурация подключения к PostgreSQL
 db_config = {
     'dbname': 'postgres',
     'user': 'postgres',
@@ -12,12 +11,10 @@ db_config = {
 
 
 def find_BP_clapans(turbine_name: str):
-    # Инициализация переменных
     conn, cursor, count_found, BP_by_ID, ID_and_name = None, None, None, [], {}
     drawing_numbers, valves_all_info = [], []
 
     try:
-        # Подключаемся к базе данных PostgreSQL
         conn = psycopg2.connect(**db_config)
         cursor = conn.cursor()
 
@@ -28,7 +25,6 @@ def find_BP_clapans(turbine_name: str):
         WHERE Турбина = %s
         """
 
-        # Выполняем запрос и получаем результат
         cursor.execute(query_get_drawings, (turbine_name,))
         drawings = cursor.fetchall()
 
@@ -40,7 +36,6 @@ def find_BP_clapans(turbine_name: str):
             count_found = len(drawings)
             drawing_numbers = [drawing[0] for drawing in drawings if drawing[0] is not None]
 
-            # Выводим номера найденных чертежей
             trash = ", ".join(drawing_numbers)
             print(f"Чертежи клапанов для турбины '{turbine_name}': {trash}")
 
