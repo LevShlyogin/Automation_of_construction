@@ -18,10 +18,10 @@ from backend.app.schemas import (
     CalculationParams,
     CalculationResultDB as CalculationResultDBSchema,
 )
-from backend.app.dependencies import get_db  # Зависимость для получения сессии БД
+from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
-    get_valves_by_turbine  # CRUD функции
+    get_valves_by_turbine
 
 logging.basicConfig(
     level=logging.INFO,
