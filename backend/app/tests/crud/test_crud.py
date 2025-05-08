@@ -1,9 +1,8 @@
-# tests/test_crud.py
-# tests/test_crud.py
 import pytest
 from sqlalchemy.orm import Session
 from backend.app import crud, models, schemas
 from datetime import datetime, timezone
+
 
 # Вспомогательные функции для создания тестовых данных
 def create_test_turbine(db: Session, turbine_name: str = "Test Turbine"):
@@ -12,6 +11,7 @@ def create_test_turbine(db: Session, turbine_name: str = "Test Turbine"):
     db.commit()
     db.refresh(turbine)
     return turbine
+
 
 def create_test_valve(db: Session, valve_name: str = "VD-001", turbine_id: int = None):
     valve = models.Valve(
@@ -33,11 +33,12 @@ def create_test_valve(db: Session, valve_name: str = "VD-001", turbine_id: int =
     db.refresh(valve)
     return valve
 
+
 def create_test_calculation_result(db: Session, valve_name: str, input_data: dict, output_data: dict):
     calculation_result = models.CalculationResultDB(
         stock_name=valve_name,
         turbine_name="Test Turbine",
-        calc_timestamp=datetime.now(tizdmezone.utc),
+        calc_timestamp=datetime.now(timezone.utc),
         input_data=input_data,
         output_data=output_data
     )
@@ -45,6 +46,7 @@ def create_test_calculation_result(db: Session, valve_name: str, input_data: dic
     db.commit()
     db.refresh(calculation_result)
     return calculation_result
+
 
 # Тесты для функции get_valves_by_turbine
 def test_get_valves_by_turbine(db_session):
@@ -63,12 +65,14 @@ def test_get_valves_by_turbine(db_session):
     assert result.valves[0].name in ["VD-001", "VD-002"]
     assert result.valves[1].name in ["VD-001", "VD-002"]
 
+
 def test_get_valves_by_turbine_no_turbine(db_session):
     # Выполняем функцию с несуществующей турбиной
     result = crud.get_valves_by_turbine(db_session, turbin_name="Nonexistent Turbine")
 
     # Проверки
     assert result is None
+
 
 # Тесты для функции get_valve_by_drawing
 def test_get_valve_by_drawing(db_session):
@@ -84,12 +88,14 @@ def test_get_valve_by_drawing(db_session):
     assert result.name == "VD-003"
     assert result.turbine.name == "Test Turbine"
 
+
 def test_get_valve_by_drawing_not_found(db_session):
     # Выполняем функцию с несуществующим чертежом
     result = crud.get_valve_by_drawing(db_session, valve_drawing="Nonexistent Drawing")
 
     # Проверки
     assert result is None
+
 
 # Тесты для функции get_valve_by_id
 def test_get_valve_by_id(db_session):
@@ -105,12 +111,14 @@ def test_get_valve_by_id(db_session):
     assert result.id == valve.id
     assert result.name == "VD-004"
 
+
 def test_get_valve_by_id_not_found(db_session):
     # Выполняем функцию с несуществующим ID
     result = crud.get_valve_by_id(db_session, valve_id=999)
 
     # Проверки
     assert result is None
+
 
 # Тесты для функции create_calculation_result
 def test_create_calculation_result(db_session):
@@ -154,6 +162,7 @@ def test_create_calculation_result(db_session):
     assert db_result.output_data == results.model_dump()  # Преобразование в dict для сравнения
     assert isinstance(db_result.calc_timestamp, datetime)
     assert db_result.calc_timestamp.tzinfo == timezone.utc
+
 
 # Тесты для функции get_results_by_valve_drawing
 def test_get_results_by_valve_drawing(db_session):
@@ -204,7 +213,7 @@ def test_get_results_by_valve_drawing(db_session):
     )
 
     create_test_calculation_result(db_session, "VD-006", parameters2.model_dump(), results2.model_dump())
-# Выполняем функцию
+    # Выполняем функцию
     results = crud.get_results_by_valve_drawing(db_session, valve_drawing="VD-006")
 
     # Проверки
@@ -214,12 +223,14 @@ def test_get_results_by_valve_drawing(db_session):
     assert results[0].stock_name == "VD-006"
     assert results[1].stock_name == "VD-006"
 
+
 def test_get_results_by_valve_drawing_not_found(db_session):
     # Выполняем функцию с несуществующим чертежом
     results = crud.get_results_by_valve_drawing(db_session, valve_drawing="Nonexistent Drawing")
 
     # Проверки
     assert results == []
+
 
 def test_create_calculation_result_invalid_data(db_session):
     # Создаём турбину и клапан

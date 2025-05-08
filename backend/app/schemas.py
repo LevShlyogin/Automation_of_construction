@@ -57,14 +57,14 @@ class ValveCreate(BaseModel):
 
 
 class CalculationParams(BaseModel):
-    turbine_name: Optional[str] = None  # Сделаем необязательным
-    valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
-    valve_id: Optional[int] = None  # ID клапана (если введено)
+    turbine_name: Optional[str] = None
+    valve_drawing: Optional[str] = None
+    valve_id: Optional[int] = None
     temperature_start: float
     t_air: float
     count_valves: int
-    p_ejector: List[float]  # Параметр для давления в эжекторе
-    p_values: List[float]  # Список давлений P1-P5
+    p_ejector: List[float]
+    p_values: List[float]
 
 
 class CalculationResult(BaseModel):
@@ -96,7 +96,7 @@ class CalculationResultDB(BaseModel):
     stock_name: str
     turbine_name: str
     calc_timestamp: datetime
-    input_data: dict[str, Any]  # Замените JSON на Dict[str, Any]
+    input_data: dict[str, Any]
     output_data: dict[str, Any]
 
     class Config:

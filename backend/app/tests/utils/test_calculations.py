@@ -87,8 +87,10 @@ def part_props_detection(P_first: float, P_second: float, v: float, din_vis: flo
     G = G_find(last_part, ALFA, P_first, P_second, v, S)
     return G
 
+
 import unittest
 from math import sqrt, pi
+
 
 # Определение минимальных классов для теста
 
@@ -109,9 +111,11 @@ class ValveInfo:
         self.rod_diameter = rod_diameter
         self.section_lengths = section_lengths
 
+
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
 
 class ValveCalculator:
     """Класс для выполнения всех расчетов, связанных с клапаном и турбиной."""
@@ -143,7 +147,8 @@ class ValveCalculator:
 
         # Конвертация давлений на участках из бар в МПа
         self.P_values = [
-            convert_pressure_to_mpa(p, unit=5) if p > 0 else ValueError(f"Давление участка не может быть нулевым или отрицательным")
+            convert_pressure_to_mpa(p, unit=5) if p > 0 else ValueError(
+                f"Давление участка не может быть нулевым или отрицательным")
             for p in self.params.p_values[:self.count_parts]
         ]
         if len(self.P_values) != self.count_parts:
@@ -151,7 +156,7 @@ class ValveCalculator:
                 f"Количество значений давления ({len(self.P_values)}) не соответствует количеству участков ({self.count_parts})."
             )
 
-        #Давление в деаэратор всегда по дефолту равно
+        # Давление в деаэратор всегда по дефолту равно
         self.p_deaerator = self.P_values[1]
 
         # Конвертация давлений отсоса из бар в МПа
@@ -173,6 +178,7 @@ class ValveCalculator:
         self.v_parts = [0.0] * self.count_parts
         self.din_vis_parts = [0.0] * self.count_parts
         self.p_ejector: Optional[float] = None
+
     def perform_calculations(self) -> dict:
         """Выполняет все расчеты и возвращает результаты."""
         try:
@@ -384,7 +390,7 @@ class ValveCalculator:
             # Один отсос в эжектор
             g_ejectors[0] = (self.g_parts[2] + self.g_parts[1]) * self.count_valves
             h_ejectors[0] = (self.h_parts[2] * self.g_parts[2] + self.h_parts[1] * self.g_parts[1]) / (
-                        self.g_parts[2] + self.g_parts[1])
+                    self.g_parts[2] + self.g_parts[1])
             t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
             p_ejectors[0] = self.p_suctions[0]
         elif self.count_parts == 4:
@@ -398,7 +404,7 @@ class ValveCalculator:
             # Второй отсос
             g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
             h_ejectors[1] = (self.h_parts[3] * self.g_parts[3] + self.h_parts[2] * self.g_parts[2]) / (
-                        self.g_parts[3] + self.g_parts[2])
+                    self.g_parts[3] + self.g_parts[2])
             t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
             p_ejectors[1] = self.p_suctions[1]
         elif self.count_parts == 5:
@@ -418,7 +424,7 @@ class ValveCalculator:
             # Третий отсос
             g_ejectors[2] = (self.g_parts[4] + self.g_parts[3]) * self.count_valves
             h_ejectors[2] = (self.h_parts[4] * self.g_parts[4] + self.h_parts[3] * self.g_parts[3]) / (
-                        self.g_parts[4] + self.g_parts[3])
+                    self.g_parts[4] + self.g_parts[3])
             t_ejectors[2] = ph(self.p_suctions[2], h_ejectors[2], 1)
             p_ejectors[2] = self.p_suctions[2]
         else:
@@ -474,7 +480,6 @@ class TestValveCalculator(unittest.TestCase):
         for i in range(len(expected_Hi)):
             self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
 
-
         expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
                                     0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
 
@@ -518,8 +523,10 @@ class TestValveCalculatorTwo(unittest.TestCase):
         result = self.calculator.perform_calculations()
 
         # Проверка результатов
-        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
-        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876,
+                       0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001,
+                          0.10300000000000001]  # Ожидаемые значения давления, в МПа
         expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
         expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
 
@@ -539,7 +546,6 @@ class TestValveCalculatorTwo(unittest.TestCase):
 
         for i in range(len(expected_Hi)):
             self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
-
 
         expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
                                     0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
@@ -584,8 +590,10 @@ class TestValveCalculatorThree(unittest.TestCase):
         result = self.calculator.perform_calculations()
 
         # Проверка результатов
-        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
-        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876,
+                       0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001,
+                          0.10300000000000001]  # Ожидаемые значения давления, в МПа
         expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
         expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
 
@@ -605,7 +613,6 @@ class TestValveCalculatorThree(unittest.TestCase):
 
         for i in range(len(expected_Hi)):
             self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
-
 
         expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
                                     0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
@@ -650,8 +657,10 @@ class TestValveCalculatorFour(unittest.TestCase):
         result = self.calculator.perform_calculations()
 
         # Проверка результатов
-        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876, 0.0001]  # Пример ожидаемых значений Gi
-        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001, 0.10300000000000001]  # Ожидаемые значения давления, в МПа
+        expected_Gi = [0.5588846211298416, 0.04259835717030393, 0.004582675946052876,
+                       0.0001]  # Пример ожидаемых значений Gi
+        expected_Pi_in = [13.0, 0.6000000000000001, 0.6000000000000001,
+                          0.10300000000000001]  # Ожидаемые значения давления, в МПа
         expected_Ti = [554.9999999999999, 500.53486287352973, 40]  # Пример ожидаемых значений температур
         expected_Hi = [3484.4816426068674, 3484.4816426068674, 40.24]  # Пример ожидаемых значений энтальпий
 
@@ -672,7 +681,6 @@ class TestValveCalculatorFour(unittest.TestCase):
         for i in range(len(expected_Hi)):
             self.assertAlmostEqual(result["Hi"][i], expected_Hi[i], places=0)
 
-
         expected_deaerator_props = [1.009, 500.53486287352973, 3484.4816426068674,
                                     0.6]  # Ожидаемые значения: [g_deaerator, t_deaerator, h_deaerator, p_deaerator]
 
@@ -691,6 +699,7 @@ class TestValveCalculatorFour(unittest.TestCase):
             self.assertAlmostEqual(ejector["t"], expected["t"], places=1)
             self.assertAlmostEqual(ejector["h"], expected["h"], places=0)
             self.assertAlmostEqual(ejector["p"], expected["p"], places=2)
+
 
 if __name__ == '__main__':
     unittest.main()
