@@ -15,25 +15,17 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - PROJECT_NAME=${PROJECT_NAME}
-      # - SENTRY_DSN=${SENTRY_DSN} # Раскомментируй, если используешь Sentry
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS} # Раскомментируй для CORS
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
       - ENVIRONMENT=local
     ports:
       - "8000:8000"
     depends_on:
       db:
-        condition: service_healthy # Добавляем условие ожидания healthcheck'а БД
-    # Указываем entrypoint (если ты создал entrypoint.sh в ./backend/)
-    # Если ты добавил ENTRYPOINT в Dockerfile, эта строка не нужна.
-    # Если ENTRYPOINT в Dockerfile, но ты хочешь переопределить:
-    # entrypoint: ["/app/entrypoint.sh"]
+        condition: service_healthy
     volumes:
-      # Добавляем монтирование кода для локальной разработки (если нужно)
-      # Это позволяет видеть изменения кода без пересборки образа
       - ./backend/app:/app/app
-      # Можно также монтировать alembic.ini и entrypoint.sh для удобства
-      # - ./backend/alembic.ini:/app/alembic.ini
-      # - ./backend/entrypoint.sh:/app/entrypoint.sh
+      - ./backend/alembic.ini:/app/alembic.ini
+      - ./backend/entrypoint.sh:/app/entrypoint.sh
 
   frontend:
     build: ./frontend
@@ -41,35 +33,28 @@ services:
     restart: always
     env_file:
       - .env
-    # Передаем VITE_API_URL в контейнер frontend на случай, если он нужен при сборке
     environment:
       - VITE_API_URL=${VITE_API_URL}
     ports:
-      - "80:80" # Nginx внутри контейнера слушает порт 80
+      - "80:80"
     depends_on:
       - backend
 
   db:
-    image: postgres:16 # Используем более свежую, но стабильную версию (17 может быть еще не везде)
+    image: postgres:16
     container_name: db
     restart: always
-    # Используем env_file для загрузки переменных
     env_file:
       - .env
-    # Переменные окружения для PostgreSQL берутся из .env файла
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
-      # Если используешь Alembic, init.dump не нужен для схемы, только для данных
-      # Если init.dump содержит только данные, оставь. Если он создает таблицы,
-      # это будет конфликтовать с Alembic. Лучше управлять схемой через Alembic.
       - ./db/init.dump:/docker-entrypoint-initdb.d/init.dump
       # - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    # Добавляем healthcheck, чтобы backend мог дождаться готовности БД
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB" ]
       interval: 5s
