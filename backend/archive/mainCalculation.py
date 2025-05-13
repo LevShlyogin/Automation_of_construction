@@ -1,7 +1,7 @@
 from math import pi
 from seuif97 import *
 from WSAProperties import air_calc, ksi_calc, lambda_calc
-from calculations.userInput import entry_database
+from archive.userInput import entry_database
 from typing import Tuple
 from sys import exit
 from time import sleep

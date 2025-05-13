@@ -1,5 +1,5 @@
 from typing import Any
-from calculations.clapanFind import find_BP_clapans
+from archive.clapanFind import find_BP_clapans
 
 
 def entry_database() -> tuple[Any, int, list[Any]]:
