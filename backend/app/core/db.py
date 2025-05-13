@@ -1,8 +1,8 @@
-from sqlmodel import Session, create_engine
+from sqlmodel import create_engine
 from backend.app.core.config import settings
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 
-def init_db(session: Session) -> None:
+def init_db() -> None:
     pass

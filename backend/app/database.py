@@ -1,10 +1,9 @@
 import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from backend.app.core.config import settings
 
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:Neh,byf66@db:5432/postgres"
-
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -7,8 +7,8 @@ config = context.config
 
 fileConfig(config.config_file_name)
 
-from app.models import Base
-from app.core.config import settings
+from backend.app.database import Base
+from backend.app.core.config import settings
 
 target_metadata = Base.metadata
 

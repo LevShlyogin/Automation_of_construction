@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 
 def init() -> None:
-    with Session(engine) as session:
-        init_db(session)
+    with Session(engine):
+        init_db()
 
 
 def main() -> None:

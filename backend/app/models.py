@@ -1,9 +1,8 @@
-import sqlalchemy
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 
-Base = sqlalchemy.orm.declarative_base()
+from backend.app.database import Base
 
 
 class Turbine(Base):
