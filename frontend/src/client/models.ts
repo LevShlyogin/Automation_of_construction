@@ -1,99 +1,103 @@
-export type Body_login_login_access_token = {
-  grant_type?: string | null
-  username: string
-  password: string
-  scope?: string
-  client_id?: string | null
-  client_secret?: string | null
-}
+export type CalculationParams = {
+	turbine_name?: string | null;
+	valve_drawing?: string | null;
+	valve_id?: number | null;
+	temperature_start: number;
+	t_air: number;
+	count_valves: number;
+	p_ejector: Array<number>;
+	p_values: Array<number>;
+};
+
+
+
+export type CalculationResultDB = {
+	id: number;
+	user_name?: string | null;
+	stock_name: string;
+	turbine_name: string;
+	calc_timestamp: string;
+	input_data: Record<string, unknown>;
+	output_data: Record<string, unknown>;
+};
+
+
 
 export type HTTPValidationError = {
-  detail?: Array<ValidationError>
-}
+	detail?: Array<ValidationError>;
+};
 
-export type ItemCreate = {
-  title: string
-  description?: string | null
-}
 
-export type ItemPublic = {
-  title: string
-  description?: string | null
-  id: string
-  owner_id: string
-}
 
-export type ItemUpdate = {
-  title?: string | null
-  description?: string | null
-}
+export type TurbineInfo = {
+	id: number;
+	name: string;
+};
 
-export type ItemsPublic = {
-  data: Array<ItemPublic>
-  count: number
-}
 
-export type Message = {
-  message: string
-}
 
-export type NewPassword = {
-  token: string
-  new_password: string
-}
+export type TurbineValves = {
+	count: number;
+	valves: Array<ValveInfo_Output>;
+};
 
-export type Token = {
-  access_token: string
-  token_type?: string
-}
 
-export type UpdatePassword = {
-  current_password: string
-  new_password: string
-}
-
-export type UserCreate = {
-  email: string
-  is_active?: boolean
-  is_superuser?: boolean
-  full_name?: string | null
-  password: string
-}
-
-export type UserPublic = {
-  email: string
-  is_active?: boolean
-  is_superuser?: boolean
-  full_name?: string | null
-  id: string
-}
-
-export type UserRegister = {
-  email: string
-  password: string
-  full_name?: string | null
-}
-
-export type UserUpdate = {
-  email?: string | null
-  is_active?: boolean
-  is_superuser?: boolean
-  full_name?: string | null
-  password?: string | null
-}
-
-export type UserUpdateMe = {
-  full_name?: string | null
-  email?: string | null
-}
-
-export type UsersPublic = {
-  data: Array<UserPublic>
-  count: number
-}
 
 export type ValidationError = {
-  loc: Array<string | number>
-  msg: string
-  type: string
-}
+	loc: Array<string | number>;
+	msg: string;
+	type: string;
+};
+
+
+
+export type ValveCreate = {
+	name: string;
+	type: string | null;
+	diameter: number | null;
+	clearance: number | null;
+	count_parts: number | null;
+	len_part1: number | null;
+	len_part2: number | null;
+	len_part3: number | null;
+	len_part4: number | null;
+	len_part5: number | null;
+	round_radius: number | null;
+	turbine_id: number | null;
+};
+
+
+
+export type ValveInfo_Input = {
+	id: number;
+	name: string;
+	type?: string | null;
+	diameter?: number | null;
+	clearance?: number | null;
+	count_parts?: number | null;
+	len_part1?: number | null;
+	len_part2?: number | null;
+	len_part3?: number | null;
+	len_part4?: number | null;
+	len_part5?: number | null;
+	round_radius?: number | null;
+};
+
+
+
+export type ValveInfo_Output = {
+	id: number;
+	name: string;
+	type?: string | null;
+	diameter?: number | null;
+	clearance?: number | null;
+	count_parts?: number | null;
+	len_part1?: number | null;
+	len_part2?: number | null;
+	len_part3?: number | null;
+	len_part4?: number | null;
+	len_part5?: number | null;
+	round_radius?: number | null;
+	readonly section_lengths: Array<number | null>;
+};
+
