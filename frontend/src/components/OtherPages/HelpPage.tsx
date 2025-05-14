@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '@tanstack/react-router';
 import { Button, Container, Heading, Text } from '@chakra-ui/react';
-// Убрали импорт './HelpPage.css';
 
 const HelpPage: React.FC = () => {
   return (

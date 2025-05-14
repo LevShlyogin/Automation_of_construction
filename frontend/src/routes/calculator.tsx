@@ -1,147 +1,264 @@
-import { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import { Link } from '@tanstack/react-router';
+import {useState, useCallback, useEffect} from 'react';
+import {createFileRoute} from '@tanstack/react-router';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
 
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
 import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
 import StockInputPage from '../components/Calculator/StockInputPage';
 import ResultsPage from '../components/Calculator/ResultsPage';
-import './CalculatorPage.css'; // Этот CSS нужно будет убрать после рефакторинга стилей
+
+import {
+    ResultsService,
+    CalculationsService,
+    ApiError,
+    type TurbineInfo,
+    type ValveInfo_Output as ValveInfo,
+    type CalculationResultDB as ClientCalculationResult,
+    type CalculationParams,
+} from '../client';
+
+type CalculatorStep =
+    | 'turbineSearch'
+    | 'stockSelection'
+    | 'earlyCalculation'
+    | 'stockInput'
+    | 'results';
+
+type CalculationDataType = ClientCalculationResult;
 
 export const Route = createFileRoute('/calculator')({
-  component: CalculatorPage,
+    component: CalculatorPage,
 });
 
 function CalculatorPage() {
-  const [selectedTurbine, setSelectedTurbine] = useState<any | null>(null);
-  const [selectedStock, setSelectedStock] = useState<any | null>(null);
-  const [lastCalculation, setLastCalculation] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isResultPage, setIsResultPage] = useState(false);
+    const queryClient = useQueryClient();
+    const toast = useToast();
 
-  const handleTurbineSelect = (turbine: any) => {
-    setSelectedTurbine(turbine);
-    setSelectedStock(null);
-    setIsResultPage(false);
-    setLastCalculation(null);
-  };
+    const [currentStep, setCurrentStep] = useState<CalculatorStep>('turbineSearch');
+    const [selectedTurbine, setSelectedTurbine] = useState<TurbineInfo | null>(null);
+    const [selectedStock, setSelectedStock] = useState<ValveInfo | null>(null);
+    const [calculationData, setCalculationData] = useState<CalculationDataType | null>(null);
 
-  const handleStockSelect = async (stock: any) => {
-      setSelectedStock(stock);
-      setIsLoading(true);
+    const {
+        data: latestPreviousResult,
+        isLoading: isLoadingPreviousResults,
+        isError: isErrorPreviousResults,
+        error: errorPreviousResults,
+    } = useQuery<ClientCalculationResult[], ApiError, CalculationDataType | null, [string, string | null | undefined]>({
+        queryKey: ['valveResults', selectedStock?.name],
+        queryFn: async () => {
+            if (!selectedStock?.name) return [];
+            const results = await ResultsService.resultsGetCalculationResults({valveName: selectedStock.name});
+            return results.map(r => ({
+                ...r,
+                input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
+                output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
+            }));
+        },
+        enabled: !!selectedStock?.name,
+        select: (data) => (data && data.length > 0 ? data[0] : null),
+    });
 
-      try {
-        const stockNameEncoded = encodeURIComponent(stock.name);
-        const response = await fetch(`http://10.43.0.105:8000/api/valves/${stockNameEncoded}/results/`);
-        if (!response.ok) {
-          throw new Error(`Ошибка загрузки результатов: ${response.status}`);
+    useEffect(() => {
+        if (!selectedStock) return;
+
+        if (isLoadingPreviousResults) return;
+
+        if (isErrorPreviousResults) {
+            let errorMessage = "Не удалось получить данные.";
+            if (errorPreviousResults) {
+                if (errorPreviousResults instanceof ApiError && errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
+                    const detail = (errorPreviousResults.body as any).detail;
+                    if (typeof detail === 'string') {
+                        errorMessage = detail;
+                    } else if ((errorPreviousResults as Error).message) {
+                        errorMessage = (errorPreviousResults as Error).message;
+                    }
+                } else if ((errorPreviousResults as Error).message) {
+                    errorMessage = (errorPreviousResults as Error).message;
+                }
+            }
+            toast({
+                title: "Ошибка загрузки предыдущих расчетов",
+                description: errorMessage,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+            setCalculationData(null);
+            setCurrentStep('stockInput');
+            return;
         }
 
-        const results = await response.json();
-        if (results.length > 0) {
-          const sortedResults = results.sort(
-            (a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-          );
-          setLastCalculation(sortedResults[0]);
+        if (latestPreviousResult) {
+            setCalculationData(latestPreviousResult);
+            setCurrentStep('earlyCalculation');
         } else {
-          setLastCalculation(null);
+            setCalculationData(null);
+            setCurrentStep('stockInput');
         }
-      } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
-        setLastCalculation(null);
-      } finally {
-        setIsLoading(false);
-      }
-  };
+    }, [latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults, errorPreviousResults, selectedStock, toast]);
 
-  // Обработка перерасчета или отказа
-  const handleRecalculate = (recalculate: boolean) => {
-    if (!recalculate) {
-      setIsResultPage(true);
-    } else {
-      setLastCalculation(null);
-    }
-  };
 
-  // Обработка отправки данных с StockInputPage
-  const handleStockInputSubmit = async (inputData: any) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('http://10.43.0.105:8000/api/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(inputData),
-      });
+    const calculationMutation = useMutation<ClientCalculationResult, ApiError, CalculationParams>({
+        mutationFn: (params: CalculationParams) => {
+            return CalculationsService.calculationsCalculate({requestBody: params});
+        },
+        onSuccess: (data) => {
+            const parsedData = {
+                ...data,
+                input_data: typeof data.input_data === 'string' ? JSON.parse(data.input_data) : data.input_data,
+                output_data: typeof data.output_data === 'string' ? JSON.parse(data.output_data) : data.output_data,
+            };
+            setCalculationData(parsedData);
+            setCurrentStep('results');
+            toast({
+                title: "Расчет выполнен успешно!",
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+            if (selectedStock?.name) {
+                void queryClient.invalidateQueries({queryKey: ['valveResults', selectedStock.name]});
+            }
+        },
+        onError: (error: ApiError) => {
+            let errorMessage = "Произошла неизвестная ошибка.";
+            if (error.body && typeof error.body === 'object') {
+                const detail = (error.body as any).detail;
+                if (typeof detail === 'string') {
+                    errorMessage = detail;
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+            } else if (error.message) {
+                errorMessage = error.message;
+            }
+            toast({
+                title: "Ошибка при выполнении расчета",
+                description: errorMessage,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        },
+    });
 
-      if (!response.ok) {
-        throw new Error(`Ошибка HTTP: ${response.status}`);
-      }
+    const handleTurbineSelect = useCallback((turbine: TurbineInfo) => {
+        setSelectedTurbine(turbine);
+        setSelectedStock(null);
+        setCalculationData(null);
+        setCurrentStep('stockSelection');
+    }, []);
 
-      const result = await response.json();
+    const handleStockSelect = useCallback((stock: ValveInfo) => {
+        if (selectedStock?.id === stock.id) {
+        } else {
+            setSelectedStock(stock);
+            setCalculationData(null);
+        }
+    }, [selectedStock]);
 
-      setLastCalculation(result);
-      setIsResultPage(true);
-    } catch (error) {
-      console.error('Ошибка при отправке данных:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const handleRecalculateDecision = useCallback((recalculate: boolean) => {
+        if (!recalculate && calculationData) {
+            setCurrentStep('results');
+        } else {
+            setCalculationData(null);
+            setCurrentStep('stockInput');
+        }
+    }, [calculationData]);
 
-  const renderContent = () => {
-    if (isLoading) {
-      return <div>Загрузка данных...</div>;
-    }
+    const handleStockInputSubmit = useCallback((inputData: CalculationParams) => {
+        const paramsForApi: CalculationParams = {
+            ...inputData,
+            turbine_name: selectedTurbine?.name || inputData.turbine_name,
+            valve_drawing: selectedStock?.name || inputData.valve_drawing,
+            valve_id: selectedStock?.id || inputData.valve_id,
+        };
+        calculationMutation.mutate(paramsForApi);
+    }, [calculationMutation, selectedTurbine, selectedStock]);
 
-    if (isResultPage) {
-      return (
-        <ResultsPage
-          stockId={selectedStock.name}
-          inputData={lastCalculation?.input_data}
-          outputData={lastCalculation?.output_data}
-        />
-      );
-    }
+    const handleGoBackToTurbineSearch = useCallback(() => {
+        setSelectedTurbine(null);
+        setSelectedStock(null);
+        setCalculationData(null);
+        setCurrentStep('turbineSearch');
+    }, []);
 
-    if (!selectedTurbine) {
-      return <TurbineSearch onSelectTurbine={handleTurbineSelect} />;
-    }
+    const renderContent = () => {
+        if (calculationMutation.isPending) {
+            return (
+                <VStack spacing={4} align="center" justify="center" minH="300px">
+                    <Spinner size="xl" color="teal.500"/>
+                    <Text>Выполняется расчет...</Text>
+                </VStack>
+            );
+        }
+        if (currentStep !== 'turbineSearch' && isLoadingPreviousResults && selectedStock && !latestPreviousResult && !isErrorPreviousResults) {
+            return (
+                <VStack spacing={4} align="center" justify="center" minH="300px">
+                    <Spinner size="xl" color="teal.500"/>
+                    <Text>Загрузка данных о клапане...</Text>
+                </VStack>
+            );
+        }
 
-    if (!selectedStock) {
-      return <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect} />;
-    }
+        switch (currentStep) {
+            case 'turbineSearch':
+                return <TurbineSearch onSelectTurbine={handleTurbineSelect}/>;
+            case 'stockSelection':
+                return <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect}
+                                       onGoBack={handleGoBackToTurbineSearch}/>;
+            case 'earlyCalculation':
+                if (calculationData) {
+                    return (
+                        <EarlyCalculationPage
+                            stockId={selectedStock?.name || 'N/A'}
+                            lastCalculation={calculationData}
+                            onRecalculate={handleRecalculateDecision}
+                        />
+                    );
+                }
+                setCurrentStep('stockInput');
+                return null;
+            case 'stockInput':
+                if (selectedStock && selectedTurbine) {
+                    return (
+                        <StockInputPage
+                            stock={selectedStock}
+                            turbine={selectedTurbine}
+                            onSubmit={handleStockInputSubmit}
+                            initialData={calculationData?.input_data}
+                        />
+                    );
+                }
+                setCurrentStep('turbineSearch');
+                return null;
+            case 'results':
+                if (calculationData && selectedStock) {
+                    return (
+                        <ResultsPage
+                            stockId={selectedStock.name}
+                            inputData={calculationData.input_data}
+                            outputData={calculationData.output_data}
+                        />
+                    );
+                }
+                setCurrentStep('turbineSearch');
+                return null;
+            default:
+                setCurrentStep('turbineSearch');
+                return null;
+        }
+    };
 
-    if (lastCalculation) {
-      return (
-        <EarlyCalculationPage
-          stockId={selectedStock.name}
-          lastCalculation={lastCalculation}
-          onRecalculate={handleRecalculate}
-        />
-      );
-    }
-
-    return <StockInputPage stock={selectedStock} turbine={selectedTurbine} onSubmit={handleStockInputSubmit} />;
-  };
-
-  return (
-    <div className="calculator-page">
-      <header className="header">
-        <img src="/logo.png" alt="Logo" className="logo" />
-        <h1 className="program-name">WSAPropertiesCalculator</h1>
-        <nav className="nav">
-          <Link to="/calculator" activeProps={{ style: { fontWeight: 'bold' } }}>Калькулятор</Link>
-           <Link to="/about" activeProps={{ style: { fontWeight: 'bold' } }}>О программе</Link>
-           <Link to="/help" activeProps={{ style: { fontWeight: 'bold' } }}>Помощь</Link>
-        </nav>
-      </header>
-
-      <main className="main-content">{renderContent()}</main>
-
-      <footer className="footer">
-        <p>© WSAPropsCalculator. АО "Уральский турбинный завод", 2024.</p>
-      </footer>
-    </div>
-  );
-};
+    return (
+        <Box w="100%"> {}
+            <Box display="flex" justifyContent="center" alignItems="flex-start">
+                {renderContent()}
+            </Box>
+        </Box>
+    );
+}

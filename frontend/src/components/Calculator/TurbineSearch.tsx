@@ -1,75 +1,112 @@
-import React, { useState, useEffect } from 'react';
-import './TurbineSearch.css';
+import React, {useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
+import {
+    Box,
+    Heading,
+    Input,
+    List,
+    ListItem,
+    Spinner,
+    Text,
+    VStack,
+    InputGroup,
+} from '@chakra-ui/react';
 
-type Turbine = {
-  id: number;
-  name: string;
-};
+import {TurbinesService, type TurbineInfo as ClientTurbineInfo} from '../../client';
+
+type Turbine = ClientTurbineInfo;
 
 type Props = {
-  onSelectTurbine: (turbine: Turbine) => void;
+    onSelectTurbine: (turbine: Turbine) => void;
 };
 
-const TurbineSearch: React.FC<Props> = ({ onSelectTurbine }) => {
-  const [turbines, setTurbines] = useState<Turbine[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const fetchTurbinesAPI = async () => {
+    const turbinesResponse = await TurbinesService.turbinesGetAllTurbines();
+    return turbinesResponse;
+};
 
-  useEffect(() => {
-    const fetchTurbines = async () => {
-      try {
-        console.log("Отправляем запрос к API...");
+const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
+    const [searchTerm, setSearchTerm] = useState('');
 
-        const response = await fetch('http://10.43.0.105:8000/api/turbines/');
-        console.log("Статус ответа:", response.status);
+    const {
+        data: turbines,
+        isLoading,
+        isError,
+        error,
+    } = useQuery<Turbine[], Error>({
+        queryKey: ['turbines'],
+        queryFn: fetchTurbinesAPI,
+    });
 
-        if (!response.ok) {
-          throw new Error(`Ошибка загрузки данных. Статус: ${response.status}`);
-        }
+    const filteredTurbines = turbines?.filter(turbine =>
+        turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
-        const data = await response.json();
-        console.log("Полученные данные:", data);
-        setTurbines(data);
-      } catch (error: any) {
-        console.error("Ошибка запроса:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (isLoading) {
+        return (
+            <VStack spacing={4} align="center" justify="center" minH="200px">
+                <Spinner size="xl" color="teal.500"/>
+                <Text>Загрузка турбин...</Text>
+            </VStack>
+        );
+    }
 
-    fetchTurbines();
-  }, []);
+    if (isError) {
+        return (
+            <VStack spacing={4} align="center" justify="center" minH="200px" color="red.500">
+                <Text fontSize="lg" fontWeight="bold">Ошибка при загрузке данных:</Text>
+                <Text>{error?.message || 'Произошла неизвестная ошибка'}</Text>
+            </VStack>
+        );
+    }
 
-  const filteredTurbines = turbines.filter(turbine =>
-    turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    return (
+        <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.md" mx="auto">
+            <Heading as="h2" size="lg" textAlign="center">
+                Введите название турбины
+            </Heading>
 
-  if (loading) return <div>Загрузка турбин...</div>;
-  if (error) return <div>Ошибка: {error}</div>;
+            <Box>
+                <InputGroup size="lg">
+                    <Input
+                        type="text"
+                        placeholder="Например, A-100"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        focusBorderColor="teal.500"
+                        variant="filled"
+                    />
+                </InputGroup>
+            </Box>
 
-  return (
-    <div className="turbine-search">
-      <h2 className="title">Введите название турбины</h2>
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="A-100"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-      </div>
-      <ul className="turbine-list">
-        {filteredTurbines.map((turbine) => (
-          <li key={turbine.id} className="turbine-item" onClick={() => onSelectTurbine(turbine)}>
-            <p className="turbine-name">{turbine.name}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+            {turbines && turbines.length > 0 ? (
+                <List spacing={3} w="100%">
+                    {filteredTurbines.map((turbine) => (
+                        <ListItem
+                            key={turbine.id}
+                            onClick={() => onSelectTurbine(turbine)}
+                            p={4}
+                            borderWidth="1px"
+                            borderRadius="md"
+                            _hover={{bg: 'gray.100', cursor: 'pointer', shadow: 'md'}}
+                            transition="background-color 0.2s, box-shadow 0.2s"
+                        >
+                            <Text fontSize="md" fontWeight="medium">{turbine.name}</Text>
+                        </ListItem>
+                    ))}
+                    {filteredTurbines.length === 0 && searchTerm && (
+                        <ListItem textAlign="center" color="gray.500" p={4}>
+                            Турбины не найдены по вашему запросу.
+                        </ListItem>
+                    )}
+                </List>
+            ) : (
+                <Text textAlign="center" color="gray.500" p={4}>
+                    Нет доступных турбин.
+                </Text>
+            )}
+        </VStack>
+    );
 };
 
 export default TurbineSearch;
