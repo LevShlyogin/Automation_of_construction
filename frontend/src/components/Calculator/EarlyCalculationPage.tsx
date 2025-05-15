@@ -26,11 +26,12 @@ type Props = {
     onGoBack?: () => void;
 };
 
-const roundNumber = (num: number | undefined | null, decimals: number = 4): string | number => {
-    if (num === undefined || num === null || isNaN(num)) {
+const roundNumber = (num: any, decimals: number = 4): string | number => { // num может быть чем угодно из JSON
+    const parsedNum = parseFloat(num);
+    if (isNaN(parsedNum)) {
         return 'N/A';
     }
-    return Number(num.toFixed(decimals));
+    return Number(parsedNum.toFixed(decimals));
 };
 
 const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onRecalculate, onGoBack}) => {
@@ -46,15 +47,35 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
         );
     }
 
-    const inputData = lastCalculation.input_data || {};
-    const outputData = lastCalculation.output_data || {};
+    interface ExpectedInputData {
+        turbine_name?: string;
+        valve_drawing?: string;
+        valve_id?: number;
+        temperature_start?: number;
+        t_air?: number;
+        count_valves?: number;
+        p_values?: number[];
+        p_ejector?: number[];
+    }
 
-    const gi = outputData.Gi || [];
-    const pi_in = outputData.Pi_in || [];
-    const ti = outputData.Ti || [];
-    const hi = outputData.Hi || [];
-    const deaeratorProps = outputData.deaerator_props || [];
-    const ejectorProps = outputData.ejector_props || [];
+    interface ExpectedOutputData {
+        Gi?: number[];
+        Pi_in?: number[];
+        Ti?: number[];
+        Hi?: number[];
+        deaerator_props?: any[];
+        ejector_props?: Array<Record<string, number>>;
+    }
+
+    const inputData: ExpectedInputData = (lastCalculation.input_data || {}) as ExpectedInputData;
+    const outputData: ExpectedOutputData = (lastCalculation.output_data || {}) as ExpectedOutputData;
+
+    const gi = Array.isArray(outputData.Gi) ? outputData.Gi : [];
+    const pi_in = Array.isArray(outputData.Pi_in) ? outputData.Pi_in : [];
+    const ti = Array.isArray(outputData.Ti) ? outputData.Ti : [];
+    const hi = Array.isArray(outputData.Hi) ? outputData.Hi : [];
+    const deaeratorProps = Array.isArray(outputData.deaerator_props) ? outputData.deaerator_props : [];
+    const ejectorProps = Array.isArray(outputData.ejector_props) ? outputData.ejector_props : [];
 
     const inputDataEntries = [
         {label: 'Название турбины', value: inputData.turbine_name},
@@ -63,12 +84,19 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
         {label: 'Начальная температура (°C)', value: inputData.temperature_start},
         {label: 'Температура воздуха (°C)', value: inputData.t_air},
         {label: 'Количество клапанов', value: inputData.count_valves},
-        {label: 'Входные давления (P1-P5, МПа)', value: (inputData.p_values || []).join(', ')},
-        {label: 'Давления потребителей (МПа)', value: (inputData.p_ejector || []).join(', ')},
+        {
+            label: 'Входные давления (P1-P5, МПа)',
+            value: Array.isArray(inputData.p_values) ? inputData.p_values.join(', ') : 'N/A'
+        },
+        {
+            label: 'Давления потребителей (МПа)',
+            value: Array.isArray(inputData.p_ejector) ? inputData.p_ejector.join(', ') : 'N/A'
+        },
     ];
 
     return (
         <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.lg" mx="auto">
+            {/* ... (заголовки и кнопка onGoBack остаются) ... */}
             <Heading as="h2" size="xl" textAlign="center">
                 Клапан: <Text as="span" color="teal.500">{stockId}</Text>
             </Heading>
@@ -91,7 +119,7 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
                 {Object.keys(inputData).length > 0 ? (
                     <SimpleGrid columns={{base: 1, md: 2}} spacing={3}>
                         {inputDataEntries.map(entry => (
-                            entry.value !== undefined && entry.value !== null && entry.value !== '' && // Показываем только если есть значение
+                            (entry.value !== undefined && entry.value !== null && entry.value !== '') &&
                             <HStack key={entry.label} justify="space-between">
                                 <Text fontWeight="medium">{entry.label}:</Text>
                                 <Text>{String(entry.value)}</Text>
@@ -109,7 +137,7 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
                 Выходные данные предыдущего расчета:
             </Heading>
 
-            {gi.length > 0 ? (
+            {gi.length > 0 ? ( // Проверяем длину после приведения к массиву
                 <TableContainer borderWidth="1px" borderRadius="md">
                     <Table variant="striped" colorScheme="gray" size="sm">
                         <Thead>
@@ -121,7 +149,7 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
                             </Tr>
                         </Thead>
                         <Tbody>
-                            {gi.map((_value: number, index: number) => (
+                            {gi.map((_value, index) => (
                                 <Tr key={`gi-${index}`}>
                                     <Td>{roundNumber(gi[index])}</Td>
                                     <Td>{roundNumber(pi_in[index])}</Td>
@@ -143,13 +171,14 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
                         <Table variant="simple" size="sm">
                             <Thead>
                                 <Tr>
-                                    {Object.keys(ejectorProps[0] || {}).map(key => <Th key={key}>{key}</Th>)}
+                                    {ejectorProps[0] && typeof ejectorProps[0] === 'object' && Object.keys(ejectorProps[0]).map(key =>
+                                        <Th key={key}>{key}</Th>)}
                                 </Tr>
                             </Thead>
                             <Tbody>
-                                {ejectorProps.map((prop: any, index: number) => (
+                                {ejectorProps.map((prop, index) => (
                                     <Tr key={`ejector-${index}`}>
-                                        {Object.values(prop).map((val: any, idx) => (
+                                        {typeof prop === 'object' && prop !== null && Object.values(prop).map((val, idx) => (
                                             <Td key={idx}>{roundNumber(val)}</Td>
                                         ))}
                                     </Tr>
@@ -163,9 +192,9 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
             {deaeratorProps.length > 0 && (
                 <Box mt={4}>
                     <Heading as="h5" size="sm" mb={2}>Потребитель 1 (деаэратор):</Heading>
-                    <SimpleGrid columns={{base: 2, md: deaeratorProps.length}} spacing={2} borderWidth="1px"
+                    <SimpleGrid columns={{base: 2, md: deaeratorProps.length || 1}} spacing={2} borderWidth="1px"
                                 borderRadius="md" p={3}>
-                        {deaeratorProps.map((value: any, index: number) => (
+                        {deaeratorProps.map((value, index) => (
                             <Box key={`deaerator-val-${index}`} textAlign="center">
                                 <Text fontWeight="medium">Параметр {index + 1}:</Text>
                                 <Text>{roundNumber(value)}</Text>
