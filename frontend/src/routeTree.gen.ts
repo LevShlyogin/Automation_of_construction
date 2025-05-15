@@ -10,74 +10,74 @@
 
 // Import Routes
 
-import {Route as rootRoute} from './routes/__root'
-import {Route as HelpImport} from './routes/help'
-import {Route as CalculatorImport} from './routes/calculator'
-import {Route as AboutImport} from './routes/about'
-import {Route as LayoutImport} from './routes/_layout'
-import {Route as LayoutIndexImport} from './routes/_layout/index'
+import { Route as rootRoute } from './routes/__root'
+import { Route as HelpImport } from './routes/help'
+import { Route as CalculatorImport } from './routes/calculator'
+import { Route as AboutImport } from './routes/about'
+import { Route as LayoutImport } from './routes/_layout'
+import { Route as LayoutIndexImport } from './routes/_layout/index'
 
 // Create/Update Routes
 
 const HelpRoute = HelpImport.update({
-    path: '/help',
-    getParentRoute: () => rootRoute,
+  path: '/help',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const CalculatorRoute = CalculatorImport.update({
-    path: '/calculator',
-    getParentRoute: () => rootRoute,
+  path: '/calculator',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const AboutRoute = AboutImport.update({
-    path: '/about',
-    getParentRoute: () => rootRoute,
+  path: '/about',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const LayoutRoute = LayoutImport.update({
-    id: '/_layout',
-    getParentRoute: () => rootRoute,
+  id: '/_layout',
+  getParentRoute: () => rootRoute,
 } as any)
 
 const LayoutIndexRoute = LayoutIndexImport.update({
-    path: '/',
-    getParentRoute: () => LayoutRoute,
+  path: '/',
+  getParentRoute: () => LayoutRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
-    interface FileRoutesByPath {
-        '/_layout': {
-            preLoaderRoute: typeof LayoutImport
-            parentRoute: typeof rootRoute
-        }
-        '/about': {
-            preLoaderRoute: typeof AboutImport
-            parentRoute: typeof rootRoute
-        }
-        '/calculator': {
-            preLoaderRoute: typeof CalculatorImport
-            parentRoute: typeof rootRoute
-        }
-        '/help': {
-            preLoaderRoute: typeof HelpImport
-            parentRoute: typeof rootRoute
-        }
-        '/_layout/': {
-            preLoaderRoute: typeof LayoutIndexImport
-            parentRoute: typeof LayoutImport
-        }
+  interface FileRoutesByPath {
+    '/_layout': {
+      preLoaderRoute: typeof LayoutImport
+      parentRoute: typeof rootRoute
     }
+    '/about': {
+      preLoaderRoute: typeof AboutImport
+      parentRoute: typeof rootRoute
+    }
+    '/calculator': {
+      preLoaderRoute: typeof CalculatorImport
+      parentRoute: typeof rootRoute
+    }
+    '/help': {
+      preLoaderRoute: typeof HelpImport
+      parentRoute: typeof rootRoute
+    }
+    '/_layout/': {
+      preLoaderRoute: typeof LayoutIndexImport
+      parentRoute: typeof LayoutImport
+    }
+  }
 }
 
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren([
-    LayoutRoute.addChildren([LayoutIndexRoute]),
-    AboutRoute,
-    CalculatorRoute,
-    HelpRoute,
+  LayoutRoute.addChildren([LayoutIndexRoute]),
+  AboutRoute,
+  CalculatorRoute,
+  HelpRoute,
 ])
 
 /* prettier-ignore-end */
