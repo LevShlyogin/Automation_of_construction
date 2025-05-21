@@ -121,6 +121,7 @@ from datetime import datetime, timezone
 
 Base = sqlalchemy.orm.declarative_base()
 
+
 class Turbine(Base):
     __tablename__ = 'unique_turbine'
     __table_args__ = {'schema': 'autocalc'}
@@ -133,6 +134,7 @@ class Turbine(Base):
 
     def __repr__(self):
         return f"<Turbine(name='{self.name}')>"
+
 
 class Valve(Base):
     __tablename__ = 'stocks'
@@ -163,6 +165,7 @@ class Valve(Base):
     def __repr__(self):
         return f"<Valve(name='{self.name}', valve_type='{self.type}')>"
 
+
 class CalculationResultDB(Base):
     __tablename__ = 'resultcalcs'
     __table_args__ = {'schema': 'autocalc'}
@@ -180,7 +183,6 @@ class CalculationResultDB(Base):
 
     # Связь с Valve
     valve = relationship("Valve", back_populates="calculation_results")
-
 
     def __repr__(self):
         return f"<CalculationResultDB(stock_name='{self.stock_name}', turbine_name='{self.turbine_name}')>"

@@ -20,17 +20,17 @@ class EmailData:
 
 def render_email_template(*, template_name: str, context: dict[str, Any]) -> str:
     template_str = (
-        Path(__file__).parent / "email-templates" / "build" / template_name
+            Path(__file__).parent / "email-templates" / "build" / template_name
     ).read_text()
     html_content = Template(template_str).render(context)
     return html_content
 
 
 def send_email(
-    *,
-    email_to: str,
-    subject: str = "",
-    html_content: str = "",
+        *,
+        email_to: str,
+        subject: str = "",
+        html_content: str = "",
 ) -> None:
     assert settings.emails_enabled, "no provided configuration for email variables"
     message = emails.Message(
@@ -79,7 +79,7 @@ def generate_reset_password_email(email_to: str, email: str, token: str) -> Emai
 
 
 def generate_new_account_email(
-    email_to: str, username: str, password: str
+        email_to: str, username: str, password: str
 ) -> EmailData:
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - New account for user {username}"
@@ -233,7 +233,8 @@ class ValveCalculator:
             self.radius_rounding = convert_to_meters(self.radius_rounding_DB, "радиус скругления")
             self.delta_clearance = convert_to_meters(self.delta_clearance_DB, "зазор")
             self.diameter_stock = convert_to_meters(self.diameter_stock_DB, "диаметр штока")
-            self.len_parts = [convert_to_meters(length, f"участок {i + 1}") for i, length in enumerate(self.len_parts_DB) if
+            self.len_parts = [convert_to_meters(length, f"участок {i + 1}") for i, length in
+                              enumerate(self.len_parts_DB) if
                               length is not None]
 
             # Подсчет количества непустых участков
@@ -241,7 +242,8 @@ class ValveCalculator:
 
             # Конвертация давлений на участках из бар в МПа
             self.P_values = [
-                convert_pressure_to_mpa(p, unit=5) if p > 0 else ValueError(f"Давление участка не может быть нулевым или отрицательным")
+                convert_pressure_to_mpa(p, unit=5) if p > 0 else ValueError(
+                    f"Давление участка не может быть нулевым или отрицательным")
                 for p in self.params.p_values[:self.count_parts]
             ]
             if len(self.P_values) != self.count_parts:
@@ -249,7 +251,7 @@ class ValveCalculator:
                     f"Количество значений давления ({len(self.P_values)}) не соответствует количеству участков ({self.count_parts})."
                 )
 
-            #Давление в деаэратор всегда по дефолту равно
+            # Давление в деаэратор всегда по дефолту равно
             self.p_deaerator = self.P_values[1]
 
             # Конвертация давлений отсоса из бар в МПа
@@ -485,7 +487,8 @@ class ValveCalculator:
                 g_deaerator = (self.g_parts[0] - self.g_parts[1] - self.g_parts[2]) * self.count_valves
                 t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
             elif self.count_parts == 5:
-                g_deaerator = (self.g_parts[0] - self.g_parts[1] - self.g_parts[2] - self.g_parts[3]) * self.count_valves
+                g_deaerator = (self.g_parts[0] - self.g_parts[1] - self.g_parts[2] - self.g_parts[
+                    3]) * self.count_valves
                 t_deaerator = ph(self.p_deaerator, h_deaerator, 1)
             else:
                 handle_error("Неверное количество секций клапана.")
@@ -518,7 +521,7 @@ class ValveCalculator:
                 # Один отсос в эжектор
                 g_ejectors[0] = (self.g_parts[2] + self.g_parts[1]) * self.count_valves
                 h_ejectors[0] = (self.h_parts[2] * self.g_parts[2] + self.h_parts[1] * self.g_parts[1]) / (
-                            self.g_parts[2] + self.g_parts[1])
+                        self.g_parts[2] + self.g_parts[1])
                 t_ejectors[0] = ph(self.p_suctions[0], h_ejectors[0], 1)
                 p_ejectors[0] = self.p_suctions[0]
             elif self.count_parts == 4:
@@ -532,7 +535,7 @@ class ValveCalculator:
                 # Второй отсос
                 g_ejectors[1] = abs(self.g_parts[2] - self.g_parts[3]) * self.count_valves
                 h_ejectors[1] = (self.h_parts[3] * self.g_parts[3] + self.h_parts[2] * self.g_parts[2]) / (
-                            self.g_parts[3] + self.g_parts[2])
+                        self.g_parts[3] + self.g_parts[2])
                 t_ejectors[1] = ph(self.p_suctions[1], h_ejectors[1], 1)
                 p_ejectors[1] = self.p_suctions[1]
             elif self.count_parts == 5:
@@ -552,7 +555,7 @@ class ValveCalculator:
                 # Третий отсос
                 g_ejectors[2] = (self.g_parts[4] + self.g_parts[3]) * self.count_valves
                 h_ejectors[2] = (self.h_parts[4] * self.g_parts[4] + self.h_parts[3] * self.g_parts[3]) / (
-                            self.g_parts[4] + self.g_parts[3])
+                        self.g_parts[4] + self.g_parts[3])
                 t_ejectors[2] = ph(self.p_suctions[2], h_ejectors[2], 1)
                 p_ejectors[2] = self.p_suctions[2]
             else:

@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql://postgres:Neh,byf66@localhost:5432/postgres
+      DATABASE_URL: postgresql://postgres:Neh,byf66@db:5432/postgres
 
   frontend:
     build: ./frontend
@@ -22,14 +22,15 @@ services:
       - backend
 
   db:
-    image: postgres:15
-    container_name: localhost
+    image: postgres:17
+    container_name: db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Neh,byf66
       POSTGRES_DB: postgres
     volumes:
+      - ./db/init.dump:/docker-entrypoint-initdb.d/init.dump
       - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
