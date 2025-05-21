@@ -12,8 +12,8 @@ class TurbineInfo(BaseModel):
 
 
 class ValveInfo(BaseModel):
-    id: int
-    name: str
+    id: Optional[int] = None  # Сделать опциональным
+    name: Optional[str] = None
     type: Optional[str] = None
     diameter: Optional[float] = None
     clearance: Optional[float] = None
