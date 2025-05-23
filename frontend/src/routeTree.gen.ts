@@ -14,7 +14,6 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as HelpImport } from './routes/help'
 import { Route as CalculatorImport } from './routes/calculator'
 import { Route as AboutImport } from './routes/about'
-import { Route as LayoutImport } from './routes/_layout'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -34,11 +33,6 @@ const AboutRoute = AboutImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const LayoutRoute = LayoutImport.update({
-  id: '/_layout',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
@@ -50,10 +44,6 @@ declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/': {
       preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/_layout': {
-      preLoaderRoute: typeof LayoutImport
       parentRoute: typeof rootRoute
     }
     '/about': {
@@ -75,7 +65,6 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren([
   IndexRoute,
-  LayoutRoute,
   AboutRoute,
   CalculatorRoute,
   HelpRoute,
