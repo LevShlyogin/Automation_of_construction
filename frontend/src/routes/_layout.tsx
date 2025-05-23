@@ -2,13 +2,9 @@ import {Box, Flex, Image, Text, Link as ChakraLink, Icon, HStack} from "@chakra-
 import {Outlet, createFileRoute, Link as RouterLink} from "@tanstack/react-router";
 import {FiHome, FiHelpCircle, FiInfo} from "react-icons/fi";
 
-import Sidebar from "../components/Common/Sidebar";
+import Sidebar from "../components/Common/Sidebar.tsx";
 
-export const Route = createFileRoute("/_layout")({
-    component: Layout,
-});
-
-function Layout() {
+function MainLayoutComponent() {
     return (
         <Flex direction="column" minH="100vh">
             <Flex
@@ -28,16 +24,20 @@ function Layout() {
                 </Flex>
                 <HStack as="nav" spacing={4}>
                     <ChakraLink as={RouterLink} to="/calculator" display="flex" alignItems="center"
-                                _activeLink={{fontWeight: "bold", color: "teal.500"}}>
+                                activeProps={{style: {fontWeight: 'bold', color: "teal.500"}}}>
                         <Icon as={FiHome} mr={1}/> Калькулятор
                     </ChakraLink>
                     <ChakraLink as={RouterLink} to="/about" display="flex" alignItems="center"
-                                _activeLink={{fontWeight: "bold", color: "teal.500"}}>
+                                activeProps={{style: {fontWeight: 'bold', color: "teal.500"}}}>
                         <Icon as={FiInfo} mr={1}/> О программе
                     </ChakraLink>
                     <ChakraLink as={RouterLink} to="/help" display="flex" alignItems="center"
-                                _activeLink={{fontWeight: "bold", color: "teal.500"}}>
+                                activeProps={{style: {fontWeight: 'bold', color: "teal.500"}}}>
                         <Icon as={FiHelpCircle} mr={1}/> Помощь
+                    </ChakraLink>
+                    <ChakraLink as={RouterLink} to="/" display="flex" alignItems="center"
+                                activeProps={{style: {fontWeight: 'bold', color: "teal.500"}}}>
+                        <Icon as={FiHome} mr={1}/> Главная
                     </ChakraLink>
                 </HStack>
             </Flex>
@@ -57,3 +57,7 @@ function Layout() {
         </Flex>
     );
 }
+
+export const Route = createFileRoute('/_layout')({
+    component: MainLayoutComponent,
+});

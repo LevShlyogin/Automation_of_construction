@@ -1,23 +1,12 @@
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {
-    Box,
-    Heading,
-    List,
-    ListItem,
-    Spinner,
-    Text,
-    VStack,
-    Button,
-    Flex,
-    Tag,
-} from '@chakra-ui/react';
+import {Box, Button, Flex, Heading, List, ListItem, Spinner, Tag, Text, VStack,} from '@chakra-ui/react';
 
 import {
-    TurbinesService,
     type TurbineInfo,
-    type ValveInfo_Output as ClientValveInfo,
-    type TurbineValves as ClientTurbineValvesResponse
+    TurbinesService,
+    type TurbineValves as ClientTurbineValvesResponse,
+    type ValveInfo_Output as ClientValveInfo
 } from '../../client';
 
 type Valve = ClientValveInfo;
@@ -32,8 +21,7 @@ const fetchValvesForTurbineAPI = async (turbineName: string) => {
     if (!turbineName) {
         return {count: 0, valves: []};
     }
-    const response = await TurbinesService.turbinesGetValvesByTurbineEndpoint({turbineName});
-    return response;
+    return TurbinesService.turbinesGetValvesByTurbineEndpoint({turbineName});
 };
 
 const StockSelection: React.FC<Props> = ({turbine, onSelectValve, onGoBack}) => {

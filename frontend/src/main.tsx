@@ -8,14 +8,16 @@ import {StrictMode} from "react";
 import {OpenAPI} from "./client";
 import theme from "./theme";
 
+// Настройка базового URL для API клиента
 OpenAPI.BASE = import.meta.env.VITE_API_URL || "/";
 
 const queryClient = new QueryClient();
 
-const router = createRouter({routeTree, context: {queryClient}});
+const router = createRouter({
+    routeTree,
+});
 
-declare module "@tanstack/react-router" {
-}
+declare module "@tanstack/react-router" {}
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <StrictMode>

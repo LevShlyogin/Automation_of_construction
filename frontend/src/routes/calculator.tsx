@@ -3,11 +3,11 @@ import {createFileRoute} from '@tanstack/react-router';
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
 
-import TurbineSearch from '../components/Calculator/TurbineSearch';
-import StockSelection from '../components/Calculator/StockSelection';
-import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
-import StockInputPage from '../components/Calculator/StockInputPage';
-import ResultsPage from '../components/Calculator/ResultsPage';
+import TurbineSearch from '../components/Calculator/TurbineSearch.tsx';
+import StockSelection from '../components/Calculator/StockSelection.tsx';
+import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage.tsx';
+import StockInputPage from '../components/Calculator/StockInputPage.tsx';
+import ResultsPage from '../components/Calculator/ResultsPage.tsx';
 
 import {
     ResultsService,
@@ -69,7 +69,7 @@ function CalculatorPage() {
         if (isErrorPreviousResults) {
             let errorMessage = "Не удалось получить данные.";
             if (errorPreviousResults) {
-                if (errorPreviousResults instanceof ApiError && errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
+                if (errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
                     const detail = (errorPreviousResults.body as any).detail;
                     if (typeof detail === 'string') {
                         errorMessage = detail;

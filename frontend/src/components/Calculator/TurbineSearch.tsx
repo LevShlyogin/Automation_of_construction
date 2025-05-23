@@ -1,18 +1,8 @@
 import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {
-    Box,
-    Heading,
-    Input,
-    List,
-    ListItem,
-    Spinner,
-    Text,
-    VStack,
-    InputGroup,
-} from '@chakra-ui/react';
+import {Box, Heading, Input, InputGroup, List, ListItem, Spinner, Text, VStack,} from '@chakra-ui/react';
 
-import {TurbinesService, type TurbineInfo as ClientTurbineInfo} from '../../client';
+import {type TurbineInfo as ClientTurbineInfo, TurbinesService} from '../../client';
 
 type Turbine = ClientTurbineInfo;
 
@@ -21,8 +11,7 @@ type Props = {
 };
 
 const fetchTurbinesAPI = async () => {
-    const turbinesResponse = await TurbinesService.turbinesGetAllTurbines();
-    return turbinesResponse;
+    return TurbinesService.turbinesGetAllTurbines();
 };
 
 const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
