@@ -1,6 +1,18 @@
 import React from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {Box, Button, Flex, Heading, List, ListItem, Spinner, Tag, Text, VStack,} from '@chakra-ui/react';
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    List,
+    ListItem,
+    Spinner,
+    Tag,
+    Text,
+    useColorModeValue,
+    VStack,
+} from '@chakra-ui/react';
 
 import {
     type TurbineInfo,
@@ -32,12 +44,14 @@ const StockSelection: React.FC<Props> = ({turbine, onSelectValve, onGoBack}) => 
         isLoading,
         isError,
         error,
-        // isFetching, // Можно использовать для индикации обновления в фоне
     } = useQuery<ClientTurbineValvesResponse, Error>({
         queryKey: ['valvesForTurbine', turbineName],
         queryFn: () => fetchValvesForTurbineAPI(turbineName),
         enabled: !!turbineName,
     });
+
+    const listItemHoverBg = useColorModeValue('teal.50', 'gray.700');
+    const listItemHoverBorderColor = useColorModeValue('teal.300', 'teal.500');
 
     const valves = turbineValvesResponse?.valves || [];
 
@@ -96,8 +110,13 @@ const StockSelection: React.FC<Props> = ({turbine, onSelectValve, onGoBack}) => 
                             onClick={() => onSelectValve(valve)}
                             p={4}
                             borderWidth="1px"
-                            borderRadius="lg" // Слегка большее скругление
-                            _hover={{bg: 'teal.50', cursor: 'pointer', shadow: 'md', borderColor: 'teal.300'}}
+                            borderRadius="lg"
+                            _hover={{
+                                bg: listItemHoverBg,
+                                cursor: 'pointer',
+                                shadow: 'md',
+                                borderColor: listItemHoverBorderColor,
+                            }}
                             transition="background-color 0.2s, box-shadow 0.2s, border-color 0.2s"
                         >
                             <Flex justify="space-between" align="center">

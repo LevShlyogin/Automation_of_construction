@@ -1,4 +1,4 @@
-import {extendTheme} from "@chakra-ui/react"
+import {extendTheme, type ThemeConfig} from "@chakra-ui/react"
 
 const disabledStyles = {
     _disabled: {
@@ -6,7 +6,13 @@ const disabledStyles = {
     },
 }
 
+const config: ThemeConfig = {
+    initialColorMode: 'light',
+    useSystemColorMode: false,
+}
+
 const theme = extendTheme({
+    config,
     colors: {
         ui: {
             main: "#009688",

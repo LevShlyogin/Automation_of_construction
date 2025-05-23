@@ -1,6 +1,17 @@
 import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
-import {Box, Heading, Input, InputGroup, List, ListItem, Spinner, Text, VStack,} from '@chakra-ui/react';
+import {
+    Box,
+    Heading,
+    Input,
+    InputGroup,
+    List,
+    ListItem,
+    Spinner,
+    Text,
+    useColorModeValue,
+    VStack,
+} from '@chakra-ui/react';
 
 import {type TurbineInfo as ClientTurbineInfo, TurbinesService} from '../../client';
 
@@ -26,6 +37,9 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
         queryKey: ['turbines'],
         queryFn: fetchTurbinesAPI,
     });
+
+    const listItemHoverBg = useColorModeValue('gray.100', 'gray.700');
+    const listItemHoverColor = useColorModeValue('gray.800', 'white');
 
     const filteredTurbines = turbines?.filter(turbine =>
         turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -77,7 +91,12 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
                             p={4}
                             borderWidth="1px"
                             borderRadius="md"
-                            _hover={{bg: 'gray.100', cursor: 'pointer', shadow: 'md'}}
+                            _hover={{
+                                bg: listItemHoverBg,
+                                color: listItemHoverColor,
+                                cursor: 'pointer',
+                                shadow: 'md'
+                            }}
                             transition="background-color 0.2s, box-shadow 0.2s"
                         >
                             <Text fontSize="md" fontWeight="medium">{turbine.name}</Text>
