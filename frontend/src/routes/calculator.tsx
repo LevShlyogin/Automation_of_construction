@@ -1,13 +1,14 @@
 import {useState, useCallback, useEffect} from 'react';
-import {createFileRoute} from '@tanstack/react-router';
+import {createFileRoute, useSearch, useNavigate} from '@tanstack/react-router';
 import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
 import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
 
-import TurbineSearch from '../components/Calculator/TurbineSearch.tsx';
-import StockSelection from '../components/Calculator/StockSelection.tsx';
-import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage.tsx';
-import StockInputPage from '../components/Calculator/StockInputPage.tsx';
-import ResultsPage from '../components/Calculator/ResultsPage.tsx';
+import TurbineSearch from '../components/Calculator/TurbineSearch';
+import StockSelection from '../components/Calculator/StockSelection';
+import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
+import StockInputPage from '../components/Calculator/StockInputPage';
+import ResultsPage from '../components/Calculator/ResultsPage';
+import {type HistoryEntry} from '../components/Common/Sidebar';
 
 import {
     ResultsService,
@@ -27,14 +28,24 @@ type CalculatorStep =
     | 'results';
 
 type CalculationDataType = ClientCalculationResult;
+const LOCAL_STORAGE_HISTORY_KEY = 'wsaCalculatorHistory';
+
 
 export const Route = createFileRoute('/calculator')({
     component: CalculatorPage,
+    validateSearch: (search: Record<string, unknown>) => {
+        return {
+            loadFromHistory: search.loadFromHistory as string | undefined,
+        };
+    },
 });
 
 function CalculatorPage() {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const toast = useToast();
+
+    const {loadFromHistory} = useSearch({from: Route.fullPath});
 
     const [currentStep, setCurrentStep] = useState<CalculatorStep>('turbineSearch');
     const [selectedTurbine, setSelectedTurbine] = useState<TurbineInfo | null>(null);
@@ -62,14 +73,50 @@ function CalculatorPage() {
     });
 
     useEffect(() => {
-        if (!selectedStock) return;
+        const historyIdToLoad = loadFromHistory; // Теперь типизированный
+
+        if (historyIdToLoad) {
+            console.log("Загрузка расчета из истории, ID:", historyIdToLoad);
+            const storedHistory = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
+            if (storedHistory) {
+                try {
+                    const allHistory: HistoryEntry[] = JSON.parse(storedHistory);
+                    const entryToLoad = allHistory.find(entry => entry.id === historyIdToLoad);
+
+                    if (entryToLoad) {
+                        toast({
+                            title: `Загрузка из истории: ${entryToLoad.stockName}`,
+                            description: `Турбина: ${entryToLoad.turbineName}. Требуется доработка логики загрузки.`,
+                            status: "info",
+                            duration: 7000,
+                            isClosable: true,
+                        });
+                        navigate({
+                            search: (prev: any) => ({...prev, loadFromHistory: undefined}),
+                            replace: true
+                        });
+                    } else {
+                        toast({title: "Запись из истории не найдена", status: "warning", duration: 3000});
+                        navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true});
+                    }
+                } catch (e) {
+                    console.error("Ошибка при загрузке из истории:", e);
+                    toast({title: "Ошибка при загрузке из истории", status: "error", duration: 3000});
+                    navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true});
+                }
+            }
+        }
+    }, [loadFromHistory, navigate, toast]);
+
+    useEffect(() => {
+        if (!selectedStock || loadFromHistory) return;
 
         if (isLoadingPreviousResults) return;
 
         if (isErrorPreviousResults) {
             let errorMessage = "Не удалось получить данные.";
             if (errorPreviousResults) {
-                if (errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
+                if (errorPreviousResults instanceof ApiError && errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
                     const detail = (errorPreviousResults.body as any).detail;
                     if (typeof detail === 'string') {
                         errorMessage = detail;
@@ -99,8 +146,7 @@ function CalculatorPage() {
             setCalculationData(null);
             setCurrentStep('stockInput');
         }
-    }, [latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults, errorPreviousResults, selectedStock, toast]);
-
+    }, [latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults, errorPreviousResults, selectedStock, toast, loadFromHistory]); // Добавили loadFromHistory
 
     const calculationMutation = useMutation<ClientCalculationResult, ApiError, CalculationParams>({
         mutationFn: (params: CalculationParams) => {
@@ -120,6 +166,30 @@ function CalculatorPage() {
                 duration: 3000,
                 isClosable: true,
             });
+
+            if (selectedStock && selectedTurbine) {
+                const newHistoryEntry: HistoryEntry = {
+                    id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                    stockName: selectedStock.name,
+                    turbineName: selectedTurbine.name,
+                    timestamp: Date.now(),
+                };
+
+                const storedHistory = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
+                let currentHistory: HistoryEntry[] = [];
+                if (storedHistory) {
+                    try {
+                        currentHistory = JSON.parse(storedHistory);
+                    } catch (e) {
+                        console.error("Failed to parse history for saving", e);
+                    }
+                }
+                const updatedHistory = [newHistoryEntry, ...currentHistory].slice(0, 20);
+                localStorage.setItem(LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(updatedHistory));
+
+                window.dispatchEvent(new Event('wsaHistoryUpdated'));
+            }
+
             if (selectedStock?.name) {
                 void queryClient.invalidateQueries({queryKey: ['valveResults', selectedStock.name]});
             }
@@ -154,12 +224,19 @@ function CalculatorPage() {
     }, []);
 
     const handleStockSelect = useCallback((stock: ValveInfo) => {
-        if (selectedStock?.id === stock.id) {
+        if (selectedStock?.id === stock.id && !isLoadingPreviousResults && !isErrorPreviousResults) {
+            if (latestPreviousResult) {
+                setCalculationData(latestPreviousResult);
+                setCurrentStep('earlyCalculation');
+            } else {
+                setCalculationData(null);
+                setCurrentStep('stockInput');
+            }
         } else {
             setSelectedStock(stock);
             setCalculationData(null);
         }
-    }, [selectedStock]);
+    }, [selectedStock, latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults]);
 
     const handleRecalculateDecision = useCallback((recalculate: boolean) => {
         if (!recalculate && calculationData) {
@@ -187,6 +264,12 @@ function CalculatorPage() {
         setCurrentStep('turbineSearch');
     }, []);
 
+    const handleGoBackToStockSelection = useCallback(() => {
+        setSelectedStock(null);
+        setCalculationData(null);
+        setCurrentStep('stockSelection');
+    }, []);
+
     const renderContent = () => {
         if (calculationMutation.isPending) {
             return (
@@ -196,7 +279,8 @@ function CalculatorPage() {
                 </VStack>
             );
         }
-        if (currentStep !== 'turbineSearch' && isLoadingPreviousResults && selectedStock && !latestPreviousResult && !isErrorPreviousResults) {
+
+        if (currentStep !== 'turbineSearch' && isLoadingPreviousResults && selectedStock && !latestPreviousResult && !isErrorPreviousResults && !loadFromHistory) {
             return (
                 <VStack spacing={4} align="center" justify="center" minH="300px">
                     <Spinner size="xl" color="teal.500"/>
@@ -209,8 +293,11 @@ function CalculatorPage() {
             case 'turbineSearch':
                 return <TurbineSearch onSelectTurbine={handleTurbineSelect}/>;
             case 'stockSelection':
-                return <StockSelection turbine={selectedTurbine} onSelectValve={handleStockSelect}
-                                       onGoBack={handleGoBackToTurbineSearch}/>;
+                return <StockSelection
+                    turbine={selectedTurbine}
+                    onSelectValve={handleStockSelect}
+                    onGoBack={handleGoBackToTurbineSearch}
+                />;
             case 'earlyCalculation':
                 if (calculationData) {
                     return (
@@ -218,6 +305,7 @@ function CalculatorPage() {
                             stockId={selectedStock?.name || 'N/A'}
                             lastCalculation={calculationData}
                             onRecalculate={handleRecalculateDecision}
+                            onGoBack={handleGoBackToStockSelection}
                         />
                     );
                 }
@@ -231,6 +319,7 @@ function CalculatorPage() {
                             turbine={selectedTurbine}
                             onSubmit={handleStockInputSubmit}
                             initialData={calculationData?.input_data}
+                            onGoBack={handleGoBackToStockSelection}
                         />
                     );
                 }
@@ -241,8 +330,9 @@ function CalculatorPage() {
                     return (
                         <ResultsPage
                             stockId={selectedStock.name}
-                            inputData={calculationData.input_data}
-                            outputData={calculationData.output_data}
+                            inputData={calculationData.input_data as CalculationParams}
+                            outputData={calculationData.output_data as any}
+                            onGoBack={() => setCurrentStep('stockInput')}
                         />
                     );
                 }
@@ -255,7 +345,7 @@ function CalculatorPage() {
     };
 
     return (
-        <Box w="100%"> {}
+        <Box w="100%">
             <Box display="flex" justifyContent="center" alignItems="flex-start">
                 {renderContent()}
             </Box>

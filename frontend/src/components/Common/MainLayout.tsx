@@ -7,12 +7,14 @@ import {
     Icon,
     HStack,
     useColorModeValue,
+    useDisclosure,
+    IconButton,
     Stack,
 } from '@chakra-ui/react';
 import {Outlet, Link as RouterLink} from '@tanstack/react-router';
-import {FiGrid, FiCode, FiHelpCircle, FiInfo} from 'react-icons/fi';
+import {FiGrid, FiCode, FiHelpCircle, FiInfo, FiClock} from 'react-icons/fi';
 
-import Sidebar from './Sidebar';
+import SidebarComponent from './Sidebar';
 import {ThemeToggleButton} from './ThemeToggleButton';
 
 export default function MainLayout() {
@@ -30,6 +32,9 @@ export default function MainLayout() {
         {to: "/help", label: "Помощь", icon: FiHelpCircle},
     ];
 
+    const {isOpen: isSidebarOpen, onOpen: onSidebarOpen, onClose: onSidebarClose} = useDisclosure();
+    const headerHeight = "65px";
+
     return (
         <Flex direction="column" minH="100vh">
             <Flex
@@ -37,22 +42,37 @@ export default function MainLayout() {
                 align="center"
                 justify="space-between"
                 py={3}
-                px={6}
+                px={4}
                 bg={headerBg}
                 borderBottomWidth="1px"
                 borderColor={headerBorderColor}
                 boxShadow="sm"
                 wrap="wrap"
+                position="fixed"
+                top={0}
+                left={0}
+                right={0}
+                zIndex="sticky"
+                h={headerHeight}
             >
+
                 <Flex align="center" as={RouterLink} to="/" _hover={{textDecoration: 'none'}}>
-                    <Image src="/logo.png" alt="WSA Logo" boxSize="36px" mr={3}/>
-                    <Text fontSize="lg" fontWeight="bold" color={useColorModeValue('gray.700', 'white')}>
+                    <Image src="/logo.png" alt="WSA Logo" boxSize="36px" mr={2}/>
+                    <Text fontSize={{base: "md", md: "lg"}} fontWeight="bold"
+                          color={useColorModeValue('gray.700', 'white')}>
                         WSAPropertiesCalculator
                     </Text>
                 </Flex>
 
-                <Stack direction="row" spacing={{base: 2, md: 4}} align="center">
-                    <HStack as="nav" spacing={{base: 2, md: 4}}>
+                <Stack direction="row" spacing={{base: 1, md: 3}} align="center" ml="auto">
+                    <IconButton
+                        aria-label="Открыть историю расчетов"
+                        icon={<Icon as={FiClock} boxSize={5}/>}
+                        variant="ghost"
+                        onClick={onSidebarOpen}
+                        display={{base: 'flex'}}
+                    />
+                    <HStack as="nav" spacing={{base: 1, md: 3}}>
                         {navLinks.map(link => (
                             <ChakraLink
                                 key={link.to}
@@ -77,21 +97,22 @@ export default function MainLayout() {
                                     }
                                 }}
                             >
-                                <Icon as={link.icon} mr={{base: 0, md: 2}} boxSize={5}/>
-                                <Text display={{base: 'none', md: 'inline'}}>{link.label}</Text>
+                                <Icon as={link.icon} mr={{base: 0, md: 1}}
+                                      boxSize={link.label === "Калькулятор" ? 4 : 5}/>
+                                <Text display={{base: 'none', md: 'inline'}} fontSize="sm">{link.label}</Text>
                             </ChakraLink>
                         ))}
                     </HStack>
-
                     <ThemeToggleButton/>
                 </Stack>
             </Flex>
 
             <Flex
                 flex="1"
-                h="auto"
+                pt={headerHeight}
             >
-                <Sidebar/>
+                <SidebarComponent isOpen={isSidebarOpen} onClose={onSidebarClose}/>
+
                 <Box
                     flex="1"
                     p={{base: 4, md: 6}}
@@ -105,14 +126,14 @@ export default function MainLayout() {
             <Box
                 as="footer"
                 bg={footerBg}
-                py={4}
+                py={3}
                 px={6}
                 textAlign="center"
                 borderTopWidth="1px"
                 borderColor={headerBorderColor}
             >
-                <Text fontSize="sm" color={useColorModeValue('gray.600', 'gray.400')}>
-                    © WSAPropsCalculator. АО «Уральский турбинный завод», 2024-2025.
+                <Text fontSize="xs" color={useColorModeValue('gray.600', 'gray.400')}>
+                    © WSAPropertiesCalculator. АО «Уральский турбинный завод», 2024-2025.
                 </Text>
             </Box>
         </Flex>
