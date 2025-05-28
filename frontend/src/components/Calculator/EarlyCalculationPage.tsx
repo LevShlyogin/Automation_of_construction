@@ -15,9 +15,11 @@ import {
     SimpleGrid,
     Divider,
     HStack,
+    Icon,
 } from '@chakra-ui/react';
 
 import {type CalculationResultDB as CalculationDataType} from '../../client';
+import {FiChevronLeft} from "react-icons/fi";
 
 type Props = {
     stockId: string;
@@ -26,7 +28,7 @@ type Props = {
     onGoBack?: () => void;
 };
 
-const roundNumber = (num: any, decimals: number = 4): string | number => { // num может быть чем угодно из JSON
+const roundNumber = (num: any, decimals: number = 4): string | number => {
     const parsedNum = parseFloat(num);
     if (isNaN(parsedNum)) {
         return 'N/A';
@@ -96,21 +98,27 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
 
     return (
         <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.lg" mx="auto">
-            {/* ... (заголовки и кнопка onGoBack остаются) ... */}
             <Heading as="h2" size="xl" textAlign="center">
                 Клапан: <Text as="span" color="teal.500">{stockId}</Text>
             </Heading>
-            <Heading as="h3" size="lg" textAlign="center" color="orange.400">
-                Обнаружен предыдущий расчет
-            </Heading>
 
             {onGoBack && (
-                <Box textAlign="left" width="100%">
-                    <Button onClick={onGoBack} variant="link" colorScheme="teal" size="sm" mb={2}>
-                        ← Изменить клапан
+                <Box width="100%" textAlign="center" my={2}>
+                    <Button
+                        onClick={onGoBack}
+                        variant="outline"
+                        colorScheme="teal"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                    >
+                        Изменить клапан
                     </Button>
                 </Box>
             )}
+
+            <Heading as="h3" size="lg" textAlign="center" color="orange.400">
+                Обнаружен предыдущий расчет
+            </Heading>
 
             <Box borderWidth="1px" borderRadius="md" p={4}>
                 <Heading as="h4" size="md" mb={3}>
@@ -137,7 +145,7 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
                 Выходные данные предыдущего расчета:
             </Heading>
 
-            {gi.length > 0 ? ( // Проверяем длину после приведения к массиву
+            {gi.length > 0 ? (
                 <TableContainer borderWidth="1px" borderRadius="md">
                     <Table variant="striped" colorScheme="gray" size="sm">
                         <Thead>
@@ -205,17 +213,17 @@ const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onReca
             )}
 
             <VStack spacing={3} mt={8} align="center">
-                <Heading as="h3" size="md" className="question-before-buttons">
+                <Heading as="h3" size="md">
                     Желаете провести перерасчет?
                 </Heading>
-                <HStack spacing={4} className="buttons">
+                <HStack spacing={4} mt={2}>
                     <Button onClick={() => onRecalculate(true)} colorScheme="teal" variant="solid" size="lg"
-                            minW="150px">
-                        Да
+                            minW="160px">
+                        Да, пересчитать
                     </Button>
-                    <Button onClick={() => onRecalculate(false)} colorScheme="red" variant="outline" size="lg"
-                            minW="150px">
-                        Нет
+                    <Button onClick={() => onRecalculate(false)} colorScheme="gray" variant="outline" size="lg"
+                            minW="160px">
+                        Нет, использовать эти
                     </Button>
                 </HStack>
             </VStack>

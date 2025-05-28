@@ -16,6 +16,7 @@ import {
     HStack,
     Heading,
     Text,
+    Icon,
 } from '@chakra-ui/react';
 
 import {
@@ -23,6 +24,7 @@ import {
     type TurbineInfo,
     type CalculationParams
 } from '../../client';
+import {FiChevronLeft} from "react-icons/fi";
 
 interface FormInputValues {
     turbine_name: string;
@@ -145,9 +147,15 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
             <Text textAlign="center" fontSize="md" color="gray.600">Турбина: {turbine.name}</Text>
 
             {onGoBack && (
-                <Box textAlign="left" width="100%">
-                    <Button onClick={onGoBack} variant="link" colorScheme="teal" size="sm">
-                        ← Изменить клапан
+                <Box width="100%" textAlign="center" my={2}>
+                    <Button
+                        onClick={onGoBack}
+                        variant="outline"
+                        colorScheme="teal"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                    >
+                        Изменить клапан
                     </Button>
                 </Box>
             )}

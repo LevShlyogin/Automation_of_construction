@@ -4,7 +4,7 @@ import {
     Box,
     Button,
     Flex,
-    Heading,
+    Heading, Icon,
     List,
     ListItem,
     Spinner,
@@ -20,6 +20,7 @@ import {
     type TurbineValves as ClientTurbineValvesResponse,
     type ValveInfo_Output as ClientValveInfo
 } from '../../client';
+import {FiChevronLeft} from "react-icons/fi";
 
 type Valve = ClientValveInfo;
 
@@ -91,9 +92,15 @@ const StockSelection: React.FC<Props> = ({turbine, onSelectValve, onGoBack}) => 
             </Heading>
 
             {onGoBack && (
-                <Box textAlign="center">
-                    <Button onClick={onGoBack} variant="link" colorScheme="teal" size="sm">
-                        ← Изменить турбину
+                <Box width="100%" textAlign="center" mb={2}>
+                    <Button
+                        onClick={onGoBack}
+                        variant="outline"
+                        colorScheme="teal"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                    >
+                        Изменить турбину
                     </Button>
                 </Box>
             )}

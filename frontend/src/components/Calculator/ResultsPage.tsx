@@ -1,3 +1,4 @@
+// frontend/src/components/Calculator/ResultsPage.tsx
 import React, {useState} from 'react';
 import * as XLSX from 'xlsx';
 import {
@@ -17,13 +18,14 @@ import {
     Divider,
     HStack,
     useToast,
+    Icon,
+    useColorModeValue,
+    Flex,
 } from '@chakra-ui/react';
+import {FiChevronLeft} from 'react-icons/fi';
+import {type CalculationParams} from '../../client';
 
-import {
-    type CalculationParams,
-} from '../../client';
-
-interface ExpectedOutputData {
+export interface ExpectedOutputData {
     Gi?: number[];
     Pi_in?: number[];
     Ti?: number[];
@@ -50,6 +52,7 @@ const roundNumber = (num: any, decimals: number = 4): string | number => {
 const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {}, onGoBack}) => {
     const [isSavedMessageVisible, setIsSavedMessageVisible] = useState(false);
     const toast = useToast();
+    const buttonHoverBg = useColorModeValue("gray.100", "gray.700");
 
     const currentInputData: Partial<CalculationParams> = inputData || {};
     const currentOutputData: Partial<ExpectedOutputData> = outputData || {};
@@ -62,12 +65,12 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
         {label: 'Температура воздуха (°C)', value: currentInputData.t_air},
         {label: 'Количество клапанов', value: currentInputData.count_valves},
         {
-            label: 'Входные давления (P1-P5, МПа)',
-            value: Array.isArray(currentInputData.p_values) ? currentInputData.p_values.join(', ') : 'N/A'
+            label: 'Входные давления (P1-P..., МПа)',
+            value: Array.isArray(currentInputData.p_values) ? currentInputData.p_values.map(p => roundNumber(p, 3)).join('; ') : 'N/A'
         },
         {
             label: 'Давления потребителей (МПа)',
-            value: Array.isArray(currentInputData.p_ejector) ? currentInputData.p_ejector.join(', ') : 'N/A'
+            value: Array.isArray(currentInputData.p_ejector) ? currentInputData.p_ejector.map(p => roundNumber(p, 3)).join('; ') : 'N/A'
         },
     ];
 
@@ -113,7 +116,7 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
                     const row: { [key: string]: string | number } = {};
                     if (prop && typeof prop === 'object') {
                         for (const key in prop) {
-                            row[key] = roundNumber(prop[key]);
+                            row[key.toUpperCase()] = roundNumber(prop[key]);
                         }
                     }
                     return row;
@@ -123,12 +126,9 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
             }
 
             if (deaeratorProps.length > 0) {
-                const deaeratorSheetData = [{
-                    'Параметр 1': roundNumber(deaeratorProps[0]),
-                    'Параметр 2': roundNumber(deaeratorProps[1]),
-                    'Параметр 3': roundNumber(deaeratorProps[2]),
-                    'Параметр 4': roundNumber(deaeratorProps[3]),
-                }];
+                const deaeratorSheetData = deaeratorProps.map((val, idx) => ({
+                    [`Параметр ${idx + 1}`]: roundNumber(val)
+                }));
                 const deaeratorWs = XLSX.utils.json_to_sheet(deaeratorSheetData);
                 XLSX.utils.book_append_sheet(wb, deaeratorWs, 'Параметры деаэратора');
             }
@@ -153,29 +153,40 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
     };
 
     return (
-        <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.xl" mx="auto">
-            <Heading as="h2" size="xl" textAlign="center">
-                Результаты расчётов для клапана: <Text as="span" color="teal.500">{stockId}</Text>
-            </Heading>
-
-            {onGoBack && (
-                <Box textAlign="left" width="100%">
-                    <Button onClick={onGoBack} variant="link" colorScheme="teal" size="sm" mb={2}>
-                        ← Вернуться к вводу данных
+        <VStack spacing={8} p={5} align="stretch" w="100%" maxW="container.xl" mx="auto">
+            <VStack spacing={2} w="full"> {/* Обертка для заголовка и кнопки "назад" */}
+                <Heading as="h2" size="xl" textAlign="center">
+                    Результаты расчётов для клапана: <Text as="span" color="teal.500">{stockId}</Text>
+                </Heading>
+                {onGoBack && (
+                    <Button
+                        onClick={onGoBack}
+                        variant="outline"
+                        colorScheme="teal"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                        alignSelf="center"
+                        mt={2}
+                        _hover={{bg: buttonHoverBg}}
+                    >
+                        Вернуться к вводу данных
                     </Button>
-                </Box>
-            )}
+                )}
+            </VStack>
 
-            <Box borderWidth="1px" borderRadius="md" p={4}>
-                <Heading as="h3" size="lg" mb={4}>Входные данные:</Heading>
+            <Box borderWidth="1px" borderRadius="lg" p={5} boxShadow="base">
+                <Heading as="h3" size="lg" mb={4} color={useColorModeValue("gray.700", "whiteAlpha.800")}>
+                    Входные данные:
+                </Heading>
                 {Object.keys(currentInputData).length > 0 ? (
-                    <SimpleGrid columns={{base: 1, md: 2}} spacing={3}>
+                    <SimpleGrid columns={{base: 1, md: 2}} spacingX={8} spacingY={3}>
                         {inputDataEntries.map(entry => (
-                            (entry.value !== undefined && entry.value !== null && entry.value !== '') &&
-                            <HStack key={entry.label} justify="space-between">
-                                <Text fontWeight="medium">{entry.label}:</Text>
-                                <Text>{String(entry.value)}</Text>
-                            </HStack>
+                            (entry.value !== undefined && entry.value !== null && String(entry.value).trim() !== '' && entry.value !== 'N/A') &&
+                            <Flex key={entry.label} justify="space-between" py={1}>
+                                <Text fontWeight="medium"
+                                      color={useColorModeValue("gray.600", "gray.300")}>{entry.label}:</Text>
+                                <Text fontWeight="semibold">{String(entry.value)}</Text>
+                            </Flex>
                         ))}
                     </SimpleGrid>
                 ) : (
@@ -183,9 +194,12 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
                 )}
             </Box>
 
-            <Divider my={6}/>
+            <Divider my={6} borderColor={useColorModeValue("gray.300", "gray.600")}/>
 
-            <Heading as="h3" size="lg" mb={4} textAlign="center">Выходные данные:</Heading>
+            <Heading as="h3" size="lg" mb={4} textAlign="center"
+                     color={useColorModeValue("gray.700", "whiteAlpha.800")}>
+                Выходные данные:
+            </Heading>
 
             {gi.length > 0 ? (
                 <TableContainer borderWidth="1px" borderRadius="md" mb={6}>
@@ -216,21 +230,36 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
 
             {ejectorProps.length > 0 && (
                 <Box mb={6}>
-                    <Heading as="h4" size="md" mb={2}>Параметры потребителей (эжекторы):</Heading>
-                    <TableContainer borderWidth="1px" borderRadius="md">
-                        <Table variant="simple" size="sm">
+                    <Heading as="h4" size="md" mb={3} color={useColorModeValue("gray.700", "whiteAlpha.800")}>
+                        Параметры потребителей (эжекторы):
+                    </Heading>
+                    <TableContainer borderWidth="1px" borderRadius="lg" boxShadow="base"
+                                    bg={useColorModeValue("white", "gray.750")}>
+                        <Table variant="simple" size="md">
                             <Thead>
                                 <Tr>
-                                    {ejectorProps[0] && typeof ejectorProps[0] === 'object' && Object.keys(ejectorProps[0]).map(key =>
-                                        <Th key={`th-ejector-${key}`}>{key.toUpperCase()}</Th>)}
+                                    {ejectorProps[0] && typeof ejectorProps[0] === 'object'
+                                        ? Object.keys(ejectorProps[0]).map(key => (
+                                            <Th key={`th-ejector-${key}`} textTransform="uppercase"
+                                                letterSpacing="wider">
+                                                {key}
+                                            </Th>
+                                        ))
+                                        : <Th>Данные</Th>
+                                    }
                                 </Tr>
                             </Thead>
                             <Tbody>
                                 {ejectorProps.map((prop, index: number) => (
-                                    <Tr key={`ejector-res-${index}`}>
-                                        {typeof prop === 'object' && prop !== null && Object.values(prop).map((val, idx: number) => (
-                                            <Td key={`td-ejector-${index}-${idx}`}>{roundNumber(val)}</Td>
-                                        ))}
+                                    <Tr key={`ejector-res-${index}`}
+                                        _hover={{bg: useColorModeValue("gray.50", "gray.650")}}>
+                                        {typeof prop === 'object' && prop !== null
+                                            ? Object.values(prop).map((val, idx: number) => (
+                                                <Td key={`td-ejector-${index}-${idx}`}>{roundNumber(val)}</Td>
+                                            ))
+                                            : <Td colSpan={Object.keys(ejectorProps[0] || {}).length || 1}
+                                                  textAlign="center">Данные отсутствуют</Td>
+                                        }
                                     </Tr>
                                 ))}
                             </Tbody>
@@ -241,30 +270,58 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
 
             {deaeratorProps.length > 0 && (
                 <Box mb={6}>
-                    <Heading as="h4" size="md" mb={2}>Потребитель 1 (деаэратор):</Heading>
-                    <Text borderWidth="1px" borderRadius="md" p={3}>
-                        {deaeratorProps.map((val: any, idx: number) => `Парам. ${idx + 1}: ${roundNumber(val)}`).join('; ')}
-                    </Text>
+                    <Heading as="h4" size="md" mb={3} color={useColorModeValue("gray.700", "whiteAlpha.800")}>
+                        Потребитель 1 (деаэратор):
+                    </Heading>
+                    <SimpleGrid
+                        columns={{base: 2, sm: Math.min(4, deaeratorProps.length) || 1}}
+                        spacing={4}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        p={4}
+                        boxShadow="base"
+                        bg={useColorModeValue("white", "gray.750")}
+                    >
+                        {deaeratorProps.map((value: any, idx: number) => (
+                            <Box key={`deaerator-item-${idx}`} textAlign="center" p={2}>
+                                <Text fontWeight="medium" color={useColorModeValue("gray.500", "gray.400")}
+                                      fontSize="sm">
+                                    Параметр {idx + 1}
+                                </Text>
+                                <Text fontSize="xl" fontWeight="bold">{roundNumber(value)}</Text>
+                            </Box>
+                        ))}
+                    </SimpleGrid>
                 </Box>
             )}
 
-            <HStack spacing={4} justifyContent="center" mt={8}>
-                <Button onClick={handleDownloadExcel} colorScheme="green" variant="solid" size="lg" minW="220px">
-                    Сохранить в виде Excel
+            <HStack spacing={6} justifyContent="center" mt={8} mb={4}>
+                <Button
+                    onClick={handleDownloadExcel}
+                    colorScheme="green"
+                    variant="solid"
+                    size="lg"
+                    minW="240px"
+                    boxShadow="md"
+                    _hover={{boxShadow: "lg"}}
+                >
+                    Сохранить в Excel
                 </Button>
                 <Button
                     onClick={handleShowSavedMessage}
                     colorScheme="blue"
                     variant="outline"
                     size="lg"
-                    minW="220px"
+                    minW="240px"
+                    boxShadow="sm"
+                    _hover={{boxShadow: "md"}}
                 >
-                    Сохранено в базе данных
+                    Сохранено в БД
                 </Button>
             </HStack>
             {isSavedMessageVisible && (
-                <Text textAlign="center" color="green.500" mt={3} fontWeight="bold">
-                    Данные этого расчета уже сохранены в базе данных при его выполнении.
+                <Text textAlign="center" color="green.500" mt={2} fontWeight="bold">
+                    Данные этого расчета уже сохранены при его выполнении.
                 </Text>
             )}
         </VStack>
