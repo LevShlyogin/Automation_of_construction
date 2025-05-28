@@ -66,7 +66,7 @@ async def get_all_turbines(db: Session = Depends(get_db)):
                             detail=f"Не удалось получить турбины: {e}")
 
 
-@api_router.get("/turbines/{turbine_name}/valves/", response_model=TurbineValves,
+@api_router.get("/turbines/{turbine_name:path}/valves/", response_model=TurbineValves,
                 summary="Получить клапаны по имени турбины", tags=["turbines"])
 async def get_valves_by_turbine_endpoint(turbine_name: str, db: Session = Depends(get_db)):
     """
@@ -287,7 +287,7 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
 
 
 # ------ Маршруты для результатов ------
-@api_router.get("/valves/{valve_name}/results/", response_model=List[CalculationResultDBSchema],
+@api_router.get("/valves/{valve_name:path}/results/", response_model=List[CalculationResultDBSchema],
                 summary="Получить результаты расчётов", tags=["results"])
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """

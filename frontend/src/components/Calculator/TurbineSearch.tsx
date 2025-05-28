@@ -64,8 +64,8 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
     }
 
     return (
-        <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.md" mx="auto">
-            <Heading as="h2" size="lg" textAlign="center">
+        <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.lg" mx="auto">
+            <Heading as="h2" size="xl" textAlign="center" mb={2}>
                 Введите название турбины
             </Heading>
 
@@ -88,18 +88,22 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
                         <ListItem
                             key={turbine.id}
                             onClick={() => onSelectTurbine(turbine)}
-                            p={4}
+                            p={5}
                             borderWidth="1px"
-                            borderRadius="md"
+                            borderRadius="lg"
+                            borderColor={useColorModeValue("gray.200", "gray.600")}
+                            bg={useColorModeValue("white", "gray.750")}
+                            boxShadow="base"
                             _hover={{
                                 bg: listItemHoverBg,
                                 color: listItemHoverColor,
                                 cursor: 'pointer',
-                                shadow: 'md'
+                                shadow: 'md',
+                                borderColor: useColorModeValue("teal.300", "teal.500"),
                             }}
-                            transition="background-color 0.2s, box-shadow 0.2s"
+                            transition="all 0.2s ease-in-out"
                         >
-                            <Text fontSize="md" fontWeight="medium">{turbine.name}</Text>
+                            <Text fontSize="lg" fontWeight="medium">{turbine.name}</Text>
                         </ListItem>
                     ))}
                     {filteredTurbines.length === 0 && searchTerm && (
