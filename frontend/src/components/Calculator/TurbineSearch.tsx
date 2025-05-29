@@ -2,26 +2,36 @@ import React, {useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {
     Box,
-    Heading,
+    Flex,
+    Heading, HStack,
+    Icon,
     Input,
     InputGroup,
     List,
     ListItem,
     Spinner,
+    Tag,
     Text,
     useColorModeValue,
     VStack,
+    Wrap,
+    WrapItem,
 } from '@chakra-ui/react';
 
-import {type TurbineInfo as ClientTurbineInfo, TurbinesService} from '../../client';
+import {
+    type SimpleValveInfo,
+    TurbinesService,
+    type TurbineWithValvesInfo as ClientTurbineWithValves
+} from '../../client';
+import {FiChevronRight} from 'react-icons/fi';
 
-type Turbine = ClientTurbineInfo;
+type Turbine = ClientTurbineWithValves;
 
 type Props = {
     onSelectTurbine: (turbine: Turbine) => void;
 };
 
-const fetchTurbinesAPI = async () => {
+const fetchTurbinesAPI = async (): Promise<Turbine[]> => {
     return TurbinesService.turbinesGetAllTurbines();
 };
 
@@ -34,12 +44,16 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
         isError,
         error,
     } = useQuery<Turbine[], Error>({
-        queryKey: ['turbines'],
+        queryKey: ['turbinesWithValves'],
         queryFn: fetchTurbinesAPI,
     });
 
+    const listItemBg = useColorModeValue("white", "gray.750");
     const listItemHoverBg = useColorModeValue('gray.100', 'gray.700');
-    const listItemHoverColor = useColorModeValue('gray.800', 'white');
+    const listItemBorderColor = useColorModeValue("gray.200", "gray.600");
+    const listItemHoverBorderColor = useColorModeValue("teal.300", "teal.500");
+    const valveTagColorScheme = useColorModeValue("gray", "gray");
+    const iconColor = useColorModeValue("gray.400", "gray.500");
 
     const filteredTurbines = turbines?.filter(turbine =>
         turbine.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -88,22 +102,64 @@ const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {
                         <ListItem
                             key={turbine.id}
                             onClick={() => onSelectTurbine(turbine)}
-                            p={5}
+                            p={4}
                             borderWidth="1px"
                             borderRadius="lg"
-                            borderColor={useColorModeValue("gray.200", "gray.600")}
-                            bg={useColorModeValue("white", "gray.750")}
+                            borderColor={listItemBorderColor}
+                            bg={listItemBg}
                             boxShadow="base"
                             _hover={{
                                 bg: listItemHoverBg,
-                                color: listItemHoverColor,
                                 cursor: 'pointer',
                                 shadow: 'md',
-                                borderColor: useColorModeValue("teal.300", "teal.500"),
+                                borderColor: listItemHoverBorderColor,
                             }}
                             transition="all 0.2s ease-in-out"
                         >
-                            <Text fontSize="lg" fontWeight="medium">{turbine.name}</Text>
+                            <Flex justify="space-between" align="center" w="full">
+                                <Text
+                                    fontSize="lg"
+                                    fontWeight="medium"
+                                    noOfLines={1}
+                                    title={turbine.name}
+                                    flexShrink={1}
+                                    overflow="hidden"
+                                    mr={3}
+                                >
+                                    {turbine.name}
+                                </Text>
+
+                                <HStack spacing={2} align="center"
+                                        flexShrink={0}>
+                                    {turbine.valves && turbine.valves.length > 0 && (
+                                        <Wrap
+                                            spacing={1}
+                                            justify="flex-end"
+                                            maxW="400px"
+                                            overflow="hidden"
+                                            whiteSpace="nowrap"
+                                        >
+                                            {turbine.valves.slice(0, 4).map((valve: SimpleValveInfo) => (
+                                                <WrapItem key={valve.id}>
+                                                    <Tag size="sm" variant="subtle" colorScheme={valveTagColorScheme}>
+                                                        {valve.name}
+                                                    </Tag>
+                                                </WrapItem>
+                                            ))}
+                                            {turbine.valves.length > 4 && (
+                                                <WrapItem>
+                                                    <Tag size="sm" variant="outline" colorScheme="gray">...</Tag>
+                                                </WrapItem>
+                                            )}
+                                        </Wrap>
+                                    )}
+                                    {(!turbine.valves || turbine.valves.length === 0) && (
+                                        <Box w="auto"/>
+                                    )}
+
+                                    <Icon as={FiChevronRight} boxSize={5} color={iconColor}/>
+                                </HStack>
+                            </Flex>
                         </ListItem>
                     ))}
                     {filteredTurbines.length === 0 && searchTerm && (

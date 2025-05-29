@@ -1,12 +1,28 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-
 from pydantic import BaseModel, computed_field
 
 
 class TurbineInfo(BaseModel):
     id: int
     name: str
+
+    class Config:
+        from_attributes = True
+
+
+class SimpleValveInfo(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
+class TurbineWithValvesInfo(BaseModel):
+    id: int
+    name: str
+    valves: List[SimpleValveInfo] = []
 
     class Config:
         from_attributes = True

@@ -4,7 +4,7 @@ import logging
 from fastapi import FastAPI, Depends, HTTPException, Response, status, APIRouter
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List
 
 from backend.app.core.config import settings
@@ -15,7 +15,7 @@ from backend.app.schemas import (
     ValveCreate,
     TurbineValves,
     CalculationParams,
-    CalculationResultDB as CalculationResultDBSchema,
+    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo,
 )
 from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
@@ -51,17 +51,20 @@ api_router = APIRouter()
 
 
 # ------ Маршруты для турбин ------
-@api_router.get("/turbines/", response_model=List[TurbineInfo], summary="Получить все турбины", tags=["turbines"])
-async def get_all_turbines(db: Session = Depends(get_db)):
+@api_router.get("/turbines/", response_model=List[TurbineWithValvesInfo], summary="Получить все турбины с клапанами",
+                tags=["turbines"])
+async def get_all_turbines_with_valves(db: Session = Depends(get_db)):
     """
-    Получить список всех турбин.
+    Получить список всех турбин вместе с их клапанами.
     """
     try:
-        turbines = db.query(Turbine).all()
-        turbine_infos = [TurbineInfo(id=turbine.id, name=turbine.name) for turbine in turbines]
-        return turbine_infos
+        turbines_from_db = db.query(Turbine).options(
+            selectinload(Turbine.valves)
+        ).all()
+
+        return turbines_from_db
     except Exception as e:
-        logger.error(f"Ошибка при получении всех турбин: {e}")
+        logger.error(f"Ошибка при получении всех турбин с клапанами: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось получить турбины: {e}")
 
