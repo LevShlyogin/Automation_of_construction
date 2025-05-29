@@ -29,6 +29,13 @@ export type HTTPValidationError = {
 
 
 
+export type SimpleValveInfo = {
+	id: number;
+	name: string;
+};
+
+
+
 export type TurbineInfo = {
 	id: number;
 	name: string;
@@ -39,6 +46,14 @@ export type TurbineInfo = {
 export type TurbineValves = {
 	count: number;
 	valves: Array<ValveInfo_Output>;
+};
+
+
+
+export type TurbineWithValvesInfo = {
+	id: number;
+	name: string;
+	valves?: Array<SimpleValveInfo>;
 };
 
 

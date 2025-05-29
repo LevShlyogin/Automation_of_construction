@@ -62,7 +62,7 @@ function HelpPage() {
                     </Text>
                 </Box>
 
-                <Accordion allowMultiple allowToggle defaultIndex={[0]}>
+                <Accordion allowMultiple defaultIndex={[0]}>
                     {faqData.map((faq, index) => (
                         <AccordionItem
                             key={index}

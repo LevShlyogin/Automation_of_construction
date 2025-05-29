@@ -76,7 +76,7 @@ function CalculatorPage() {
         const historyIdToLoad = loadFromHistory; // Теперь типизированный
 
         if (historyIdToLoad) {
-            console.log("Загрузка расчета из истории, ID:", historyIdToLoad);
+            // console.log("Загрузка расчета из истории, ID:", historyIdToLoad);
             const storedHistory = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
             if (storedHistory) {
                 try {
@@ -94,15 +94,18 @@ function CalculatorPage() {
                         navigate({
                             search: (prev: any) => ({...prev, loadFromHistory: undefined}),
                             replace: true
-                        });
+                        }).then();
                     } else {
                         toast({title: "Запись из истории не найдена", status: "warning", duration: 3000});
-                        navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true});
+                        navigate({
+                            search: (prev: any) => ({...prev, loadFromHistory: undefined}),
+                            replace: true
+                        }).then();
                     }
                 } catch (e) {
                     console.error("Ошибка при загрузке из истории:", e);
                     toast({title: "Ошибка при загрузке из истории", status: "error", duration: 3000});
-                    navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true});
+                    navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true}).then();
                 }
             }
         }
@@ -116,7 +119,7 @@ function CalculatorPage() {
         if (isErrorPreviousResults) {
             let errorMessage = "Не удалось получить данные.";
             if (errorPreviousResults) {
-                if (errorPreviousResults instanceof ApiError && errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
+                if (errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
                     const detail = (errorPreviousResults.body as any).detail;
                     if (typeof detail === 'string') {
                         errorMessage = detail;

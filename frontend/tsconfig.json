@@ -23,6 +23,15 @@
     /* Vite config */
     "types": ["vite/client"],
   },
-  "include": ["src", "*.ts", "**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts"
+  ],
+  "exclude": [
+    "vite.config.ts",
+    "playwright.config.ts",
+    "node_modules"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

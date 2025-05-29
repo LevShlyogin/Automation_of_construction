@@ -88,7 +88,7 @@ const Sidebar: React.FC<SidebarProps> = ({isOpen, onClose}) => {
         navigate({
             to: '/calculator',
             search: {loadFromHistory: entry.id}
-        });
+        }).then();
         onClose();
     };
 
@@ -127,13 +127,14 @@ const Sidebar: React.FC<SidebarProps> = ({isOpen, onClose}) => {
                         .map((entry) => (
                             <Box
                                 key={entry.id}
-                                as="button"
+                                role="button"
+                                tabIndex={0}
                                 textAlign="left"
                                 w="full"
                                 p={3}
                                 borderRadius="md"
                                 bg="transparent"
-                                _hover={{bg: hoverBg, textDecoration: 'none'}}
+                                _hover={{bg: hoverBg, textDecoration: 'none', cursor: 'pointer'}}
                                 _focus={{boxShadow: 'outline', borderColor: 'teal.300', bg: hoverBg}}
                                 onClick={() => handleHistoryEntryClick(entry)}
                             >

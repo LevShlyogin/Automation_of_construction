@@ -3,7 +3,8 @@ import {useQuery} from '@tanstack/react-query';
 import {
     Box,
     Flex,
-    Heading, HStack,
+    Heading,
+    HStack,
     Icon,
     Input,
     InputGroup,
@@ -32,7 +33,7 @@ type Props = {
 };
 
 const fetchTurbinesAPI = async (): Promise<Turbine[]> => {
-    return TurbinesService.turbinesGetAllTurbines();
+    return TurbinesService.turbinesGetAllTurbinesWithValves();
 };
 
 const TurbineSearch: React.FC<Props> = ({onSelectTurbine}) => {

@@ -110,6 +110,19 @@ export const $HTTPValidationError = {
 	},
 } as const;
 
+export const $SimpleValveInfo = {
+	properties: {
+		id: {
+	type: 'number',
+	isRequired: true,
+},
+		name: {
+	type: 'string',
+	isRequired: true,
+},
+	},
+} as const;
+
 export const $TurbineInfo = {
 	properties: {
 		id: {
@@ -135,6 +148,26 @@ export const $TurbineValves = {
 		type: 'ValveInfo_Output',
 	},
 	isRequired: true,
+},
+	},
+} as const;
+
+export const $TurbineWithValvesInfo = {
+	properties: {
+		id: {
+	type: 'number',
+	isRequired: true,
+},
+		name: {
+	type: 'string',
+	isRequired: true,
+},
+		valves: {
+	type: 'array',
+	contains: {
+		type: 'SimpleValveInfo',
+	},
+	default: [],
 },
 	},
 } as const;
