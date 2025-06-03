@@ -135,3 +135,20 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
         logger.error(f"Ошибка базы данных при получении результатов по клапану: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось получить результаты: {e}")
+
+
+def get_calculation_result_by_id(db: Session, result_id: int) -> Optional[CalculationResultDB]:
+    """
+    Получает один результат расчета по его ID.
+    """
+    try:
+        result = db.query(CalculationResultDB).filter(CalculationResultDB.id == result_id).first()
+        if result:
+            if isinstance(result.input_data, str):
+                result.input_data = json.loads(result.input_data)
+            if isinstance(result.output_data, str):
+                result.output_data = json.loads(result.output_data)
+        return result
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении результата расчета по ID {result_id}: {str(e)}")
+        return None

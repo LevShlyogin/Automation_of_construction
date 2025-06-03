@@ -35,22 +35,100 @@ export const Route = createFileRoute('/calculator')({
     component: CalculatorPage,
     validateSearch: (search: Record<string, unknown>) => {
         return {
-            loadFromHistory: search.loadFromHistory as string | undefined,
+            loadFromResultId: search.loadFromResultId ? String(search.loadFromResultId) : undefined,
         };
     },
 });
+
+function getApiErrorDetail(error: any): string | undefined {
+    if (error instanceof ApiError && error.body && typeof error.body === 'object') {
+        // Проверяем, является ли body объектом и имеет ли он свойство detail типа string
+        if ('detail' in error.body && typeof (error.body as any).detail === 'string') {
+            return (error.body as any).detail;
+        }
+    }
+    return undefined;
+}
 
 function CalculatorPage() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const toast = useToast();
 
-    const {loadFromHistory} = useSearch({from: Route.fullPath});
+    const {loadFromResultId} = useSearch({from: Route.fullPath});
 
     const [currentStep, setCurrentStep] = useState<CalculatorStep>('turbineSearch');
     const [selectedTurbine, setSelectedTurbine] = useState<TurbineInfo | null>(null);
     const [selectedStock, setSelectedStock] = useState<ValveInfo | null>(null);
-    const [calculationData, setCalculationData] = useState<CalculationDataType | null>(null);
+    const [calculationData, setCalculationData] = useState<ClientCalculationResult | null>(null);
+
+    const {
+        data: loadedResultFromHistory,
+        isLoading: isLoadingResultFromHistory,
+        isError: isErrorResultFromHistory,
+        error: errorResultFromHistory,
+    } = useQuery<ClientCalculationResult, ApiError, ClientCalculationResult, [string, string | undefined]>({
+        queryKey: ['calculationResultById', loadFromResultId],
+        queryFn: async () => {
+            if (!loadFromResultId) throw new Error("ID результата не предоставлен");
+            const resultId = parseInt(loadFromResultId, 10);
+            if (isNaN(resultId)) throw new Error("Неверный ID результата");
+
+            const result = await ResultsService.resultsReadCalculationResult({resultId});
+            return {
+                ...result,
+                input_data: result.input_data,
+                output_data: result.output_data,
+            };
+        },
+        enabled: !!loadFromResultId,
+        retry: false,
+    });
+
+    useEffect(() => {
+        const historyIdToLoad = loadFromResultId;
+
+        if (historyIdToLoad && !isLoadingResultFromHistory && !isErrorResultFromHistory) { // Добавили проверки на загрузку/ошибку
+            if (loadedResultFromHistory) {
+                setCalculationData(loadedResultFromHistory);
+                const inputParams = loadedResultFromHistory.input_data as Partial<CalculationParams>;
+                if (inputParams?.turbine_name) {
+                    setSelectedTurbine({name: inputParams.turbine_name, id: 0} as TurbineInfo); // ЗАГЛУШКА ID и типа
+                }
+                if (inputParams?.valve_drawing && inputParams?.valve_id !== undefined) {
+                    setSelectedStock({name: inputParams.valve_drawing, id: inputParams.valve_id} as ValveInfo); // ЗАГЛУШКА для остальных полей
+                }
+
+                setCurrentStep('results');
+                toast({
+                    title: `Расчет "${loadedResultFromHistory.stock_name}" загружен из истории`,
+                    status: "success",
+                    duration: 3000
+                });
+            } else if (!isLoadingResultFromHistory) {
+                toast({title: "Не удалось загрузить расчет из истории.", status: "warning"});
+            }
+            navigate({search: (prev: any) => ({...prev, loadFromResultId: undefined}), replace: true}).then();
+        } else if (historyIdToLoad && isErrorResultFromHistory && !isLoadingResultFromHistory) {
+            toast({
+                title: "Ошибка загрузки расчета из истории",
+                description: getApiErrorDetail(errorResultFromHistory)
+                    || (errorResultFromHistory as Error)?.message || "Не удалось получить данные.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+            navigate({search: (prev: any) => ({...prev, loadFromResultId: undefined}), replace: true}).then();
+        }
+    }, [
+        loadFromResultId,
+        loadedResultFromHistory,
+        isLoadingResultFromHistory,
+        isErrorResultFromHistory,
+        errorResultFromHistory,
+        navigate,
+        toast
+    ]);
 
     const {
         data: latestPreviousResult,
@@ -64,55 +142,16 @@ function CalculatorPage() {
             const results = await ResultsService.resultsGetCalculationResults({valveName: selectedStock.name});
             return results.map(r => ({
                 ...r,
-                input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
-                output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
+                input_data: r.input_data,
+                output_data: r.output_data,
             }));
         },
-        enabled: !!selectedStock?.name,
+        enabled: !!selectedStock?.name && !loadFromResultId,
         select: (data) => (data && data.length > 0 ? data[0] : null),
     });
 
     useEffect(() => {
-        const historyIdToLoad = loadFromHistory; // Теперь типизированный
-
-        if (historyIdToLoad) {
-            // console.log("Загрузка расчета из истории, ID:", historyIdToLoad);
-            const storedHistory = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
-            if (storedHistory) {
-                try {
-                    const allHistory: HistoryEntry[] = JSON.parse(storedHistory);
-                    const entryToLoad = allHistory.find(entry => entry.id === historyIdToLoad);
-
-                    if (entryToLoad) {
-                        toast({
-                            title: `Загрузка из истории: ${entryToLoad.stockName}`,
-                            description: `Турбина: ${entryToLoad.turbineName}. Требуется доработка логики загрузки.`,
-                            status: "info",
-                            duration: 7000,
-                            isClosable: true,
-                        });
-                        navigate({
-                            search: (prev: any) => ({...prev, loadFromHistory: undefined}),
-                            replace: true
-                        }).then();
-                    } else {
-                        toast({title: "Запись из истории не найдена", status: "warning", duration: 3000});
-                        navigate({
-                            search: (prev: any) => ({...prev, loadFromHistory: undefined}),
-                            replace: true
-                        }).then();
-                    }
-                } catch (e) {
-                    console.error("Ошибка при загрузке из истории:", e);
-                    toast({title: "Ошибка при загрузке из истории", status: "error", duration: 3000});
-                    navigate({search: (prev: any) => ({...prev, loadFromHistory: undefined}), replace: true}).then();
-                }
-            }
-        }
-    }, [loadFromHistory, navigate, toast]);
-
-    useEffect(() => {
-        if (!selectedStock || loadFromHistory) return;
+        if (!selectedStock || loadFromResultId) return;
 
         if (isLoadingPreviousResults) return;
 
@@ -120,7 +159,7 @@ function CalculatorPage() {
             let errorMessage = "Не удалось получить данные.";
             if (errorPreviousResults) {
                 if (errorPreviousResults.body && typeof errorPreviousResults.body === 'object') {
-                    const detail = (errorPreviousResults.body as any).detail;
+                    const detail = getApiErrorDetail(errorPreviousResults);
                     if (typeof detail === 'string') {
                         errorMessage = detail;
                     } else if ((errorPreviousResults as Error).message) {
@@ -149,7 +188,9 @@ function CalculatorPage() {
             setCalculationData(null);
             setCurrentStep('stockInput');
         }
-    }, [latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults, errorPreviousResults, selectedStock, toast, loadFromHistory]); // Добавили loadFromHistory
+    }, [latestPreviousResult, isLoadingPreviousResults, isErrorPreviousResults,
+        errorPreviousResults, selectedStock, toast, loadFromResultId]);
+
 
     const calculationMutation = useMutation<ClientCalculationResult, ApiError, CalculationParams>({
         mutationFn: (params: CalculationParams) => {
@@ -158,8 +199,8 @@ function CalculatorPage() {
         onSuccess: (data) => {
             const parsedData = {
                 ...data,
-                input_data: typeof data.input_data === 'string' ? JSON.parse(data.input_data) : data.input_data,
-                output_data: typeof data.output_data === 'string' ? JSON.parse(data.output_data) : data.output_data,
+                input_data: data.input_data,
+                output_data: data.output_data,
             };
             setCalculationData(parsedData);
             setCurrentStep('results');
@@ -170,9 +211,10 @@ function CalculatorPage() {
                 isClosable: true,
             });
 
-            if (selectedStock && selectedTurbine) {
+            if (selectedStock && selectedTurbine && data.id) {
+
                 const newHistoryEntry: HistoryEntry = {
-                    id: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+                    id: String(data.id),
                     stockName: selectedStock.name,
                     turbineName: selectedTurbine.name,
                     timestamp: Date.now(),
@@ -198,20 +240,10 @@ function CalculatorPage() {
             }
         },
         onError: (error: ApiError) => {
-            let errorMessage = "Произошла неизвестная ошибка.";
-            if (error.body && typeof error.body === 'object') {
-                const detail = (error.body as any).detail;
-                if (typeof detail === 'string') {
-                    errorMessage = detail;
-                } else if (error.message) {
-                    errorMessage = error.message;
-                }
-            } else if (error.message) {
-                errorMessage = error.message;
-            }
+            const detail = getApiErrorDetail(error);
             toast({
                 title: "Ошибка при выполнении расчета",
-                description: errorMessage,
+                description: detail || error.message || "Произошла неизвестная ошибка.",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -283,7 +315,7 @@ function CalculatorPage() {
             );
         }
 
-        if (currentStep !== 'turbineSearch' && isLoadingPreviousResults && selectedStock && !latestPreviousResult && !isErrorPreviousResults && !loadFromHistory) {
+        if (currentStep !== 'turbineSearch' && isLoadingPreviousResults && selectedStock && !latestPreviousResult && !isErrorPreviousResults && !loadFromResultId) {
             return (
                 <VStack spacing={4} align="center" justify="center" minH="300px">
                     <Spinner size="xl" color="teal.500"/>

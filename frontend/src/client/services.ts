@@ -51,6 +51,10 @@ export type ResultsData = {
                     valveName: string
                     
                 };
+ResultsReadCalculationResult: {
+                    resultId: number
+                    
+                };
 ResultsDeleteCalculationResult: {
                     resultId: number
                     
@@ -288,6 +292,28 @@ valveName,
 			url: '/api/v1/valves/{valve_name}/results/',
 			path: {
 				valve_name: valveName
+			},
+			errors: {
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * Получить результат расчета по ID
+	 * Получить конкретный результат расчёта по его ID.
+	 * @returns CalculationResultDB Successful Response
+	 * @throws ApiError
+	 */
+	public static resultsReadCalculationResult(data: ResultsData['ResultsReadCalculationResult']): CancelablePromise<CalculationResultDB> {
+		const {
+resultId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/results/{result_id}',
+			path: {
+				result_id: resultId
 			},
 			errors: {
 				422: `Validation Error`,

@@ -87,7 +87,10 @@ const Sidebar: React.FC<SidebarProps> = ({isOpen, onClose}) => {
     const handleHistoryEntryClick = (entry: HistoryEntry) => {
         navigate({
             to: '/calculator',
-            search: {loadFromHistory: entry.id}
+            search: (prev: any) => ({
+                ...prev,
+                loadFromHistory: entry.id
+            }),
         }).then();
         onClose();
     };

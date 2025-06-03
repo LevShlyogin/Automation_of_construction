@@ -20,7 +20,7 @@ from backend.app.schemas import (
 from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
-    get_valves_by_turbine
+    get_valves_by_turbine, get_calculation_result_by_id
 
 logging.basicConfig(
     level=logging.INFO,
@@ -334,7 +334,22 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
         )
 
 
-@api_router.delete("/results/{result_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить результат расчёта",
+@api_router.get("/results/{result_id}",
+                response_model=CalculationResultDBSchema,
+                summary="Получить результат расчета по ID", tags=["results"])
+async def read_calculation_result(result_id: int, db: Session = Depends(get_db)):
+    """
+    Получить конкретный результат расчёта по его ID.
+    """
+    db_result = get_calculation_result_by_id(db, result_id=result_id)
+    if db_result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Результат расчёта не найден")
+    return db_result
+
+
+@api_router.delete("/results/{result_id}",
+                   status_code=status.HTTP_204_NO_CONTENT,
+                   summary="Удалить результат расчёта",
                    tags=["results"])
 async def delete_calculation_result(result_id: int, db: Session = Depends(get_db)):
     """
