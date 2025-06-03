@@ -1,7 +1,7 @@
-import {useState, useCallback, useEffect} from 'react';
-import {createFileRoute, useSearch, useNavigate} from '@tanstack/react-router';
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
-import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
+import {useCallback, useEffect, useState} from 'react';
+import {createFileRoute, useNavigate, useSearch} from '@tanstack/react-router';
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
+import {Box, Spinner, Text, useToast, VStack} from '@chakra-ui/react';
 
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
@@ -11,13 +11,13 @@ import ResultsPage from '../components/Calculator/ResultsPage';
 import {type HistoryEntry} from '../components/Common/Sidebar';
 
 import {
-    ResultsService,
-    CalculationsService,
     ApiError,
+    type CalculationParams,
+    type CalculationResultDB as ClientCalculationResult,
+    CalculationsService,
+    ResultsService,
     type TurbineInfo,
     type ValveInfo_Output as ValveInfo,
-    type CalculationResultDB as ClientCalculationResult,
-    type CalculationParams,
 } from '../client';
 
 type CalculatorStep =
@@ -86,40 +86,47 @@ function CalculatorPage() {
     });
 
     useEffect(() => {
-        const historyIdToLoad = loadFromResultId;
+        if (!loadFromResultId) return;
 
-        if (historyIdToLoad && !isLoadingResultFromHistory && !isErrorResultFromHistory) { // Добавили проверки на загрузку/ошибку
-            if (loadedResultFromHistory) {
-                setCalculationData(loadedResultFromHistory);
-                const inputParams = loadedResultFromHistory.input_data as Partial<CalculationParams>;
-                if (inputParams?.turbine_name) {
-                    setSelectedTurbine({name: inputParams.turbine_name, id: 0} as TurbineInfo); // ЗАГЛУШКА ID и типа
-                }
-                if (inputParams?.valve_drawing && inputParams?.valve_id !== undefined) {
-                    setSelectedStock({name: inputParams.valve_drawing, id: inputParams.valve_id} as ValveInfo); // ЗАГЛУШКА для остальных полей
-                }
+        if (isLoadingResultFromHistory) return;
 
-                setCurrentStep('results');
-                toast({
-                    title: `Расчет "${loadedResultFromHistory.stock_name}" загружен из истории`,
-                    status: "success",
-                    duration: 3000
-                });
-            } else if (!isLoadingResultFromHistory) {
-                toast({title: "Не удалось загрузить расчет из истории.", status: "warning"});
-            }
-            navigate({search: (prev: any) => ({...prev, loadFromResultId: undefined}), replace: true}).then();
-        } else if (historyIdToLoad && isErrorResultFromHistory && !isLoadingResultFromHistory) {
+        navigate({search: (prev: any) => ({...prev, loadFromResultId: undefined}), replace: true}).then();
+
+         if (isErrorResultFromHistory) {
             toast({
                 title: "Ошибка загрузки расчета из истории",
-                description: getApiErrorDetail(errorResultFromHistory)
-                    || (errorResultFromHistory as Error)?.message || "Не удалось получить данные.",
+                description: getApiErrorDetail(errorResultFromHistory) || (errorResultFromHistory as Error)?.message || "Не удалось получить данные.",
                 status: "error",
                 duration: 5000,
                 isClosable: true,
             });
-            navigate({search: (prev: any) => ({...prev, loadFromResultId: undefined}), replace: true}).then();
+            setCurrentStep('turbineSearch');
+            return;
         }
+
+        if (loadedResultFromHistory) {
+            setCalculationData(loadedResultFromHistory);
+
+            const inputParams = loadedResultFromHistory.input_data as Partial<CalculationParams>;
+            if (inputParams?.turbine_name) {
+                setSelectedTurbine({ name: inputParams.turbine_name || 0 } as TurbineInfo);
+            } else {
+                setSelectedTurbine(null);
+            }
+
+            if (inputParams?.valve_drawing && inputParams?.valve_id !== undefined) {
+                setSelectedStock({ name: inputParams.valve_drawing, id: inputParams.valve_id } as ValveInfo);
+            } else {
+                setSelectedStock(null);
+            }
+
+            setCurrentStep('results');
+            toast({ title: `Расчет "${loadedResultFromHistory.stock_name}" загружен из истории`, status: "success", duration: 3000 });
+        } else {
+            toast({ title: "Не удалось найти данные для расчета из истории.", status: "warning" });
+            setCurrentStep('turbineSearch');
+        }
+
     }, [
         loadFromResultId,
         loadedResultFromHistory,
