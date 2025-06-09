@@ -152,3 +152,27 @@ def get_calculation_result_by_id(db: Session, result_id: int) -> Optional[Calcul
     except Exception as e:
         logger.error(f"Ошибка базы данных при получении результата расчета по ID {result_id}: {str(e)}")
         return None
+
+
+def get_turbine_by_id(db: Session, turbine_id: int) -> Optional[models.Turbine]:
+    """
+    Получает одну турбину по ее ID.
+    """
+    try:
+        turbine = db.query(models.Turbine).filter(models.Turbine.id == turbine_id).first()
+        return turbine
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении турбины по ID {turbine_id}: {str(e)}")
+        return None
+
+
+def get_valve_by_id(db: Session, valve_id: int) -> Optional[models.Valve]:
+    """
+    Получает один клапан (шток) по его ID.
+    """
+    try:
+        valve = db.query(models.Valve).filter(models.Valve.id == valve_id).first()
+        return valve
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении клапана по ID {valve_id}: {str(e)}")
+        return None

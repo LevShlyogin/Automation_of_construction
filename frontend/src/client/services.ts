@@ -13,6 +13,10 @@ TurbinesCreateTurbine: {
                     requestBody: TurbineInfo
                     
                 };
+TurbinesReadTurbineById: {
+                    turbineId: number
+                    
+                };
 TurbinesDeleteTurbine: {
                     turbineId: number
                     
@@ -27,6 +31,10 @@ export type ValvesData = {
 ValvesUpdateValve: {
                     requestBody: ValveInfo_Input
 valveId: number
+                    
+                };
+ValvesReadValveById: {
+                    valveId: number
                     
                 };
 ValvesDeleteValve: {
@@ -120,6 +128,28 @@ requestBody,
 	}
 
 	/**
+	 * Получить турбину по ID
+	 * Получить информацию о конкретной турбине по её ID.
+	 * @returns TurbineInfo Successful Response
+	 * @throws ApiError
+	 */
+	public static turbinesReadTurbineById(data: TurbinesData['TurbinesReadTurbineById']): CancelablePromise<TurbineInfo> {
+		const {
+turbineId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/turbines/{turbine_id}',
+			path: {
+				turbine_id: turbineId
+			},
+			errors: {
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
 	 * Удалить турбину
 	 * Удалить турбину по ID.
 	 * @returns void Successful Response
@@ -198,6 +228,28 @@ requestBody,
 			},
 			body: requestBody,
 			mediaType: 'application/json',
+			errors: {
+				422: `Validation Error`,
+			},
+		});
+	}
+
+	/**
+	 * Получить клапан по ID
+	 * Получить информацию о конкретном клапане (штоке) по его ID.
+	 * @returns ValveInfo_Output Successful Response
+	 * @throws ApiError
+	 */
+	public static valvesReadValveById(data: ValvesData['ValvesReadValveById']): CancelablePromise<ValveInfo_Output> {
+		const {
+valveId,
+} = data;
+		return __request(OpenAPI, {
+			method: 'GET',
+			url: '/api/v1/valves/{valve_id}',
+			path: {
+				valve_id: valveId
+			},
 			errors: {
 				422: `Validation Error`,
 			},

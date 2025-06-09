@@ -15,12 +15,12 @@ from backend.app.schemas import (
     ValveCreate,
     TurbineValves,
     CalculationParams,
-    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo,
+    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo, ValveInfo_Output,
 )
 from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
-    get_valves_by_turbine, get_calculation_result_by_id
+    get_valves_by_turbine, get_calculation_result_by_id, get_turbine_by_id, get_valve_by_id
 
 logging.basicConfig(
     level=logging.INFO,
@@ -102,6 +102,18 @@ async def create_turbine(turbine: TurbineInfo, db: Session = Depends(get_db)):
         logger.error(f"Ошибка при создании турбины: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось создать турбину: {e}")
+
+
+@api_router.get("/turbines/{turbine_id}", response_model=TurbineInfo, summary="Получить турбину по ID",
+                tags=["turbines"])
+async def read_turbine_by_id(turbine_id: int, db: Session = Depends(get_db)):
+    """
+    Получить информацию о конкретной турбине по её ID.
+    """
+    db_turbine = get_turbine_by_id(db, turbine_id=turbine_id)
+    if db_turbine is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Турбина не найдена")
+    return db_turbine
 
 
 @api_router.delete("/turbines/{turbine_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить турбину",
@@ -205,6 +217,17 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
         logger.error(f"Ошибка при обновлении клапана {valve_id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось обновить клапан: {e}")
+
+
+@api_router.get("/valves/{valve_id}", response_model=ValveInfo_Output, summary="Получить клапан по ID", tags=["valves"]) # Используем ValveInfo_Output
+async def read_valve_by_id(valve_id: int, db: Session = Depends(get_db)):
+    """
+    Получить информацию о конкретном клапане (штоке) по его ID.
+    """
+    db_valve = get_valve_by_id(db, valve_id=valve_id)
+    if db_valve is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Клапан (шток) не найден")
+    return db_valve
 
 
 @api_router.delete("/valves/{valve_id}", response_model=dict, summary="Удалить клапан", tags=["valves"])

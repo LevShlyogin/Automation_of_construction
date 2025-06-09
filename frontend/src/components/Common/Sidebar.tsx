@@ -24,11 +24,13 @@ import React, {useState, useEffect, useCallback} from 'react';
 export interface HistoryEntry {
     id: string;
     stockName: string;
+    stockId: string;
     turbineName: string;
+    turbineId: string;
     timestamp: number;
 }
 
-const LOCAL_STORAGE_HISTORY_KEY = 'wsaCalculatorHistory';
+export const LOCAL_STORAGE_HISTORY_KEY = 'wsaCalculatorHistory';
 
 interface SidebarProps {
     isOpen: boolean;
@@ -89,7 +91,9 @@ const Sidebar: React.FC<SidebarProps> = ({isOpen, onClose}) => {
             to: '/calculator',
             search: (prev: any) => ({
                 ...prev,
-                loadFromHistory: entry.id
+                resultId: entry.id,
+                stockIdToLoad: String(entry.stockId),
+                turbineIdToLoad: String(entry.turbineId)
             }),
         }).then();
         onClose();

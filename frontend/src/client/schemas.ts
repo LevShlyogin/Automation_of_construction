@@ -503,3 +503,117 @@ export const $ValveInfo_Output = {
 },
 	},
 } as const;
+
+export const $ValveInfo_Output = {
+	properties: {
+		id: {
+	type: 'number',
+	isRequired: true,
+},
+		name: {
+	type: 'string',
+	isRequired: true,
+},
+		type: {
+	type: 'any-of',
+	contains: [{
+	type: 'string',
+}, {
+	type: 'null',
+}],
+},
+		diameter: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		clearance: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		count_parts: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		len_part1: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		len_part2: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		len_part3: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		len_part4: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		len_part5: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		round_radius: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		turbine_id: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+		section_lengths: {
+	type: 'array',
+	contains: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
+	isReadOnly: true,
+	isRequired: true,
+},
+	},
+} as const;
