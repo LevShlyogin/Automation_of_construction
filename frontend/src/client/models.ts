@@ -99,25 +99,6 @@ export type ValveInfo_Input = {
 };
 
 
-
-export type ValveInfo_Output = {
-	id: number;
-	name: string;
-	type?: string | null;
-	diameter?: number | null;
-	clearance?: number | null;
-	count_parts?: number | null;
-	len_part1?: number | null;
-	len_part2?: number | null;
-	len_part3?: number | null;
-	len_part4?: number | null;
-	len_part5?: number | null;
-	round_radius?: number | null;
-	readonly section_lengths: Array<number | null>;
-};
-
-
-
 export type ValveInfo_Output = {
 	id: number;
 	name: string;

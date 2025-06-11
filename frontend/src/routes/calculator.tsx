@@ -102,8 +102,10 @@ function CalculatorPage() {
     } = useQuery<TurbineInfo, ApiError, TurbineInfo, [string, string | undefined]>({
         queryKey: ['turbineByIdForHistory', turbineIdToLoad],
         queryFn: async () => {
+            console.log("Загрузка турбины, turbineIdToLoad из useSearch:", turbineIdToLoad);
             if (!turbineIdToLoad) throw new Error("ID турбины не предоставлен");
             const id = parseInt(turbineIdToLoad, 10);
+            console.log("ID турбины после parseInt:", id);
             if (isNaN(id)) throw new Error("Неверный ID турбины");
             return TurbinesService.turbinesReadTurbineById({turbineId: id});
         },
@@ -119,8 +121,10 @@ function CalculatorPage() {
     } = useQuery<ValveInfo, ApiError, ValveInfo, [string, string | undefined]>({
         queryKey: ['stockByIdForHistory', stockIdToLoad],
         queryFn: async () => {
+            console.log("Загрузка штока, turbineIdToLoad из useSearch:", stockIdToLoad);
             if (!stockIdToLoad) throw new Error("ID штока не предоставлен");
             const id = parseInt(stockIdToLoad, 10);
+            console.log("ID штока после parseInt:", id);
             if (isNaN(id)) throw new Error("Неверный ID штока");
             return ValvesService.valvesReadValveById({valveId: id});
         },
