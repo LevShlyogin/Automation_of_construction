@@ -41,6 +41,7 @@ class ValveInfo(BaseModel):
     len_part4: Optional[float] = None
     len_part5: Optional[float] = None
     round_radius: Optional[float] = None
+    turbine_id: Optional[int] = None
 
     @computed_field
     @property
@@ -51,33 +52,6 @@ class ValveInfo(BaseModel):
             self.len_part3,
             self.len_part4,
             self.len_part5
-        ]
-
-    class Config:
-        from_attributes = True
-
-
-class ValveInfo_Output(BaseModel):
-    id: int
-    name: str
-    type: Optional[str] = None
-    diameter: Optional[float] = None
-    clearance: Optional[float] = None
-    count_parts: Optional[int] = None
-    len_part1: Optional[float] = None
-    len_part2: Optional[float] = None
-    len_part3: Optional[float] = None
-    len_part4: Optional[float] = None
-    len_part5: Optional[float] = None
-    round_radius: Optional[float] = None
-    turbine_id: Optional[int] = None
-
-    @computed_field
-    @property
-    def section_lengths(self) -> List[Optional[float]]:
-        return [
-            self.len_part1, self.len_part2, self.len_part3,
-            self.len_part4, self.len_part5
         ]
 
     class Config:

@@ -15,7 +15,7 @@ from backend.app.schemas import (
     ValveCreate,
     TurbineValves,
     CalculationParams,
-    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo, ValveInfo_Output,
+    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo,
 )
 from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
@@ -219,7 +219,7 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
                             detail=f"Не удалось обновить клапан: {e}")
 
 
-@api_router.get("/valves/{valve_id}", response_model=ValveInfo_Output, summary="Получить клапан по ID", tags=["valves"]) # Используем ValveInfo_Output
+@api_router.get("/valves/{valve_id}", response_model=ValveInfo, summary="Получить клапан по ID", tags=["valves"]) # Используем ValveInfo_Output
 async def read_valve_by_id(valve_id: int, db: Session = Depends(get_db)):
     """
     Получить информацию о конкретном клапане (штоке) по его ID.
