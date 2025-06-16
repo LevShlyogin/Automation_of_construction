@@ -24,9 +24,9 @@ import React, {useState, useEffect, useCallback} from 'react';
 export interface HistoryEntry {
     id: string;
     stockName: string;
-    stockId: string;
+    stockId: number;
     turbineName: string;
-    turbineId: string;
+    turbineId: number;
     timestamp: number;
 }
 
