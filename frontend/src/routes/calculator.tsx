@@ -202,20 +202,37 @@ function CalculatorPage() {
         isLoading: isLoadingLatestPrevious,
         isError: isErrorLatestPrevious,
         error: errorLatestPrevious,
-    } = useQuery<ClientCalculationResult[], ApiError, ClientCalculationResult | null, [string, string | null | undefined]>({
-        queryKey: ['valveResults', selectedStock?.name],
+    } = useQuery<ClientCalculationResult[], ApiError, ClientCalculationResult | null, [string, number | null | undefined]>({
+        queryKey: ['valveResults', selectedStock?.id],
         queryFn: async () => {
-            if (!selectedStock?.name) return [];
-            const encodedStockName = encodeURIComponent(selectedStock.name);
-            const results = await ResultsService.resultsGetCalculationResults({valveName: encodedStockName});
-            return results.map(r => ({
-                ...r,
-                input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
-                output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
-            }));
+            if (!selectedStock?.id || !selectedStock?.name) return [];
+
+            // Очищаем и кодируем название
+            const cleanedName = selectedStock.name.trim();
+            const encodedStockName = encodeURIComponent(cleanedName);
+
+            try {
+                console.log('Fetching results for stock:', cleanedName, 'encoded:', encodedStockName);
+                const results = await ResultsService.resultsGetCalculationResults({valveName: encodedStockName});
+
+                return results.map(r => ({
+                    ...r,
+                    input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
+                    output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
+                }));
+            } catch (error) {
+                console.error('Error fetching valve results:', error);
+                throw error;
+            }
         },
-        enabled: !!selectedStock?.name && !searchParams.resultId,
+        enabled: !!selectedStock?.id && !searchParams.resultId,
         select: (data) => (data && data.length > 0 ? data[0] : null),
+        retry: (failureCount, error) => {
+            if (error instanceof ApiError && error.status === 404) {
+                return false;
+            }
+            return failureCount < 1;
+        },
     });
 
     useEffect(() => {
@@ -230,18 +247,31 @@ function CalculatorPage() {
 
         if (currentStep === 'loadingPreviousCalculation' && selectedStock) {
             if (isErrorLatestPrevious) {
-                let errorMessage = "Не удалось получить данные.";
-                if (errorLatestPrevious) {
-                    const detail = getApiErrorDetail(errorLatestPrevious);
-                    errorMessage = detail || (errorLatestPrevious as Error)?.message || errorMessage;
+                // Проверяем, если это 404, то просто нет предыдущих расчетов
+                if (errorLatestPrevious instanceof ApiError && errorLatestPrevious.status === 404) {
+                    console.log('No previous calculations found for stock:', selectedStock.name);
+                    setCalculationData(null);
+                    setCurrentStep('stockInput');
+                } else {
+                    let errorMessage = "Не удалось получить данные.";
+                    if (errorLatestPrevious) {
+                        const detail = getApiErrorDetail(errorLatestPrevious);
+                        errorMessage = detail || (errorLatestPrevious as Error)?.message || errorMessage;
+                    }
+                    toast({
+                        title: "Ошибка загрузки предыдущих расчетов",
+                        description: errorMessage,
+                        status: "error"
+                    });
+                    setCalculationData(null);
+                    setCurrentStep('stockInput');
                 }
-                toast({title: "Ошибка загрузки предыдущих расчетов", description: errorMessage, status: "error"});
-                setCalculationData(null);
-                setCurrentStep('stockInput');
             } else if (latestPreviousResultData) {
+                console.log('Found previous calculation:', latestPreviousResultData);
                 setCalculationData(latestPreviousResultData);
                 setCurrentStep('earlyCalculation');
             } else {
+                console.log('No previous calculations found');
                 setCalculationData(null);
                 setCurrentStep('stockInput');
             }
@@ -250,6 +280,27 @@ function CalculatorPage() {
         latestPreviousResultData, isLoadingLatestPrevious, isErrorLatestPrevious, errorLatestPrevious,
         selectedStock, toast, searchParams.resultId, calculationData, currentStep
     ]);
+
+    const handleStockSelect = useCallback((stock: ValveInfo) => {
+        console.log('Stock selected:', stock);
+
+        navigate({
+            search: (p: any) => ({
+                ...p,
+                resultId: undefined,
+                stockIdToLoad: undefined,
+                turbineIdToLoad: undefined
+            }), replace: true
+        });
+
+        setSelectedStock(stock);
+        setCalculationData(null);
+
+        // Инвалидируем кеш для нового штока
+        queryClient.invalidateQueries({queryKey: ['valveResults', stock.id]});
+
+        setCurrentStep('loadingPreviousCalculation');
+    }, [navigate, queryClient]);
 
     const calculationMutation = useMutation<ClientCalculationResult, ApiError, CalculationParams>({
         mutationFn: (params: CalculationParams) => CalculationsService.calculationsCalculate({requestBody: params}),
@@ -263,11 +314,14 @@ function CalculatorPage() {
             setCurrentStep('results');
             toast({title: "Расчет выполнен успешно!", status: "success"});
 
+            // Сохранение в историю
             if (selectedStock?.id !== undefined && selectedTurbine?.id !== undefined && parsedData.id !== undefined) {
                 const newHistoryEntry: HistoryEntry = {
                     id: String(parsedData.id),
-                    stockName: selectedStock.name, stockId: selectedStock.id,
-                    turbineName: selectedTurbine.name, turbineId: selectedTurbine.id,
+                    stockName: selectedStock.name,
+                    stockId: selectedStock.id,
+                    turbineName: selectedTurbine.name,
+                    turbineId: selectedTurbine.id,
                     timestamp: Date.now(),
                 };
                 const storedHistory = localStorage.getItem(LOCAL_STORAGE_HISTORY_KEY);
@@ -282,14 +336,20 @@ function CalculatorPage() {
                 const updatedHistory = [newHistoryEntry, ...currentHistory].slice(0, 20);
                 localStorage.setItem(LOCAL_STORAGE_HISTORY_KEY, JSON.stringify(updatedHistory));
                 window.dispatchEvent(new Event('wsaHistoryUpdated'));
-            } else {
-                console.warn("Не удалось сохранить в историю: ID штока/турбины или результата не определены.");
             }
-            if (selectedStock?.name) void queryClient.invalidateQueries({queryKey: ['valveResults', selectedStock.name]});
+
+            // Инвалидируем кеш для этого штока
+            if (selectedStock?.id) {
+                void queryClient.invalidateQueries({queryKey: ['valveResults', selectedStock.id]});
+            }
         },
         onError: (error: ApiError) => {
             const detail = getApiErrorDetail(error);
-            toast({title: "Ошибка при выполнении расчета", description: detail || error.message, status: "error"});
+            toast({
+                title: "Ошибка при выполнении расчета",
+                description: detail || error.message,
+                status: "error"
+            });
         },
     });
 
@@ -306,20 +366,6 @@ function CalculatorPage() {
         setSelectedStock(null);
         setCalculationData(null);
         setCurrentStep('stockSelection');
-    }, [navigate]);
-
-    const handleStockSelect = useCallback((stock: ValveInfo) => {
-        navigate({
-            search: (p: any) => ({
-                ...p,
-                resultId: undefined,
-                stockIdToLoad: undefined,
-                turbineIdToLoad: undefined
-            }), replace: true
-        });
-        setSelectedStock(stock);
-        setCalculationData(null);
-        setCurrentStep('loadingPreviousCalculation');
     }, [navigate]);
 
     const handleRecalculateDecision = useCallback((recalculate: boolean) => {
