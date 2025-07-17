@@ -476,7 +476,7 @@ function CalculatorPage() {
                         onGoBack={handleGoBackToStockSelection}
                     />;
                 }
-                if (currentStep !== 'turbineSearch') setCurrentStep('turbineSearch');
+                setCurrentStep('turbineSearch');
                 return null;
             case 'results':
                 if (calculationData) {
@@ -496,7 +496,7 @@ function CalculatorPage() {
                         }}
                     />;
                 }
-                if (currentStep !== 'turbineSearch') setCurrentStep('turbineSearch');
+                setCurrentStep('turbineSearch');
                 return null;
             default:
                 if (currentStep !== 'turbineSearch') setCurrentStep('turbineSearch');
