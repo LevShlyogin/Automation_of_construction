@@ -138,3 +138,4 @@ websockets==15.0.1
 wsaproperties
 seuif97==1.2.0
 psycopg2-binary
+scipy
