@@ -31,9 +31,6 @@ COPY ./alembic.ini /app/alembic.ini
 COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# Копируем файл-шаблон для .vsdx
-COPY ./app/template.vsdx /app/app/template.vsdx
-
 # Открываем порт
 EXPOSE 8000
 
