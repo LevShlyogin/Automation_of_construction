@@ -139,3 +139,4 @@ wsaproperties
 seuif97==1.2.0
 psycopg2-binary
 scipy
+vsdx

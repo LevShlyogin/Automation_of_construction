@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from fastapi import FastAPI, Depends, HTTPException, Response, status, APIRouter
 from fastapi.routing import APIRoute
@@ -7,6 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, selectinload
 from typing import List
 
+from starlette.responses import FileResponse
+
+from app.results_to_vsdx import create_valve_diagram
 from backend.app.core.config import settings
 from backend.app.models import Turbine, Valve, CalculationResultDB
 from backend.app.schemas import (
@@ -219,7 +223,8 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
                             detail=f"Не удалось обновить клапан: {e}")
 
 
-@api_router.get("/valves/{valve_id}", response_model=ValveInfo, summary="Получить клапан по ID", tags=["valves"]) # Используем ValveInfo_Output
+@api_router.get("/valves/{valve_id}", response_model=ValveInfo, summary="Получить клапан по ID",
+                tags=["valves"])  # Используем ValveInfo_Output
 async def read_valve_by_id(valve_id: int, db: Session = Depends(get_db)):
     """
     Получить информацию о конкретном клапане (штоке) по его ID.
@@ -389,6 +394,44 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
         logger.error(f"Ошибка при удалении результата расчёта {result_id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось удалить результат расчёта: {e}")
+
+
+@api_router.get("/results/{result_id}/download-vsdx", summary="Скачать схему VSDX", tags=["results"])
+async def download_vsdx_diagram(result_id: int, db: Session = Depends(get_db)):
+    """
+    Генерирует и возвращает схему клапана в формате .vsdx для указанного результата расчета.
+    """
+    calculation_result_db = get_calculation_result_by_id(db, result_id=result_id)
+    if not calculation_result_db:
+        raise HTTPException(status_code=404, detail="Результат расчета не найден")
+
+    valve_db = get_valve_by_id(db, valve_id=calculation_result_db.valve_id)
+    if not valve_db:
+        raise HTTPException(status_code=404, detail="Связанный с расчетом клапан не найден")
+
+    valve_info = ValveInfo.model_validate(valve_db)
+
+    try:
+        calculation_result_dict = calculation_result_db.output_data
+        if isinstance(calculation_result_dict, str):
+            calculation_result_dict = json.loads(calculation_result_dict)
+
+        generated_filename = create_valve_diagram(
+            calculation_result=calculation_result_dict,
+            valve_info=valve_info
+        )
+
+        return FileResponse(
+            path=generated_filename,
+            filename=generated_filename,
+            media_type='application/vnd.ms-visio.drawing.main+xml'
+        )
+    except Exception as e:
+        logger.error(f"Ошибка при генерации VSDX файла для расчета {result_id}: {e}")
+        raise HTTPException(status_code=500, detail=f"Не удалось сгенерировать схему: {e}")
+    finally:
+        if 'generated_filename' in locals() and os.path.exists(generated_filename):
+            os.remove(generated_filename)
 
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

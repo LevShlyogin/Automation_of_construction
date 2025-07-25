@@ -1,11 +1,11 @@
-# Используем базовый образ Python 3.12
-FROM python:3.12
+# Используем базовый образ Python 3.13
+FROM python:3.13
 
 # Устанавливаем рабочую директорию
 WORKDIR /app/
 
 # Устанавливаем uv из официального образа
-COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
 # Настраиваем PATH для включения виртуального окружения uv
 # Устанавливаем переменные для оптимизации установки uv
@@ -18,7 +18,8 @@ ENV PYTHONPATH=/app
 COPY ./pyproject.toml ./uv.lock* /app/
 
 # Устанавливаем зависимости с помощью uv sync
-RUN uv venv --python 3.10 /app/.venv && \
+# Указываем версию Python, соответствующую базовому образу (или просто не указываем, uv сам найдет)
+RUN uv venv && \
     uv pip install --upgrade pip && \
     uv sync --no-dev --strict
 
@@ -29,6 +30,9 @@ COPY ./alembic.ini /app/alembic.ini
 # Копируем и делаем исполняемым entrypoint скрипт
 COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
+
+# Копируем файл-шаблон для .vsdx
+COPY ./app/template.vsdx /app/app/template.vsdx
 
 # Открываем порт
 EXPOSE 8000
