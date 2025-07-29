@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, computed_field
 from datetime import datetime
 
+
 class TurbineInfo(BaseModel):
     id: int
     name: str
@@ -12,7 +13,7 @@ class TurbineInfo(BaseModel):
 
 
 class ValveInfo(BaseModel):
-    id: Optional[int] = None  # Сделать опциональным
+    id: Optional[int] = None
     name: Optional[str] = None
     type: Optional[str] = None
     diameter: Optional[float] = None
@@ -56,9 +57,9 @@ class ValveCreate(BaseModel):
 
 
 class CalculationParams(BaseModel):
-    turbine_name: Optional[str] = None  # Сделаем необязательным
-    valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
-    valve_id: Optional[int] = None  # ID клапана (если введено)
+    turbine_name: Optional[str] = None
+    valve_drawing: Optional[str] = None
+    valve_id: Optional[int] = None
     temperature_start: float
     t_air: float
     count_valves: int
@@ -95,8 +96,8 @@ class CalculationResultDB(BaseModel):
     stock_name: str
     turbine_name: str
     calc_timestamp: datetime
-    input_data: dict[str, Any]  # Замените JSON на Dict[str, Any]
+    input_data: dict[str, Any]
     output_data: dict[str, Any]
 
     class Config:
-            from_attributes = True
+        from_attributes = True

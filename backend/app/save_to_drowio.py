@@ -11,6 +11,7 @@ import os
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 # Модель данных для входных параметров
 class ValveInfo(BaseModel):
     id: Optional[int] = None
@@ -36,6 +37,7 @@ class ValveInfo(BaseModel):
             self.len_part4,
             self.len_part5
         ]
+
 
 # Класс для работы с XML-файлами diagrams.net
 class DiagramModifier:
@@ -103,6 +105,7 @@ class DiagramModifier:
         except Exception as e:
             logger.error(f"Ошибка сохранения XML-файла: {e}")
             raise HTTPException(status_code=500, detail=f"Ошибка сохранения XML-файла: {e}")
+
 
 # Класс для сопоставления параметров ValveInfo с элементами XML
 class ParameterMapper:
@@ -179,6 +182,7 @@ class ParameterMapper:
                 updates[config["cell_id"]] = html_value
 
         return updates
+
 
 # Класс для генерации итогового файла
 class DiagramGenerator:
@@ -291,15 +295,18 @@ class DiagramGenerator:
 
         return output_path
 
+
 # Инициализация FastAPI
 app = FastAPI(title="Valve Diagram Generator")
 
 # Путь к директории с шаблонами и директория для выходных файлов
-TEMPLATES_DIR = "C:/Users/lrshlyogin/PycharmProjects/ML_automation_of_construction/backend/app/templates"  # Укажите путь к директории с шаблонами
-OUTPUT_DIR = "C:/Users/lrshlyogin/PycharmProjects/ML_automation_of_construction/backend/app/generated_diagrams"  # Директория для сохранения сгенерированных файлов
+APP_ROOT = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(APP_ROOT, "drawio_templates")  # Папка с шаблонами
+OUTPUT_DIR = os.path.join(APP_ROOT, "generated_diagrams")  # Временная папка
 
 # Инициализация генератора
 generator = DiagramGenerator(TEMPLATES_DIR, OUTPUT_DIR)
+
 
 @app.post("/generate_scheme", response_class=FileResponse)
 async def generate_scheme(valve_info: ValveInfo):
@@ -337,6 +344,7 @@ async def generate_scheme(valve_info: ValveInfo):
         logger.error(f"Ошибка при генерации схемы: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка при генерации схемы: {e}")
 
+
 # Пример использования через curl или HTTP-клиент
 if __name__ == "__main__":
     import uvicorn
@@ -367,4 +375,3 @@ if __name__ == "__main__":
         print("Файл успешно скачан как downloaded_scheme.xml")
     else:
         print(f"Ошибка: {response.status_code}, {response.text}")
-

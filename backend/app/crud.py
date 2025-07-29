@@ -68,6 +68,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.TurbineValves]:
     """
         Получает список клапанов для заданной турбины.
@@ -84,8 +85,8 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
         """
     try:
         # Получаем турбину вместе с клапанами
-        turbine = db.query(models.Turbine)\
-            .filter(models.Turbine.name == turbine_name)\
+        turbine = db.query(models.Turbine) \
+            .filter(models.Turbine.name == turbine_name) \
             .first()
 
         if not turbine:
@@ -120,11 +121,11 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
     except Exception as e:
         logger.error(f"Ошибка базы данных при получении клапанов по турбине: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                        detail=f"Не удалось получить клапаны: {e}")
+                            detail=f"Не удалось получить клапаны: {e}")
 
 
 def create_calculation_result(db: Session, parameters: schemas.CalculationParams, results: schemas.CalculationResult,
-    valve_id: int) -> CalculationResultDB:
+                              valve_id: int) -> CalculationResultDB:
     """
         Создает запись о результате расчета в базе данных.
 

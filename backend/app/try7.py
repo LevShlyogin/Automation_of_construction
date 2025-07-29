@@ -5,6 +5,7 @@ import os
 import datetime
 from pydantic import BaseModel
 
+
 class ValveInfo(BaseModel):
     id: Optional[int] = None
     name: Optional[str] = None
@@ -81,6 +82,7 @@ class DiagramGenerator:
         tree.write(output_file, encoding="utf-8", xml_declaration=True)
 
         return output_file
+
 
 # Пример использования:
 if __name__ == "__main__":
