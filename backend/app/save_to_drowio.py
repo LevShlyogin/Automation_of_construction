@@ -2,7 +2,7 @@ import logging
 import xml.etree.ElementTree as ET
 from typing import Optional, Dict, Any, List
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, computed_field
 import os
@@ -296,19 +296,23 @@ class DiagramGenerator:
         return output_path
 
 
-# Инициализация FastAPI
-app = FastAPI(title="Valve Diagram Generator")
+router = APIRouter()
 
 # Путь к директории с шаблонами и директория для выходных файлов
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = os.path.join(APP_ROOT, "drawio_templates")  # Папка с шаблонами
+TEMPLATES_DIR = os.path.join(APP_ROOT, "templates")  # Папка с шаблонами
 OUTPUT_DIR = os.path.join(APP_ROOT, "generated_diagrams")  # Временная папка
 
-# Инициализация генератора
-generator = DiagramGenerator(TEMPLATES_DIR, OUTPUT_DIR)
+# Инициализируем генератор один раз при старте
+try:
+    diagram_generator = DiagramGenerator(TEMPLATES_DIR, OUTPUT_DIR)
+except Exception as e:
+    logger.error(f"Не удалось инициализировать DiagramGenerator: {e}")
+    diagram_generator = None
 
 
-@app.post("/generate_scheme", response_class=FileResponse)
+@router.post("/generate_scheme", response_class=FileResponse,
+             summary="Сгенерировать схему Draw.io", tags=["diagrams"])
 async def generate_scheme(valve_info: ValveInfo):
     """
     Эндпоинт для генерации XML-схемы с обновлёнными параметрами.
@@ -322,14 +326,17 @@ async def generate_scheme(valve_info: ValveInfo):
     Raises:
         HTTPException: Если произошла ошибка при генерации файла.
     """
+    if diagram_generator is None:
+        raise HTTPException(status_code=500, detail="Генератор диаграмм не инициализирован")
+
     try:
         # Генерируем XML-файл с обновлёнными параметрами
-        output_path = generator.generate_diagram(valve_info)
+        output_path = diagram_generator.generate_diagram(valve_info)
 
         # Проверяем, что файл был создан
         if not os.path.exists(output_path):
             logger.error(f"Файл {output_path} не был создан")
-            raise HTTPException(status_code=500, detail="Ошибка генерации XML-файла")
+            raise HTTPException(status_code=500, detail="Ошибка: сгенерированный файл не найден")
 
         # Возвращаем файл для скачивания
         return FileResponse(
@@ -343,35 +350,3 @@ async def generate_scheme(valve_info: ValveInfo):
     except Exception as e:
         logger.error(f"Ошибка при генерации схемы: {e}")
         raise HTTPException(status_code=500, detail=f"Ошибка при генерации схемы: {e}")
-
-
-# Пример использования через curl или HTTP-клиент
-if __name__ == "__main__":
-    import uvicorn
-    import requests
-    import json
-
-    # Запуск сервера (для тестирования)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-
-    # Пример запроса через Python requests
-    url = "http://localhost:8000/generate_scheme"
-    payload = {
-        "count_parts": 3,
-        "clearance": 0.45,
-        "diameter": 60.0,
-        "len_part1": 200.0,
-        "len_part2": 120.0,
-        "len_part3": 150.0,
-        "round_radius": 5.0
-    }
-    headers = {"Content-Type": "application/json"}
-
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
-
-    if response.status_code == 200:
-        with open("downloaded_scheme.xml", "wb") as f:
-            f.write(response.content)
-        print("Файл успешно скачан как downloaded_scheme.xml")
-    else:
-        print(f"Ошибка: {response.status_code}, {response.text}")
