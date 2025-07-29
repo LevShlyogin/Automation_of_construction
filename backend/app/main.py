@@ -22,6 +22,7 @@ from backend.app.dependencies import get_db  # Зависимость для п�
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
     get_valves_by_turbine  # CRUD функции
+from backend.app.save_to_drowio import router as drawio_router
 
 # Настройка логирования
 logging.basicConfig(
@@ -366,3 +367,4 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
 
 # Подключаем маршруты к приложению
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(drawio_router, prefix=settings.API_V1_STR)
