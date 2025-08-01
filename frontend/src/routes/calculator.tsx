@@ -49,7 +49,7 @@ export const Route = createFileRoute('/calculator')({
     }),
 });
 
-function getApiErrorDetail(error: any): string | undefined {
+export function getApiErrorDetail(error: any): string | undefined {
     if (error instanceof ApiError && error.body && typeof error.body === 'object') {
         if ('detail' in error.body && typeof (error.body as any).detail === 'string') {
             return (error.body as any).detail;
@@ -482,6 +482,8 @@ function CalculatorPage() {
                 if (calculationData) {
                     return <ResultsPage
                         stockId={calculationData.stock_name}
+                        stockInfo={selectedStock}
+                        calculationId={calculationData.id}
                         inputData={calculationData.input_data as CalculationParams}
                         outputData={calculationData.output_data as ExpectedOutputData}
                         onGoBack={() => {

@@ -1,4 +1,3 @@
-// frontend/src/components/Calculator/ResultsPage.tsx
 import React, {useState} from 'react';
 import * as XLSX from 'xlsx';
 import {
@@ -22,8 +21,13 @@ import {
     useColorModeValue,
     Flex,
 } from '@chakra-ui/react';
-import {FiChevronLeft} from 'react-icons/fi';
-import {type CalculationParams} from '../../client';
+import {FiChevronLeft, FiDownload} from 'react-icons/fi';
+import {
+    type CalculationParams,
+    type ValveInfo_Output as ValveInfo,
+    DiagramsService,
+} from '../../client';
+import {getApiErrorDetail} from '../../routes/calculator'
 
 export interface ExpectedOutputData {
     Gi?: number[];
@@ -36,6 +40,8 @@ export interface ExpectedOutputData {
 
 type Props = {
     stockId: string;
+    stockInfo?: ValveInfo | null;
+    calculationId?: number;
     inputData?: Partial<CalculationParams>;
     outputData?: Partial<ExpectedOutputData>;
     onGoBack?: () => void;
@@ -49,7 +55,15 @@ const roundNumber = (num: any, decimals: number = 4): string | number => {
     return Number(parsedNum.toFixed(decimals));
 };
 
-const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {}, onGoBack}) => {
+const ResultsPage: React.FC<Props> = ({
+                                          stockId,
+                                          stockInfo,
+                                          calculationId,
+                                          inputData = {},
+                                          outputData = {},
+                                          onGoBack
+                                      }) => {
+    const [isDownloadingDrawio, setIsDownloadingDrawio] = useState(false);
     const [isSavedMessageVisible, setIsSavedMessageVisible] = useState(false);
     const toast = useToast();
     const buttonHoverBg = useColorModeValue("gray.100", "gray.700");
@@ -80,6 +94,45 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
     const hi = Array.isArray(currentOutputData.Hi) ? currentOutputData.Hi : [];
     const deaeratorProps = Array.isArray(currentOutputData.deaerator_props) ? currentOutputData.deaerator_props : [];
     const ejectorProps = Array.isArray(currentOutputData.ejector_props) ? currentOutputData.ejector_props : [];
+
+    const handleDownloadDrawio = async () => {
+        if (!stockInfo) {
+            toast({
+                title: "Ошибка",
+                description: "Полная информация о штоке недоступна для генерации схемы.",
+                status: "error"
+            });
+            return;
+        }
+
+        setIsDownloadingDrawio(true);
+        try {
+            const responseBlob = await DiagramsService.diagramsGenerateScheme({requestBody: stockInfo});
+
+            if (!(responseBlob instanceof Blob)) {
+                throw new Error("Ответ от сервера не является файлом.");
+            }
+
+            const filename = `схема_${stockInfo.name || stockId}.drawio`;
+            const downloadUrl = window.URL.createObjectURL(responseBlob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(downloadUrl);
+
+            toast({title: "Схема Draw.io успешно загружена!", status: "success"});
+
+        } catch (error: any) {
+            console.error("Ошибка при скачивании Draw.io:", error);
+            const detail = getApiErrorDetail(error);
+            toast({title: "Ошибка при скачивании схемы", description: detail || error?.message, status: "error"});
+        } finally {
+            setIsDownloadingDrawio(false);
+        }
+    };
 
     const handleDownloadExcel = () => {
         try {
@@ -306,6 +359,20 @@ const ResultsPage: React.FC<Props> = ({stockId, inputData = {}, outputData = {},
                     _hover={{boxShadow: "lg"}}
                 >
                     Сохранить в Excel
+                </Button>
+                <Button
+                    onClick={handleDownloadDrawio}
+                    colorScheme="blue"
+                    size="lg"
+                    minW="260px"
+                    leftIcon={<Icon as={FiDownload}/>}
+                    isLoading={isDownloadingDrawio}
+                    loadingText="Генерация схемы..."
+                    boxShadow="md"
+                    _hover={{boxShadow: "lg"}}
+                    isDisabled={!stockInfo || !stockInfo.count_parts}
+                >
+                    Скачать схему .vsdx
                 </Button>
                 <Button
                     onClick={handleShowSavedMessage}
