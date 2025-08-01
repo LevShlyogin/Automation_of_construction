@@ -142,3 +142,4 @@ scipy
 requests
 sentry-sdk
 vsdx
+pytest

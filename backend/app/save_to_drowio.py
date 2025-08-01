@@ -1,42 +1,15 @@
 import logging
-import xml.etree.ElementTree as ET
-from typing import Optional, Dict, Any, List
-from datetime import datetime
-from fastapi import FastAPI, HTTPException, APIRouter
-from fastapi.responses import FileResponse
-from pydantic import BaseModel, computed_field
 import os
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from typing import Optional, Dict, Any
+from fastapi import HTTPException, APIRouter
+from fastapi.responses import FileResponse
+from schemas import ValveInfo
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-
-# Модель данных для входных параметров
-class ValveInfo(BaseModel):
-    id: Optional[int] = None
-    name: Optional[str] = None
-    type: Optional[str] = None
-    diameter: Optional[float] = None
-    clearance: Optional[float] = None
-    count_parts: Optional[int] = None
-    len_part1: Optional[float] = None
-    len_part2: Optional[float] = None
-    len_part3: Optional[float] = None
-    len_part4: Optional[float] = None
-    len_part5: Optional[float] = None
-    round_radius: Optional[float] = None
-
-    @computed_field
-    @property
-    def section_lengths(self) -> List[Optional[float]]:
-        return [
-            self.len_part1,
-            self.len_part2,
-            self.len_part3,
-            self.len_part4,
-            self.len_part5
-        ]
 
 
 # Класс для работы с XML-файлами diagrams.net

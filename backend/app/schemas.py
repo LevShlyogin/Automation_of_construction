@@ -3,7 +3,6 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, computed_field
 
 
-
 class TurbineInfo(BaseModel):
     id: int
     name: str

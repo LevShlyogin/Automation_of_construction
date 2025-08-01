@@ -1,11 +1,8 @@
-from typing import Optional, List
 import logging
+from typing import Optional, List
 
-# Импорт необходимых функций из внешних библиотек
-from seuif97 import pt2h, ph, ph2v, ph2t
 from WSAProperties import air_calc, ksi_calc, lambda_calc
-
-import unittest
+from seuif97 import pt2h, ph, ph2v, ph2t
 
 
 class CalculationError(Exception):

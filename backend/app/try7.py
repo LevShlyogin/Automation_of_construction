@@ -1,18 +1,8 @@
 from xml.etree import ElementTree as ET
 from typing import Optional
-# , Dict)
 import os
 import datetime
-from pydantic import BaseModel
-
-
-class ValveInfo(BaseModel):
-    id: Optional[int] = None
-    name: Optional[str] = None
-    diameter: Optional[float] = None
-    clearance: Optional[float] = None
-    len_part1: Optional[float] = None
-    len_part2: Optional[float] = None
+from schemas import ValveInfo
 
 
 class DiagramGenerator:
@@ -86,7 +76,7 @@ class DiagramGenerator:
 
 # Пример использования:
 if __name__ == "__main__":
-    # Создание экземпляра阀Informe
+    # Создание экземпляра Informer
     sample_valve = ValveInfo(
         id=1,
         name="Sample Valve",
