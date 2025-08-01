@@ -4,9 +4,12 @@ from math import sqrt, pi
 from typing import Optional
 import logging
 from backend.app.schemas import CalculationParams, ValveInfo
+
+# Импорт необходимых функций из внешних библиотек
 from seuif97 import pt2h, ph, ph2v, ph2t
 from WSAProperties import air_calc, ksi_calc, lambda_calc
 
+# Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 

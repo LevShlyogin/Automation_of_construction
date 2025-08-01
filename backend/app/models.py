@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from backend.app.database import Base
 
 
+
 class Turbine(Base):
     __tablename__ = 'unique_turbine'
     __table_args__ = {'schema': 'autocalc'}

@@ -35,8 +35,10 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
         if not turbine:
             return None
 
+        # Получаем клапаны
         valves = turbine.valves
 
+        # Создаем список ValveInfo объектов
         valve_info_list = []
         for valve in valves:
             valve_info = schemas.ValveInfo(
@@ -125,6 +127,7 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
             .all()
         )
 
+        # Если данные уже являются словарями, то десериализация не нужна
         for result in results:
             if isinstance(result.input_data, str):
                 result.input_data = json.loads(result.input_data)

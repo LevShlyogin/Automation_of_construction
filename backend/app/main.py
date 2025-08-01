@@ -7,10 +7,6 @@ from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, selectinload
 from typing import List
-
-from starlette.responses import FileResponse
-
-from app.results_to_vsdx import create_valve_diagram
 from backend.app.core.config import settings
 from backend.app.models import Turbine, Valve, CalculationResultDB
 from backend.app.schemas import (
@@ -25,7 +21,9 @@ from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
     get_valves_by_turbine, get_calculation_result_by_id, get_turbine_by_id, get_valve_by_id
+from backend.app.save_to_drowio import router as drawio_router
 
+# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -43,6 +41,7 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
+# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -55,6 +54,7 @@ api_router = APIRouter()
 
 
 # ------ Маршруты для турбин ------
+
 @api_router.get("/turbines/", response_model=List[TurbineWithValvesInfo], summary="Получить все турбины с клапанами",
                 tags=["turbines"])
 async def get_all_turbines_with_valves(db: Session = Depends(get_db)):
@@ -140,6 +140,7 @@ async def delete_turbine(turbine_id: int, db: Session = Depends(get_db)):
 
 
 # ------ Маршруты для клапанов ------
+
 @api_router.get("/valves", response_model=List[ValveInfo], summary="Получить все клапаны", tags=["valves"])
 async def get_valves(db: Session = Depends(get_db)):
     """
@@ -224,7 +225,7 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
 
 
 @api_router.get("/valves/{valve_id}", response_model=ValveInfo, summary="Получить клапан по ID",
-                tags=["valves"])  # Используем ValveInfo_Output
+                tags=["valves"])
 async def read_valve_by_id(valve_id: int, db: Session = Depends(get_db)):
     """
     Получить информацию о конкретном клапане (штоке) по его ID.
@@ -275,6 +276,7 @@ async def get_turbine_by_valve_name(valve_name: str, db: Session = Depends(get_d
 
 
 # ------ Маршруты для вычислений ------
+
 @api_router.post("/calculate", response_model=CalculationResultDBSchema, summary="Выполнить расчет",
                  tags=["calculations"])
 async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
@@ -318,6 +320,7 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
 
 
 # ------ Маршруты для результатов ------
+
 @api_router.get("/valves/{valve_name:path}/results/", response_model=List[CalculationResultDBSchema],
                 summary="Получить результаты расчётов", tags=["results"])
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
@@ -335,6 +338,7 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
             input_data = result.input_data
             output_data = result.output_data
 
+            # Проверяем, если input_data или output_data - строка, конвертируем её в dict
             if isinstance(input_data, str):
                 input_data = json.loads(input_data)
             if isinstance(output_data, str):
@@ -396,42 +400,6 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
                             detail=f"Не удалось удалить результат расчёта: {e}")
 
 
-@api_router.get("/results/{result_id}/download-vsdx", summary="Скачать схему VSDX", tags=["results"])
-async def download_vsdx_diagram(result_id: int, db: Session = Depends(get_db)):
-    """
-    Генерирует и возвращает схему клапана в формате .vsdx для указанного результата расчета.
-    """
-    calculation_result_db = get_calculation_result_by_id(db, result_id=result_id)
-    if not calculation_result_db:
-        raise HTTPException(status_code=404, detail="Результат расчета не найден")
-
-    valve_db = get_valve_by_id(db, valve_id=calculation_result_db.valve_id)
-    if not valve_db:
-        raise HTTPException(status_code=404, detail="Связанный с расчетом клапан не найден")
-
-    valve_info = ValveInfo.model_validate(valve_db)
-
-    try:
-        calculation_result_dict = calculation_result_db.output_data
-        if isinstance(calculation_result_dict, str):
-            calculation_result_dict = json.loads(calculation_result_dict)
-
-        generated_filename = create_valve_diagram(
-            calculation_result=calculation_result_dict,
-            valve_info=valve_info
-        )
-
-        return FileResponse(
-            path=generated_filename,
-            filename=generated_filename,
-            media_type='application/vnd.ms-visio.drawing.main+xml'
-        )
-    except Exception as e:
-        logger.error(f"Ошибка при генерации VSDX файла для расчета {result_id}: {e}")
-        raise HTTPException(status_code=500, detail=f"Не удалось сгенерировать схему: {e}")
-    finally:
-        if 'generated_filename' in locals() and os.path.exists(generated_filename):
-            os.remove(generated_filename)
-
-
+# Подключаем маршруты к приложению
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(drawio_router, prefix=settings.API_V1_STR)

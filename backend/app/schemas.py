@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, computed_field
 
 
+
 class TurbineInfo(BaseModel):
     id: int
     name: str
@@ -29,8 +30,8 @@ class TurbineWithValvesInfo(BaseModel):
 
 
 class ValveInfo(BaseModel):
-    id: int
-    name: str
+    id: Optional[int] = None
+    name: Optional[str] = None
     type: Optional[str] = None
     diameter: Optional[float] = None
     clearance: Optional[float] = None
