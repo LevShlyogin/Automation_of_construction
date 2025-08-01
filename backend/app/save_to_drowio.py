@@ -5,7 +5,7 @@ from datetime import datetime
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, APIRouter
 from fastapi.responses import FileResponse
-from schemas import ValveInfo
+from .schemas import ValveInfo
 
 # Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

@@ -84,8 +84,8 @@ export type ValveCreate = {
 
 
 export type ValveInfo_Input = {
-	id: number;
-	name: string;
+	id?: number | null;
+	name?: string | null;
 	type?: string | null;
 	diameter?: number | null;
 	clearance?: number | null;
@@ -96,12 +96,14 @@ export type ValveInfo_Input = {
 	len_part4?: number | null;
 	len_part5?: number | null;
 	round_radius?: number | null;
+	turbine_id?: number | null;
 };
 
 
+
 export type ValveInfo_Output = {
-	id: number;
-	name: string;
+	id?: number | null;
+	name?: string | null;
 	type?: string | null;
 	diameter?: number | null;
 	clearance?: number | null;

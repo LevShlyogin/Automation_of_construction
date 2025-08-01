@@ -69,6 +69,13 @@ ResultsDeleteCalculationResult: {
                 };
     }
 
+export type DiagramsData = {
+        DiagramsGenerateScheme: {
+                    requestBody: ValveInfo_Input
+                    
+                };
+    }
+
 export class TurbinesService {
 
 	/**
@@ -389,6 +396,40 @@ resultId,
 			path: {
 				result_id: resultId
 			},
+			errors: {
+				422: `Validation Error`,
+			},
+		});
+	}
+
+}
+
+export class DiagramsService {
+
+	/**
+	 * Сгенерировать схему Draw.io
+	 * Эндпоинт для генерации XML-схемы с обновлёнными параметрами.
+ * 
+ * Args:
+ * valve_info (ValveInfo): Объект с параметрами клапана.
+ * 
+ * Returns:
+ * FileResponse: Сгенерированный XML-файл для скачивания.
+ * 
+ * Raises:
+ * HTTPException: Если произошла ошибка при генерации файла.
+	 * @returns any Successful Response
+	 * @throws ApiError
+	 */
+	public static diagramsGenerateScheme(data: DiagramsData['DiagramsGenerateScheme']): CancelablePromise<any> {
+		const {
+requestBody,
+} = data;
+		return __request(OpenAPI, {
+			method: 'POST',
+			url: '/api/v1/generate_scheme',
+			body: requestBody,
+			mediaType: 'application/json',
 			errors: {
 				422: `Validation Error`,
 			},

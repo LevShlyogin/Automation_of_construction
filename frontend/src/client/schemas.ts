@@ -308,12 +308,20 @@ export const $ValveCreate = {
 export const $ValveInfo_Input = {
 	properties: {
 		id: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		name: {
+	type: 'any-of',
+	contains: [{
 	type: 'string',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		type: {
 	type: 'any-of',
@@ -395,17 +403,34 @@ export const $ValveInfo_Input = {
 	type: 'null',
 }],
 },
+		turbine_id: {
+	type: 'any-of',
+	contains: [{
+	type: 'number',
+}, {
+	type: 'null',
+}],
+},
 	},
 } as const;
+
 export const $ValveInfo_Output = {
 	properties: {
 		id: {
+	type: 'any-of',
+	contains: [{
 	type: 'number',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		name: {
+	type: 'any-of',
+	contains: [{
 	type: 'string',
-	isRequired: true,
+}, {
+	type: 'null',
+}],
 },
 		type: {
 	type: 'any-of',
