@@ -135,6 +135,10 @@ watchfiles==1.0.5
     # via uvicorn
 websockets==15.0.1
     # via uvicorn
+seuif97==1.2.0
+WSAProperties
+scipy
+psycopg2
 wsaproperties
 seuif97==1.2.0
 psycopg2-binary
