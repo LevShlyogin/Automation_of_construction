@@ -1,14 +1,14 @@
-import {useState, useCallback, useEffect} from 'react';
-import {createFileRoute, useSearch, useNavigate} from '@tanstack/react-router';
-import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
-import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
+import { useState, useCallback, useEffect } from 'react';
+import { createFileRoute, useSearch, useNavigate } from '@tanstack/react-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Box, Spinner, Text, VStack, useToast } from '@chakra-ui/react';
 
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
 import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
 import StockInputPage from '../components/Calculator/StockInputPage';
 import ResultsPage from '../components/Calculator/ResultsPage';
-import {type HistoryEntry, LOCAL_STORAGE_HISTORY_KEY} from '../components/Common/Sidebar';
+import { type HistoryEntry, LOCAL_STORAGE_HISTORY_KEY } from '../components/Common/Sidebar';
 
 import {
     ResultsService,
@@ -69,18 +69,20 @@ function CalculatorPage() {
     const [selectedStock, setSelectedStock] = useState<ValveInfo | null>(null);
     const [calculationData, setCalculationData] = useState<ClientCalculationResult | null>(null);
 
+    const isLoadingFromHistory = !!searchParams.resultId;
+
     const {
         data: loadedResultDataFromHistory,
         isLoading: isLoadingResultFromHistory,
         isError: isErrorResultFromHistory,
         error: errorResultFromHistory,
-    } = useQuery<ClientCalculationResult, ApiError, ClientCalculationResult, [string, string | undefined]>({
+    } = useQuery({
         queryKey: ['calculationResultById', searchParams.resultId],
         queryFn: async () => {
-            if (!searchParams.resultId) throw new Error("ID результата не предоставлен для запроса");
+            if (!searchParams.resultId) throw new Error("ID результата не предоставлен");
             const id = parseInt(searchParams.resultId, 10);
-            if (isNaN(id)) throw new Error("Неверный ID результата для запроса");
-            const result = await ResultsService.resultsReadCalculationResult({resultId: id});
+            if (isNaN(id)) throw new Error("Неверный ID результата");
+            const result = await ResultsService.resultsReadCalculationResult({ resultId: id });
             return {
                 ...result,
                 input_data: typeof result.input_data === 'string' ? JSON.parse(result.input_data) : result.input_data,
@@ -96,13 +98,13 @@ function CalculatorPage() {
         isLoading: isLoadingTurbineFromHistory,
         isError: isErrorTurbineFromHistory,
         error: errorTurbineFromHistory,
-    } = useQuery<TurbineInfo, ApiError, TurbineInfo, [string, string | undefined]>({
+    } = useQuery({
         queryKey: ['turbineByIdForHistory', searchParams.turbineIdToLoad],
         queryFn: async () => {
             if (!searchParams.turbineIdToLoad) throw new Error("ID турбины не предоставлен");
             const id = parseInt(searchParams.turbineIdToLoad, 10);
             if (isNaN(id)) throw new Error("Неверный ID турбины");
-            return TurbinesService.turbinesReadTurbineById({turbineId: id});
+            return TurbinesService.turbinesReadTurbineById({ turbineId: id });
         },
         enabled: !!searchParams.turbineIdToLoad && !!searchParams.resultId,
         retry: 1,
@@ -113,16 +115,38 @@ function CalculatorPage() {
         isLoading: isLoadingStockFromHistory,
         isError: isErrorStockFromHistory,
         error: errorStockFromHistory,
-    } = useQuery<ValveInfo, ApiError, ValveInfo, [string, string | undefined]>({
+    } = useQuery({
         queryKey: ['stockByIdForHistory', searchParams.stockIdToLoad],
         queryFn: async () => {
             if (!searchParams.stockIdToLoad) throw new Error("ID штока не предоставлен");
             const id = parseInt(searchParams.stockIdToLoad, 10);
             if (isNaN(id)) throw new Error("Неверный ID штока");
-            return ValvesService.valvesReadValveById({valveId: id});
+            return ValvesService.valvesReadValveById({ valveId: id });
         },
         enabled: !!searchParams.stockIdToLoad && !!searchParams.resultId,
         retry: 1,
+    });
+
+    const {
+        data: latestPreviousResultData,
+        isLoading: isLoadingLatestPrevious,
+        isError: isErrorLatestPrevious,
+        error: errorLatestPrevious,
+    } = useQuery({
+        queryKey: ['valveResults', selectedStock?.name],
+        queryFn: async () => {
+            if (!selectedStock?.name) return [];
+            const encodedStockName = encodeURIComponent(selectedStock.name);
+            const results = await ResultsService.resultsGetCalculationResults({ valveName: encodedStockName });
+            return results.map(r => ({
+                ...r,
+                input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
+                output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
+            }));
+        },
+        enabled: !!selectedStock?.name && !isLoadingFromHistory,
+        select: (data) => (data && data.length > 0 ? data[0] : null),
+        retry: (failureCount, error) => (error as ApiError)?.status !== 404 && failureCount < 1,
     });
 
     useEffect(() => {
@@ -196,44 +220,6 @@ function CalculatorPage() {
         loadedStockFromHistory, isLoadingStockFromHistory, isErrorStockFromHistory, errorStockFromHistory,
         navigate, toast, currentStep
     ]);
-
-    const {
-        data: latestPreviousResultData,
-        isLoading: isLoadingLatestPrevious,
-        isError: isErrorLatestPrevious,
-        error: errorLatestPrevious,
-    } = useQuery<ClientCalculationResult[], ApiError, ClientCalculationResult | null, [string, number | null | undefined]>({
-        queryKey: ['valveResults', selectedStock?.id],
-        queryFn: async () => {
-            if (!selectedStock?.id || !selectedStock?.name) return [];
-
-            // Очищаем и кодируем название
-            const cleanedName = selectedStock.name.trim();
-            const encodedStockName = encodeURIComponent(cleanedName);
-
-            try {
-                console.log('Fetching results for stock:', cleanedName, 'encoded:', encodedStockName);
-                const results = await ResultsService.resultsGetCalculationResults({valveName: encodedStockName});
-
-                return results.map(r => ({
-                    ...r,
-                    input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
-                    output_data: typeof r.output_data === 'string' ? JSON.parse(r.output_data) : r.output_data,
-                }));
-            } catch (error) {
-                console.error('Error fetching valve results:', error);
-                throw error;
-            }
-        },
-        enabled: !!selectedStock?.id && !searchParams.resultId,
-        select: (data) => (data && data.length > 0 ? data[0] : null),
-        retry: (failureCount, error) => {
-            if (error instanceof ApiError && error.status === 404) {
-                return false;
-            }
-            return failureCount < 1;
-        },
-    });
 
     useEffect(() => {
         if (!selectedStock || searchParams.resultId || calculationData || currentStep === 'loadingHistoryResult') {

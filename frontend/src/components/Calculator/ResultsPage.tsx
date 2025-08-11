@@ -23,11 +23,10 @@ import {
 } from '@chakra-ui/react';
 import {FiChevronLeft, FiDownload} from 'react-icons/fi';
 import {
+    OpenAPI,
     type CalculationParams,
     type ValveInfo_Output as ValveInfo,
-    DiagramsService,
 } from '../../client';
-import {getApiErrorDetail} from '../../routes/calculator'
 
 export interface ExpectedOutputData {
     Gi?: number[];
@@ -107,14 +106,34 @@ const ResultsPage: React.FC<Props> = ({
 
         setIsDownloadingDrawio(true);
         try {
-            const responseBlob = await DiagramsService.diagramsGenerateScheme({requestBody: stockInfo});
+            const url = `${OpenAPI.BASE}/api/v1/generate_scheme`;
 
-            if (!(responseBlob instanceof Blob)) {
-                throw new Error("Ответ от сервера не является файлом.");
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/vnd.jgraph.mxfile, */*',
+                },
+                body: JSON.stringify(stockInfo),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.detail || `Ошибка сервера: ${response.status} ${response.statusText}`);
             }
 
-            const filename = `схема_${stockInfo.name || stockId}.drawio`;
-            const downloadUrl = window.URL.createObjectURL(responseBlob);
+            const disposition = response.headers.get('content-disposition');
+            let filename = `схема_${stockInfo.name || stockId}.drawio`;
+            if (disposition && disposition.includes('attachment')) {
+                const filenameMatch = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+                if (filenameMatch && filenameMatch[1]) {
+                    filename = filenameMatch[1].replace(/['"]/g, '');
+                }
+            }
+
+            const blob = await response.blob();
+
+            const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = downloadUrl;
             link.setAttribute('download', filename);
@@ -123,12 +142,15 @@ const ResultsPage: React.FC<Props> = ({
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(downloadUrl);
 
-            toast({title: "Схема Draw.io успешно загружена!", status: "success"});
+            toast({ title: "Схема Draw.io успешно загружена!", status: "success" });
 
         } catch (error: any) {
             console.error("Ошибка при скачивании Draw.io:", error);
-            const detail = getApiErrorDetail(error);
-            toast({title: "Ошибка при скачивании схемы", description: detail || error?.message, status: "error"});
+            toast({
+                title: "Ошибка при скачивании схемы",
+                description: error?.message || "Произошла неизвестная ошибка.",
+                status: "error",
+            });
         } finally {
             setIsDownloadingDrawio(false);
         }
