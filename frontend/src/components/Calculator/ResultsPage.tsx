@@ -57,7 +57,6 @@ const roundNumber = (num: any, decimals: number = 4): string | number => {
 const ResultsPage: React.FC<Props> = ({
                                           stockId,
                                           stockInfo,
-                                          calculationId,
                                           inputData = {},
                                           outputData = {},
                                           onGoBack

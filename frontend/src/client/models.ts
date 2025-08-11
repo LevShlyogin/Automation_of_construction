@@ -102,8 +102,8 @@ export type ValveInfo_Input = {
 
 
 export type ValveInfo_Output = {
-	id?: number | null;
-	name?: string | null;
+	id: number;
+	name: string;
 	type?: string | null;
 	diameter?: number | null;
 	clearance?: number | null;
