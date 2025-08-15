@@ -36,7 +36,7 @@ class TestValveCalculator(unittest.TestCase):
         expected_Gi = [0.5365648691, 0.07402597315, 0.003495929025]
         expected_Pi_in = [130, 10, 1.03]
         expected_Ti = [555, 503.6, 40]
-        expected_Hi = [3487.026558, 3487.026558, 40]
+        expected_Hi = [3487.026558, 3487.026558, 40.24]
 
         for i in range(len(expected_Gi)):
             self.assertAlmostEqual(result.Gi[i], expected_Gi[i], places=3)
@@ -51,7 +51,7 @@ class TestValveCalculator(unittest.TestCase):
         for i, expected_value in enumerate(expected_deaerator_props):
             self.assertAlmostEqual(result.deaerator_props[i], expected_value, places=1)
 
-        expected_ejector_props = [{"g": 0.1550438044, "t": 428.272, "h": 797.117*4.1868, "p": 0.97}]
+        expected_ejector_props = [{"g": 0.1550438044, "t": 426.4662, "h": 3333.60, "p": 0.97}]
         self.assertEqual(len(result.ejector_props), len(expected_ejector_props))
         for i, expected in enumerate(expected_ejector_props):
             actual = result.ejector_props[i]

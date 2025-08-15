@@ -559,9 +559,6 @@ class ValveCalculator:
             g_list[0] = (self.g_parts[2] + self.g_parts[1]) * self.count_valves
             h_list[0] = (self.h_parts[2] * 4.1868 * self.g_parts[2] + self.h_parts[1] * self.g_parts[1]) / den
             p_list[0] = self.p_suctions[0]
-            print(self.g_parts[2], self.g_parts[1], self.g_parts[0])
-            print((self.h_parts[2], self.g_parts[2], self.h_parts[1] / 4.1868, self.g_parts[1]), den)
-            print(p_list[0], h_list[0])
             t_list[0] = ph(p_list[0], h_list[0], 1)
 
         elif self.count_parts == 4:
