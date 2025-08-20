@@ -17,13 +17,15 @@ ENV PYTHONPATH=/app
 # Копируем файлы зависимостей
 COPY ./pyproject.toml ./uv.lock* /app/
 
+# Копируем код приложения
+COPY ./app /app/app
+
 # Устанавливаем зависимости с помощью uv sync
 # Указываем версию Python, соответствующую базовому образу (или просто не указываем, uv сам найдет)
 RUN uv venv && \
     uv sync --no-dev
 
-# Копируем код приложения
-COPY ./app /app/app
+# Копируем миграции
 COPY ./alembic.ini /app/alembic.ini
 
 # Копируем и делаем исполняемым entrypoint скрипт
