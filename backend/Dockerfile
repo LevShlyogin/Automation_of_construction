@@ -20,8 +20,7 @@ COPY ./pyproject.toml ./uv.lock* /app/
 # Устанавливаем зависимости с помощью uv sync
 # Указываем версию Python, соответствующую базовому образу (или просто не указываем, uv сам найдет)
 RUN uv venv && \
-    uv pip install --upgrade pip && \
-    uv sync --no-dev --strict
+    uv sync --no-dev
 
 # Копируем код приложения
 COPY ./app /app/app
