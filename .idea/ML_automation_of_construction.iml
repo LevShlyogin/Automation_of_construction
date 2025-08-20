@@ -11,8 +11,9 @@
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/backend/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/backendvenv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.12 virtualenv at C:\Users\Mike\PycharmProjects\Automation_of_construction\backend\.venv" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.13 (Automation_of_construction)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PackageRequirementsSettings">
