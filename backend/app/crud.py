@@ -1,66 +1,10 @@
-import uuid
-from typing import Any
-
 from fastapi import HTTPException, status
-from sqlmodel import Session, select
-
-from backend.app.core.security import get_password_hash, verify_password
-from backend.app.models import Item, ItemCreate, User, UserCreate, UserUpdate, CalculationResultDB
-
-
-def create_user(*, session: Session, user_create: UserCreate) -> User:
-    db_obj = User.model_validate(
-        user_create, update={"hashed_password": get_password_hash(user_create.password)}
-    )
-    session.add(db_obj)
-    session.commit()
-    session.refresh(db_obj)
-    return db_obj
-
-
-def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> Any:
-    user_data = user_in.model_dump(exclude_unset=True)
-    extra_data = {}
-    if "password" in user_data:
-        password = user_data["password"]
-        hashed_password = get_password_hash(password)
-        extra_data["hashed_password"] = hashed_password
-    db_user.sqlmodel_update(user_data, update=extra_data)
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
-    return db_user
-
-
-def get_user_by_email(*, session: Session, email: str) -> User | None:
-    statement = select(User).where(User.email == email)
-    session_user = session.exec(statement).first()
-    return session_user
-
-
-def authenticate(*, session: Session, email: str, password: str) -> User | None:
-    db_user = get_user_by_email(session=session, email=email)
-    if not db_user:
-        return None
-    if not verify_password(password, db_user.hashed_password):
-        return None
-    return db_user
-
-
-def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -> Item:
-    db_item = Item.model_validate(item_in, update={"owner_id": owner_id})
-    session.add(db_item)
-    session.commit()
-    session.refresh(db_item)
-    return db_item
-
-
+from backend.app.models import CalculationResultDB
 from sqlalchemy.orm import Session
 from backend.app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
 import json
-
 import logging
 
 logging.basicConfig(
@@ -84,7 +28,6 @@ def get_valves_by_turbine(db: Session, turbine_name: str) -> Optional[schemas.Tu
             HTTPException: Если произошла ошибка базы данных (500).
         """
     try:
-        # Получаем турбину вместе с клапанами
         turbine = db.query(models.Turbine) \
             .filter(models.Turbine.name == turbine_name) \
             .first()
@@ -156,7 +99,7 @@ def create_calculation_result(db: Session, parameters: schemas.CalculationParams
         db.refresh(db_result)
         return db_result
     except Exception as e:
-        db.rollback()  # Откатываем транзакцию в случае ошибки
+        db.rollback()
         logger.error(f"Ошибка базы данных при сохранении результата расчета: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось сохранить результат расчета: {e}")
@@ -183,6 +126,7 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
             .order_by(models.CalculationResultDB.calc_timestamp.desc())
             .all()
         )
+
         # Если данные уже являются словарями, то десериализация не нужна
         for result in results:
             if isinstance(result.input_data, str):
@@ -194,3 +138,44 @@ def get_results_by_valve_drawing(db: Session, valve_drawing: str):
         logger.error(f"Ошибка базы данных при получении результатов по клапану: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось получить результаты: {e}")
+
+
+def get_calculation_result_by_id(db: Session, result_id: int) -> Optional[CalculationResultDB]:
+    """
+    Получает один результат расчета по его ID.
+    """
+    try:
+        result = db.query(CalculationResultDB).filter(CalculationResultDB.id == result_id).first()
+        if result:
+            if isinstance(result.input_data, str):
+                result.input_data = json.loads(result.input_data)
+            if isinstance(result.output_data, str):
+                result.output_data = json.loads(result.output_data)
+        return result
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении результата расчета по ID {result_id}: {str(e)}")
+        return None
+
+
+def get_turbine_by_id(db: Session, turbine_id: int) -> Optional[models.Turbine]:
+    """
+    Получает одну турбину по ее ID.
+    """
+    try:
+        turbine = db.query(models.Turbine).filter(models.Turbine.id == turbine_id).first()
+        return turbine
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении турбины по ID {turbine_id}: {str(e)}")
+        return None
+
+
+def get_valve_by_id(db: Session, valve_id: int) -> Optional[models.Valve]:
+    """
+    Получает один клапан (шток) по его ID.
+    """
+    try:
+        valve = db.query(models.Valve).filter(models.Valve.id == valve_id).first()
+        return valve
+    except Exception as e:
+        logger.error(f"Ошибка базы данных при получении клапана по ID {valve_id}: {str(e)}")
+        return None

@@ -3,22 +3,21 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from backend.app.database import Base
 
-# Создаём тестовый движок с использованием SQLite в памяти
 TEST_SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
-# Создаём движок
 engine = create_engine(
     TEST_SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
 )
 
-# Создаём класс для создания сессий
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_database():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+
 
 # Фикстура для создания сессии базы данных
 @pytest.fixture(scope="function")
@@ -33,6 +32,7 @@ def db_session():
     transaction.rollback()
     connection.close()
 
+
 # Переопределяем зависимость get_db для использования тестовой сессии
 @pytest.fixture(scope="function")
 def override_get_db(db_session):
@@ -41,7 +41,9 @@ def override_get_db(db_session):
             yield db_session
         finally:
             pass
+
     return _get_db
+
 
 # Фикстура для использования переопределённого get_db в тестах
 @pytest.fixture(scope="function")

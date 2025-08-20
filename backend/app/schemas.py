@@ -1,6 +1,5 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
-
 from pydantic import BaseModel, computed_field
 
 
@@ -12,9 +11,26 @@ class TurbineInfo(BaseModel):
         from_attributes = True
 
 
-class ValveInfo(BaseModel):
+class SimpleValveInfo(BaseModel):
     id: int
     name: str
+
+    class Config:
+        from_attributes = True
+
+
+class TurbineWithValvesInfo(BaseModel):
+    id: int
+    name: str
+    valves: List[SimpleValveInfo] = []
+
+    class Config:
+        from_attributes = True
+
+
+class ValveInfo(BaseModel):
+    id: Optional[int] = None
+    name: Optional[str] = None
     type: Optional[str] = None
     diameter: Optional[float] = None
     clearance: Optional[float] = None
@@ -25,6 +41,7 @@ class ValveInfo(BaseModel):
     len_part4: Optional[float] = None
     len_part5: Optional[float] = None
     round_radius: Optional[float] = None
+    turbine_id: Optional[int] = None
 
     @computed_field
     @property
@@ -57,14 +74,14 @@ class ValveCreate(BaseModel):
 
 
 class CalculationParams(BaseModel):
-    turbine_name: Optional[str] = None  # Сделаем необязательным
-    valve_drawing: Optional[str] = None  # Добавим возможность ввода чертежа клапана
-    valve_id: Optional[int] = None  # ID клапана (если введено)
+    turbine_name: Optional[str] = None
+    valve_drawing: Optional[str] = None
+    valve_id: Optional[int] = None
     temperature_start: float
     t_air: float
     count_valves: int
-    p_ejector: List[float]  # Параметр для давления в эжекторе
-    p_values: List[float]  # Список давлений P1-P5
+    p_ejector: List[float]
+    p_values: List[float]
 
 
 class CalculationResult(BaseModel):
@@ -96,7 +113,7 @@ class CalculationResultDB(BaseModel):
     stock_name: str
     turbine_name: str
     calc_timestamp: datetime
-    input_data: dict[str, Any]  # Замените JSON на Dict[str, Any]
+    input_data: dict[str, Any]
     output_data: dict[str, Any]
 
     class Config:

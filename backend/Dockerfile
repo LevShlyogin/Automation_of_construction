@@ -1,30 +1,38 @@
-FROM python:3.10
+# Используем базовый образ Python 3.13
+FROM python:3.13
 
+# Устанавливаем рабочую директорию
 WORKDIR /app/
 
-# Install uv
-COPY --from=ghcr.io/astral-sh/uv:0.4.15 /uv /bin/uv
+# Устанавливаем uv из официального образа
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
+# Настраиваем PATH для включения виртуального окружения uv
+# Устанавливаем переменные для оптимизации установки uv
 ENV PATH="/app/.venv/bin:$PATH"
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 ENV PYTHONPATH=/app
 
-# Сначала копируем только необходимые файлы для зависимостей
-COPY ./pyproject.toml ./uv.lock ./requirements.txt /app/
+# Копируем файлы зависимостей
+COPY ./pyproject.toml ./uv.lock* /app/
 
-# Устанавливаем зависимости и явно устанавливаем fastapi[standard]
-RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install "fastapi[standard]>=0.114.2,<1.0.0"
+# Устанавливаем зависимости с помощью uv sync
+# Указываем версию Python, соответствующую базовому образу (или просто не указываем, uv сам найдет)
+RUN uv venv && \
+    uv pip install --upgrade pip && \
+    uv sync --no-dev --strict
 
-# Затем копируем код приложения в правильную директорию
+# Копируем код приложения
 COPY ./app /app/app
-COPY ./alembic.ini /app/
+COPY ./alembic.ini /app/alembic.ini
 
-# Добавьте эту строку, если ваш код пытается импортировать из 'backend'
-RUN ln -s /app /app/backend
+# Копируем и делаем исполняемым entrypoint скрипт
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
+# Открываем порт
 EXPOSE 8000
 
-# Вместо fastapi CLI используйте uvicorn напрямую
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Указываем entrypoint скрипт для запуска контейнера
+ENTRYPOINT ["/app/entrypoint.sh"]

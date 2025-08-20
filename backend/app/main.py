@@ -1,27 +1,26 @@
 import json
-import sentry_sdk
 import logging
 
 from fastapi import FastAPI, Depends, HTTPException, Response, status, APIRouter
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List
-
 from backend.app.core.config import settings
-from backend.app.models import Turbine, Valve, CalculationResultDB  # Предполагая, что эти модели определены
+from backend.app.models import Turbine, Valve, CalculationResultDB
 from backend.app.schemas import (
     TurbineInfo,
     ValveInfo,
     ValveCreate,
     TurbineValves,
     CalculationParams,
-    CalculationResultDB as CalculationResultDBSchema,
-)  # Предполагая, что эти схемы определены
-from backend.app.dependencies import get_db  # Зависимость для получения сессии БД
+    CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo,
+)
+from backend.app.dependencies import get_db
 from backend.app.utils import ValveCalculator, CalculationError
 from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
-    get_valves_by_turbine  # CRUD функции
+    get_valves_by_turbine, get_calculation_result_by_id, get_turbine_by_id, get_valve_by_id
+from backend.app.save_to_drowio import router as drawio_router
 
 # Настройка логирования
 logging.basicConfig(
@@ -35,11 +34,6 @@ def custom_generate_unique_id(route: APIRoute) -> str:
     return f"{route.tags[0]}-{route.name}"
 
 
-# Инициализация Sentry, если требуется
-if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
-    sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
-
-# Создаем экземпляр приложения FastAPI
 app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
@@ -49,34 +43,36 @@ app = FastAPI(
 # Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Укажите адрес вашего фронтенда
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Создаем экземпляр APIRouter
 api_router = APIRouter()
 
 
 # ------ Маршруты для турбин ------
 
-@api_router.get("/turbines/", response_model=List[TurbineInfo], summary="Получить все турбины", tags=["turbines"])
-async def get_all_turbines(db: Session = Depends(get_db)):
+@api_router.get("/turbines/", response_model=List[TurbineWithValvesInfo], summary="Получить все турбины с клапанами",
+                tags=["turbines"])
+async def get_all_turbines_with_valves(db: Session = Depends(get_db)):
     """
-    Получить список всех турбин.
+    Получить список всех турбин вместе с их клапанами.
     """
     try:
-        turbines = db.query(Turbine).all()
-        turbine_infos = [TurbineInfo(id=turbine.id, name=turbine.name) for turbine in turbines]
-        return turbine_infos
+        turbines_from_db = db.query(Turbine).options(
+            selectinload(Turbine.valves)
+        ).all()
+
+        return turbines_from_db
     except Exception as e:
-        logger.error(f"Ошибка при получении всех турбин: {e}")
+        logger.error(f"Ошибка при получении всех турбин с клапанами: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось получить турбины: {e}")
 
 
-@api_router.get("/turbines/{turbine_name}/valves/", response_model=TurbineValves,
+@api_router.get("/turbines/{turbine_name:path}/valves/", response_model=TurbineValves,
                 summary="Получить клапаны по имени турбины", tags=["turbines"])
 async def get_valves_by_turbine_endpoint(turbine_name: str, db: Session = Depends(get_db)):
     """
@@ -109,6 +105,18 @@ async def create_turbine(turbine: TurbineInfo, db: Session = Depends(get_db)):
         logger.error(f"Ошибка при создании турбины: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Не удалось создать турбину: {e}")
+
+
+@api_router.get("/turbines/{turbine_id}", response_model=TurbineInfo, summary="Получить турбину по ID",
+                tags=["turbines"])
+async def read_turbine_by_id(turbine_id: int, db: Session = Depends(get_db)):
+    """
+    Получить информацию о конкретной турбине по её ID.
+    """
+    db_turbine = get_turbine_by_id(db, turbine_id=turbine_id)
+    if db_turbine is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Турбина не найдена")
+    return db_turbine
 
 
 @api_router.delete("/turbines/{turbine_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить турбину",
@@ -215,6 +223,18 @@ async def update_valve(valve_id: int, valve: ValveInfo, db: Session = Depends(ge
                             detail=f"Не удалось обновить клапан: {e}")
 
 
+@api_router.get("/valves/{valve_id}", response_model=ValveInfo, summary="Получить клапан по ID",
+                tags=["valves"])
+async def read_valve_by_id(valve_id: int, db: Session = Depends(get_db)):
+    """
+    Получить информацию о конкретном клапане (штоке) по его ID.
+    """
+    db_valve = get_valve_by_id(db, valve_id=valve_id)
+    if db_valve is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Клапан (шток) не найден")
+    return db_valve
+
+
 @api_router.delete("/valves/{valve_id}", response_model=dict, summary="Удалить клапан", tags=["valves"])
 async def delete_valve(valve_id: int, db: Session = Depends(get_db)):
     """
@@ -300,7 +320,7 @@ async def calculate(params: CalculationParams, db: Session = Depends(get_db)):
 
 # ------ Маршруты для результатов ------
 
-@api_router.get("/valves/{valve_name}/results/", response_model=List[CalculationResultDBSchema],
+@api_router.get("/valves/{valve_name:path}/results/", response_model=List[CalculationResultDBSchema],
                 summary="Получить результаты расчётов", tags=["results"])
 async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)):
     """
@@ -345,7 +365,22 @@ async def get_calculation_results(valve_name: str, db: Session = Depends(get_db)
         )
 
 
-@api_router.delete("/results/{result_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Удалить результат расчёта",
+@api_router.get("/results/{result_id}",
+                response_model=CalculationResultDBSchema,
+                summary="Получить результат расчета по ID", tags=["results"])
+async def read_calculation_result(result_id: int, db: Session = Depends(get_db)):
+    """
+    Получить конкретный результат расчёта по его ID.
+    """
+    db_result = get_calculation_result_by_id(db, result_id=result_id)
+    if db_result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Результат расчёта не найден")
+    return db_result
+
+
+@api_router.delete("/results/{result_id}",
+                   status_code=status.HTTP_204_NO_CONTENT,
+                   summary="Удалить результат расчёта",
                    tags=["results"])
 async def delete_calculation_result(result_id: int, db: Session = Depends(get_db)):
     """
@@ -366,3 +401,4 @@ async def delete_calculation_result(result_id: int, db: Session = Depends(get_db
 
 # Подключаем маршруты к приложению
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(drawio_router, prefix=settings.API_V1_STR)

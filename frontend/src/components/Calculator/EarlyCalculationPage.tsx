@@ -1,156 +1,234 @@
-import React, { useEffect } from 'react';
-import './EarlyCalculationPage.css';
+import React from 'react';
+import {
+    Box,
+    Button,
+    Heading,
+    Text,
+    VStack,
+    Table,
+    Thead,
+    Tbody,
+    Tr,
+    Th,
+    Td,
+    TableContainer,
+    SimpleGrid,
+    Divider,
+    HStack,
+    Icon,
+} from '@chakra-ui/react';
+
+import {type CalculationResultDB as CalculationDataType} from '../../client';
+import {FiChevronLeft} from "react-icons/fi";
 
 type Props = {
-  stockId: string;
-  lastCalculation: any;
-  onRecalculate: (recalculate: boolean) => void;
+    stockId: string;
+    lastCalculation: CalculationDataType | null;
+    onRecalculate: (recalculate: boolean) => void;
+    onGoBack?: () => void;
 };
 
-const EarlyCalculationPage: React.FC<Props> = ({ stockId, lastCalculation, onRecalculate }) => {
-  const gi = lastCalculation?.output_data.Gi || [];
-  const pi_in = lastCalculation?.output_data.Pi_in || [];
-  const ti = lastCalculation?.output_data.Ti || [];
-  const hi = lastCalculation?.output_data.Hi || [];
-  const deaeratorProps = lastCalculation?.output_data.deaerator_props || [];
-  const ejectorProps = lastCalculation?.output_data.ejector_props || [];
-  const inputData = lastCalculation?.input_data || {}; // Входные данные
+const roundNumber = (num: any, decimals: number = 4): string | number => {
+    const parsedNum = parseFloat(num);
+    if (isNaN(parsedNum)) {
+        return 'N/A';
+    }
+    return Number(parsedNum.toFixed(decimals));
+};
 
-  // Функция для округления чисел
-  const roundNumber = (num: number, decimals: number = 4) => {
-    return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
-  };
+const EarlyCalculationPage: React.FC<Props> = ({stockId, lastCalculation, onRecalculate, onGoBack}) => {
+    if (!lastCalculation) {
+        return (
+            <VStack spacing={4} p={5} align="center" justify="center" minH="200px">
+                <Text color="orange.500">Данные о предыдущем расчете отсутствуют или не загружены.</Text>
+                {onGoBack && <Button onClick={onGoBack} colorScheme="teal" variant="outline" mt={4}>Вернуться к выбору
+                    клапана</Button>}
+                <Button onClick={() => onRecalculate(true)} colorScheme="teal" mt={2}>Продолжить с новым
+                    расчетом</Button>
+            </VStack>
+        );
+    }
 
-  // Вывод входных и выходных данных в консоль для диагностики
-  useEffect(() => {
-    console.group(`Данные для клапана: ${stockId}`);
-    console.log('Последний расчёт:', lastCalculation);
-    console.log('Входные данные:', inputData);
-    console.log('Выходные данные:', {
-      Gi: gi,
-      Pi_in: pi_in,
-      Ti: ti,
-      Hi: hi,
-      deaeratorProps: deaeratorProps,
-      ejectorProps: ejectorProps
-    });
-    console.groupEnd();
-  }, [stockId, lastCalculation, inputData, gi, pi_in, ti, hi, deaeratorProps, ejectorProps]);
+    interface ExpectedInputData {
+        turbine_name?: string;
+        valve_drawing?: string;
+        valve_id?: number;
+        temperature_start?: number;
+        t_air?: number;
+        count_valves?: number;
+        p_values?: number[];
+        p_ejector?: number[];
+    }
 
-  return (
-    <div className="detected-calculation">
-      <h2>Клапан {stockId}</h2>
-      <h3>Обнаружен предыдущий расчет</h3>
+    interface ExpectedOutputData {
+        Gi?: number[];
+        Pi_in?: number[];
+        Ti?: number[];
+        Hi?: number[];
+        deaerator_props?: any[];
+        ejector_props?: Array<Record<string, number>>;
+    }
 
-      <h3>Входные данные</h3>
-      {Object.keys(inputData).length > 0 ? (
-        <table className="results-table">
-          <thead>
-            <tr>
-              <th>Название турбины</th>
-              <th>Чертёж клапана</th>
-              <th>id клапана</th>
-              <th>Начальная температура</th>
-              <th>Температура воздуха</th>
-              <th>Количество участков</th>
-              <th>Выходные давления</th>
-              <th>Входные давления</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {Object.values(inputData).map((value, index) => (
-                <td key={index}>
-                  {Array.isArray(value) ? value.join(', ') : String(value)}
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      ) : (
-        <p>Нет доступных входных данных.</p>
-      )}
+    const inputData: ExpectedInputData = (lastCalculation.input_data || {}) as ExpectedInputData;
+    const outputData: ExpectedOutputData = (lastCalculation.output_data || {}) as ExpectedOutputData;
 
-      <h3>Выходные данные</h3>
-      {gi.length > 0 ? (
-        <table className="calculation-table">
-          <thead>
-            <tr>
-              <th>Расход, т/ч</th>
-              <th>Давление , МПа</th>
-              <th>Температура , С</th>
-              <th>Энтальпия , кДж/кг</th>
-            </tr>
-          </thead>
-          <tbody>
-            {gi.map((value: any, index: number) => (
-              <tr key={index}>
-                <td>{roundNumber(value)}</td>
-                <td>{roundNumber(pi_in[index])}</td>
-                <td>{roundNumber(ti[index])}</td>
-                <td>{roundNumber(hi[index])}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>Нет доступных выходных данных.</p>
-      )}
+    const gi = Array.isArray(outputData.Gi) ? outputData.Gi : [];
+    const pi_in = Array.isArray(outputData.Pi_in) ? outputData.Pi_in : [];
+    const ti = Array.isArray(outputData.Ti) ? outputData.Ti : [];
+    const hi = Array.isArray(outputData.Hi) ? outputData.Hi : [];
+    const deaeratorProps = Array.isArray(outputData.deaerator_props) ? outputData.deaerator_props : [];
+    const ejectorProps = Array.isArray(outputData.ejector_props) ? outputData.ejector_props : [];
 
-      {/* Отображение ejector_props */}
-      <h3>Параметры потребителей</h3>
-      {ejectorProps.length > 0 ? (
-        <table className="calculation-table">
-          <thead>
-            <tr>
-              <th>g</th>
-              <th>h</th>
-              <th>p</th>
-              <th>t</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ejectorProps.map((prop: any, index: number) => (
-              <tr key={index}>
-                <td>{roundNumber(prop.g)}</td>
-                <td>{roundNumber(prop.h)}</td>
-                <td>{roundNumber(prop.p)}</td>
-                <td>{roundNumber(prop.t)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>Нет доступных данных для параметров потребителей.</p>
-      )}
+    const inputDataEntries = [
+        {label: 'Название турбины', value: inputData.turbine_name},
+        {label: 'Чертёж клапана', value: inputData.valve_drawing},
+        {label: 'ID клапана', value: inputData.valve_id},
+        {label: 'Начальная температура (°C)', value: inputData.temperature_start},
+        {label: 'Температура воздуха (°C)', value: inputData.t_air},
+        {label: 'Количество клапанов', value: inputData.count_valves},
+        {
+            label: 'Входные давления (P1-P5, МПа)',
+            value: Array.isArray(inputData.p_values) ? inputData.p_values.join(', ') : 'N/A'
+        },
+        {
+            label: 'Давления потребителей (МПа)',
+            value: Array.isArray(inputData.p_ejector) ? inputData.p_ejector.join(', ') : 'N/A'
+        },
+    ];
 
-      {/* Отображение deaerator_props */}
-      <h3>Потребитель 1</h3>
-      {deaeratorProps.length > 0 ? (
-        <table className="calculation-table">
-          <tbody>
-            <tr>
-              {deaeratorProps.map((value: any, index: number) => (
-                <td key={index}>{roundNumber(value)}</td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
-      ) : (
-        <p>Нет доступных данных для потребителя 1.</p>
-      )}
+    return (
+        <VStack spacing={6} p={5} align="stretch" w="100%" maxW="container.lg" mx="auto">
+            <Heading as="h2" size="xl" textAlign="center">
+                Клапан: <Text as="span" color="teal.500">{stockId}</Text>
+            </Heading>
 
-      <h3 className="question-before-buttons">Желаете провести перерасчет?</h3>
-      <div className="buttons">
-        <button onClick={() => onRecalculate(false)} className="btn red">
-          Нет
-        </button>
-        <button onClick={() => onRecalculate(true)} className="btn green">
-          Да
-        </button>
-      </div>
-    </div>
-  );
+            {onGoBack && (
+                <Box width="100%" textAlign="center" my={2}>
+                    <Button
+                        onClick={onGoBack}
+                        variant="outline"
+                        colorScheme="teal"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                    >
+                        Изменить клапан
+                    </Button>
+                </Box>
+            )}
+
+            <Heading as="h3" size="lg" textAlign="center" color="orange.400">
+                Обнаружен предыдущий расчет
+            </Heading>
+
+            <Box borderWidth="1px" borderRadius="md" p={4}>
+                <Heading as="h4" size="md" mb={3}>
+                    Входные данные предыдущего расчета:
+                </Heading>
+                {Object.keys(inputData).length > 0 ? (
+                    <SimpleGrid columns={{base: 1, md: 2}} spacing={3}>
+                        {inputDataEntries.map(entry => (
+                            (entry.value !== undefined && entry.value !== null && entry.value !== '') &&
+                            <HStack key={entry.label} justify="space-between">
+                                <Text fontWeight="medium">{entry.label}:</Text>
+                                <Text>{String(entry.value)}</Text>
+                            </HStack>
+                        ))}
+                    </SimpleGrid>
+                ) : (
+                    <Text color="gray.500">Нет доступных входных данных для предыдущего расчета.</Text>
+                )}
+            </Box>
+
+            <Divider my={6}/>
+
+            <Heading as="h4" size="md" mb={3} textAlign="center">
+                Выходные данные предыдущего расчета:
+            </Heading>
+
+            {gi.length > 0 ? (
+                <TableContainer borderWidth="1px" borderRadius="md">
+                    <Table variant="striped" colorScheme="gray" size="sm">
+                        <Thead>
+                            <Tr>
+                                <Th>Расход, т/ч (G<sub>i</sub>)</Th>
+                                <Th>Давление, МПа (P<sub>вхi</sub>)</Th>
+                                <Th>Температура, °C (T<sub>i</sub>)</Th>
+                                <Th>Энтальпия, кДж/кг (H<sub>i</sub>)</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            {gi.map((_value, index) => (
+                                <Tr key={`gi-${index}`}>
+                                    <Td>{roundNumber(gi[index])}</Td>
+                                    <Td>{roundNumber(pi_in[index])}</Td>
+                                    <Td>{roundNumber(ti[index])}</Td>
+                                    <Td>{roundNumber(hi[index])}</Td>
+                                </Tr>
+                            ))}
+                        </Tbody>
+                    </Table>
+                </TableContainer>
+            ) : (
+                <Text color="gray.500" textAlign="center">Нет основных выходных данных.</Text>
+            )}
+
+            {ejectorProps.length > 0 && (
+                <Box mt={6}>
+                    <Heading as="h5" size="sm" mb={2}>Параметры потребителей (эжекторы):</Heading>
+                    <TableContainer borderWidth="1px" borderRadius="md">
+                        <Table variant="simple" size="sm">
+                            <Thead>
+                                <Tr>
+                                    {ejectorProps[0] && typeof ejectorProps[0] === 'object' && Object.keys(ejectorProps[0]).map(key =>
+                                        <Th key={key}>{key}</Th>)}
+                                </Tr>
+                            </Thead>
+                            <Tbody>
+                                {ejectorProps.map((prop, index) => (
+                                    <Tr key={`ejector-${index}`}>
+                                        {typeof prop === 'object' && prop !== null && Object.values(prop).map((val, idx) => (
+                                            <Td key={idx}>{roundNumber(val)}</Td>
+                                        ))}
+                                    </Tr>
+                                ))}
+                            </Tbody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            )}
+
+            {deaeratorProps.length > 0 && (
+                <Box mt={4}>
+                    <Heading as="h5" size="sm" mb={2}>Потребитель 1 (деаэратор):</Heading>
+                    <SimpleGrid columns={{base: 2, md: deaeratorProps.length || 1}} spacing={2} borderWidth="1px"
+                                borderRadius="md" p={3}>
+                        {deaeratorProps.map((value, index) => (
+                            <Box key={`deaerator-val-${index}`} textAlign="center">
+                                <Text fontWeight="medium">Параметр {index + 1}:</Text>
+                                <Text>{roundNumber(value)}</Text>
+                            </Box>
+                        ))}
+                    </SimpleGrid>
+                </Box>
+            )}
+
+            <VStack spacing={3} mt={8} align="center">
+                <Heading as="h3" size="md">
+                    Желаете провести перерасчет?
+                </Heading>
+                <HStack spacing={4} mt={2}>
+                    <Button onClick={() => onRecalculate(true)} colorScheme="teal" variant="solid" size="lg"
+                            minW="160px">
+                        Да, пересчитать
+                    </Button>
+                    <Button onClick={() => onRecalculate(false)} colorScheme="gray" variant="outline" size="lg"
+                            minW="160px">
+                        Нет, использовать эти
+                    </Button>
+                </HStack>
+            </VStack>
+        </VStack>
+    );
 };
 
 export default EarlyCalculationPage;
