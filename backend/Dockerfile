@@ -7,23 +7,20 @@ WORKDIR /app/
 # Устанавливаем uv из официального образа
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Настраиваем PATH для включения виртуального окружения uv
 # Устанавливаем переменные для оптимизации установки uv
 ENV PATH="/app/.venv/bin:$PATH"
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 ENV PYTHONPATH=/app
 
-# Копируем файлы зависимостей
+# Метаданные проекта
 COPY ./pyproject.toml ./uv.lock* /app/
 
 # Копируем код приложения
 COPY ./app /app/app
 
-# Устанавливаем зависимости с помощью uv sync
-# Указываем версию Python, соответствующую базовому образу (или просто не указываем, uv сам найдет)
-RUN uv venv && \
-    uv sync --no-dev
+# Установка зависимостей и проекта
+RUN uv venv && uv sync --no-dev --frozen
 
 # Копируем миграции
 COPY ./alembic.ini /app/alembic.ini
