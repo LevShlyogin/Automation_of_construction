@@ -30,7 +30,7 @@ COPY ./entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Открываем порт
-EXPOSE 8000
+EXPOSE 5253
 
 # Указываем entrypoint скрипт для запуска контейнера
 ENTRYPOINT ["/app/entrypoint.sh"]

@@ -23,7 +23,7 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
 
 # Открываем порт 80
-EXPOSE 80
+EXPOSE 5252
 
 # Запускаем Nginx
 CMD ["nginx", "-g", "daemon off;"]
