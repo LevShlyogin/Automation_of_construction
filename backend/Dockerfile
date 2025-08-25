@@ -1,6 +1,10 @@
 # Используем оптимизированный образ Python 3.13
 FROM python:3.13-slim
 
+# Устанавливаем зависимости самой системы
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
 # Устанавливаем рабочую директорию
 WORKDIR /app/
 
