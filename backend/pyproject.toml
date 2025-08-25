@@ -17,7 +17,8 @@ dependencies = [
     "sqlmodel<1,>=0.0.21",
     "pydantic-settings<3,>=2.2.1",
     "seuif97==1.2.0",
-    "wsaproperties>=0.1.4"
+    "wsaproperties>=0.1.4",
+    "scipy",
 ]
 
 [tool.hatch.build.targets.wheel]
