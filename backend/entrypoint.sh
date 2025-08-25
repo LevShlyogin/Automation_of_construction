@@ -5,7 +5,7 @@ set -e
 # --- Ожидание доступности Базы Данных ---
 # Переменные окружения должны быть доступны в контейнере (из docker-compose.yml или .env).
 DB_HOST=${POSTGRES_SERVER:-db}
-DB_PORT=${POSTGRES_PORT:-5432}
+DB_PORT=${POSTGRES_PORT:-5254}
 DB_USER=${POSTGRES_USER:-postgres}
 DB_PASS=${POSTGRES_PASSWORD:-password}
 DB_NAME=${POSTGRES_DB:-postgres}
@@ -39,4 +39,4 @@ done
 # echo "Alembic migrations applied."
 
 echo "Starting Uvicorn server..."
-exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+exec uvicorn app.main:app --host 0.0.0.0 --port 5253 --workers 4
