@@ -60,6 +60,7 @@ dependencies = [
     { name = "tenacity" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "uvloop" },
+    { name = "wsaproperties" },
 ]
 
 [package.dev-dependencies]
@@ -88,6 +89,7 @@ requires-dist = [
     { name = "tenacity", specifier = ">=8.2.3,<9" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
     { name = "uvloop", specifier = ">=0.20" },
+    { name = "wsaproperties", specifier = ">=0.1.4" },
 ]
 
 [package.metadata.requires-dev]
@@ -1657,4 +1659,13 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/2b/fb/c492d6daa5ec067c2988ac80c61359ace5c4c674c532985ac5a123436cec/websockets-15.0.1-pp310-pypy310_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b359ed09954d7c18bbc1680f380c7301f92c60bf924171629c5db97febb12f04", size = 174155, upload-time = "2025-03-05T20:03:25.321Z" },
     { url = "https://files.pythonhosted.org/packages/68/a1/dcb68430b1d00b698ae7a7e0194433bce4f07ded185f0ee5fb21e2a2e91e/websockets-15.0.1-pp310-pypy310_pp73-win_amd64.whl", hash = "sha256:cad21560da69f4ce7658ca2cb83138fb4cf695a2ba3e475e0559e05991aa8122", size = 176884, upload-time = "2025-03-05T20:03:27.934Z" },
     { url = "https://files.pythonhosted.org/packages/fa/a8/5b41e0da817d64113292ab1f8247140aac61cbf6cfd085d6a0fa77f4984f/websockets-15.0.1-py3-none-any.whl", hash = "sha256:f7a866fbc1e97b5c617ee4116daaa09b722101d4a3c170c787450ba409f9736f", size = 169743, upload-time = "2025-03-05T20:03:39.41Z" },
+]
+
+[[package]]
+name = "wsaproperties"
+version = "0.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ec/78/aa57a623aeee8d5259c8b082f1ff556912d0fb9d7767e96d9a05a8633a24/wsaproperties-0.2.1.tar.gz", hash = "sha256:f0678b5c6163cf232aa1a3e8ac4f6ac54f49c833f9ba557edb0b9baac2bd4dba", size = 181401, upload-time = "2024-09-09T19:57:42.429Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8d/d0/41076b1b10d19a3f09a379ce98fb0ac9b525ac056ab50cdcb92d99b909ff/wsaproperties-0.2.1-py3-none-any.whl", hash = "sha256:ebe1a35103231415e58dc786cdd7c2b6e46f6da4973fd807a32647da2a2d631e", size = 11509, upload-time = "2024-09-09T19:57:39.909Z" },
 ]
