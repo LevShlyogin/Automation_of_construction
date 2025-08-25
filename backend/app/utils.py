@@ -5,7 +5,7 @@ from math import sqrt, pi
 from typing import List, Optional, Tuple
 
 # Схемы pydantic/dataclass'ы
-from backend.app.schemas import CalculationParams, ValveInfo, CalculationResult
+from app.schemas import CalculationParams, ValveInfo, CalculationResult
 
 # IF97
 from seuif97 import pt2h, ph, ph2v, ph2t

@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy.orm import Session
-from backend.app import crud, models, schemas
+from app import crud, models, schemas
 from datetime import datetime, timezone
 
 

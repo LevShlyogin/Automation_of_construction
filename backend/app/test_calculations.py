@@ -1,7 +1,7 @@
 from typing import Optional, List
 import logging
-from backend.app.utils import ValveCalculator
-from backend.app.schemas import CalculationParams, ValveInfo, CalculationResult
+from app.utils import ValveCalculator
+from app.schemas import CalculationParams, ValveInfo, CalculationResult
 import unittest
 from math import sqrt, pi
 

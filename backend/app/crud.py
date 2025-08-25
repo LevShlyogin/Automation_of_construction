@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
-from backend.app.models import CalculationResultDB
+from app.models import CalculationResultDB
 from sqlalchemy.orm import Session
-from backend.app import models, schemas
+from app import models, schemas
 from typing import Optional
 from datetime import datetime, timezone
 import json

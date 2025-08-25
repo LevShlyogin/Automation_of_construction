@@ -6,9 +6,9 @@ from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, selectinload
 from typing import List
-from backend.app.core.config import settings
-from backend.app.models import Turbine, Valve, CalculationResultDB
-from backend.app.schemas import (
+from app.core.config import settings
+from app.models import Turbine, Valve, CalculationResultDB
+from app.schemas import (
     TurbineInfo,
     ValveInfo,
     ValveCreate,
@@ -16,11 +16,11 @@ from backend.app.schemas import (
     CalculationParams,
     CalculationResultDB as CalculationResultDBSchema, TurbineWithValvesInfo,
 )
-from backend.app.dependencies import get_db
-from backend.app.utils import ValveCalculator, CalculationError
-from backend.app.crud import create_calculation_result, get_results_by_valve_drawing, \
+from app.dependencies import get_db
+from app.utils import ValveCalculator, CalculationError
+from app.crud import create_calculation_result, get_results_by_valve_drawing, \
     get_valves_by_turbine, get_calculation_result_by_id, get_turbine_by_id, get_valve_by_id
-from backend.app.save_to_drowio import router as drawio_router
+from app.save_to_drowio import router as drawio_router
 
 # Настройка логирования
 logging.basicConfig(
