@@ -17,6 +17,10 @@ services:
       - PROJECT_NAME=${PROJECT_NAME}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
       - ENVIRONMENT=local
+    labels:
+      - "log=enabled"
+      - "com.docker.compose.project=reg-journal"
+      - "com.docker.compose.service=api"
     ports:
       - "5253:5253"
     depends_on:
