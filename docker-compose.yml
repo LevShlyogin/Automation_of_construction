@@ -4,7 +4,7 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: backend
+    container_name: clapans_calculator_backend
     restart: always
     env_file:
       - .env
@@ -33,7 +33,7 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: frontend
+    container_name: clapans_calculator_frontend
     restart: always
     env_file:
       - .env
@@ -46,7 +46,7 @@ services:
 
   db:
     image: postgres:16
-    container_name: db
+    container_name: clapans_calculator_db
     restart: always
     env_file:
       - .env

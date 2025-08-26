@@ -7,3 +7,4 @@ htmlcov
 .cache
 .venv
 .idea
+app/generated_diagrams
