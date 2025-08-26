@@ -8,7 +8,7 @@ import {StrictMode} from "react";
 import {OpenAPI} from "./client";
 import theme from "./theme";
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL || "/";
+OpenAPI.BASE = import.meta.env.VITE_API_URL || "http://localhost:5253";
 
 const queryClient = new QueryClient();
 
