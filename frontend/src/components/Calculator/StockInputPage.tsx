@@ -17,6 +17,7 @@ import {
     Heading,
     Text,
     Icon,
+    Input,
 } from '@chakra-ui/react';
 
 import {
@@ -30,11 +31,11 @@ interface FormInputValues {
     turbine_name: string;
     valve_drawing: string;
     valve_id: number;
-    temperature_start: number | '';
-    t_air: number | '';
+    temperature_start: string;
+    t_air: string;
     count_valves: number;
-    p_values: { value: number | '' }[];
-    p_ejector: { value: number | '' }[];
+    p_values: { value: string }[];
+    p_ejector: { value: string }[];
     count_parts_select: number;
 }
 
@@ -44,6 +45,27 @@ type Props = {
     onSubmit: (data: CalculationParams) => void;
     initialData?: Partial<CalculationParams>;
     onGoBack?: () => void;
+};
+
+// Ограничение точности: задайте число, если хотите лимит на кол-во знаков после запятой (например, 3).
+// Оставьте undefined — без ограничения.
+const MAX_SCALE = 3;
+
+const isValidDecimal = (val: unknown) => {
+    const s = String(val ?? '').trim().replace(/\s/g, '');
+    // Разрешаем: -?целая[,(.)дробная]
+    if (!/^-?\d+(?:[.,]\d+)?$/.test(s)) return false;
+
+    const frac = s.split(/[.,]/)[1];
+    return !(frac && frac.length > MAX_SCALE);
+};
+
+const parseLocaleNumberStrict = (val: unknown): number => {
+    const s = String(val ?? '').trim().replace(/\s/g, '').replace(',', '.');
+    // Запрещаем экспоненту и любые нецифровые символы кроме одной точки
+    if (!/^-?\d+(\.\d+)?$/.test(s)) return NaN;
+    const n = Number(s);
+    return Number.isFinite(n) ? n : NaN;
 };
 
 const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData, onGoBack}) => {
@@ -61,12 +83,16 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
             turbine_name: initialData?.turbine_name || turbine.name,
             valve_drawing: initialData?.valve_drawing || stock.name,
             valve_id: initialData?.valve_id || stock.id,
-            temperature_start: initialData?.temperature_start ?? '',
-            t_air: initialData?.t_air ?? '',
+            temperature_start: initialData?.temperature_start != null ? String(initialData.temperature_start) : '',
+            t_air: initialData?.t_air != null ? String(initialData.t_air) : '',
             count_valves: initialData?.count_valves || 3,
             count_parts_select: defaultCountParts,
-            p_values: initialData?.p_values?.map(v => ({value: v ?? ''})) || Array(defaultCountParts).fill({value: ''}),
-            p_ejector: initialData?.p_ejector?.map(v => ({value: v ?? ''})) || Array(defaultCountParts).fill({value: ''}),
+            p_values:
+                initialData?.p_values?.map(v => ({value: v != null ? String(v) : ''})) ||
+                Array.from({length: defaultCountParts}, () => ({value: ''})),
+            p_ejector:
+                initialData?.p_ejector?.map(v => ({value: v != null ? String(v) : ''})) ||
+                Array.from({length: defaultCountParts}, () => ({value: ''})),
         },
         mode: 'onBlur',
     });
@@ -107,7 +133,15 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 removePEjector(i);
             }
         }
-    }, [watchedCountParts, appendPValue, removePValue, pValueFields.length, appendPEjector, removePEjector, pEjectorFields.length]);
+    }, [
+        watchedCountParts,
+        appendPValue,
+        removePValue,
+        pValueFields.length,
+        appendPEjector,
+        removePEjector,
+        pEjectorFields.length
+    ]);
 
     useEffect(() => {
         const newDefaultCountParts = initialData?.p_values?.length || stock.count_parts || 2;
@@ -115,12 +149,16 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
             turbine_name: initialData?.turbine_name || turbine.name,
             valve_drawing: initialData?.valve_drawing || stock.name,
             valve_id: initialData?.valve_id || stock.id,
-            temperature_start: initialData?.temperature_start ?? '',
-            t_air: initialData?.t_air ?? '',
+            temperature_start: initialData?.temperature_start != null ? String(initialData.temperature_start) : '',
+            t_air: initialData?.t_air != null ? String(initialData.t_air) : '',
             count_valves: initialData?.count_valves || 3,
             count_parts_select: newDefaultCountParts,
-            p_values: initialData?.p_values?.map(v => ({value: v ?? ''})) || Array(newDefaultCountParts).fill({value: ''}),
-            p_ejector: initialData?.p_ejector?.map(v => ({value: v ?? ''})) || Array(newDefaultCountParts).fill({value: ''}),
+            p_values:
+                initialData?.p_values?.map(v => ({value: v != null ? String(v) : ''})) ||
+                Array.from({length: newDefaultCountParts}, () => ({value: ''})),
+            p_ejector:
+                initialData?.p_ejector?.map(v => ({value: v != null ? String(v) : ''})) ||
+                Array.from({length: newDefaultCountParts}, () => ({value: ''})),
         });
     }, [stock, turbine, initialData, reset]);
 
@@ -129,18 +167,27 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
             turbine_name: data.turbine_name,
             valve_drawing: data.valve_drawing,
             valve_id: data.valve_id,
-            temperature_start: Number(data.temperature_start),
-            t_air: Number(data.t_air),
+            temperature_start: parseLocaleNumberStrict(data.temperature_start),
+            t_air: parseLocaleNumberStrict(data.t_air),
             count_valves: data.count_valves,
-            p_values: data.p_values.map(p => Number(p.value)),
-            p_ejector: data.p_ejector.map(p => Number(p.value)),
+            p_values: data.p_values.map(p => parseLocaleNumberStrict(p.value)),
+            p_ejector: data.p_ejector.map(p => parseLocaleNumberStrict(p.value)),
         };
         onSubmit(calculationParams);
     };
 
     return (
-        <VStack as="form" onSubmit={handleSubmit(processSubmit)} spacing={6} p={5} w="100%" maxW="container.lg"
-                mx="auto" align="stretch">
+        <VStack
+            as="form"
+            onSubmit={handleSubmit(processSubmit)}
+            spacing={6}
+            p={5}
+            w="100%"
+            maxW="container.lg"
+            mx="auto"
+            align="stretch"
+            noValidate // отключаем нативную HTML-валидацию; валидируем через RHF
+        >
             <Heading as="h2" size="lg" textAlign="center">
                 Ввод данных для клапана <Text as="span" color="teal.500">{stock.name}</Text>
             </Heading>
@@ -165,8 +212,9 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
             <input type="hidden" {...register("valve_id")} />
 
             <FormControl isInvalid={!!errors.count_parts_select}>
-                <FormLabel htmlFor="count_parts_select">Количество участков (от 2
-                    до {pValueFields.length > 0 ? Math.max(2, pValueFields.length) : 4} ):</FormLabel>
+                <FormLabel htmlFor="count_parts_select">
+                    Количество участков (от 2 до {pValueFields.length > 0 ? Math.max(2, pValueFields.length) : 4} ):
+                </FormLabel>
                 <Select
                     id="count_parts_select"
                     {...register("count_parts_select", {
@@ -199,7 +247,7 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 <FormErrorMessage>{errors.count_parts_select?.message}</FormErrorMessage>
             </FormControl>
 
-            {/* Количество клапанов: Количество клапанов: */}
+            {/* Количество клапанов: (целое число) */}
             <FormControl isRequired isInvalid={!!errors.count_valves}>
                 <FormLabel htmlFor="count_valves">Количество клапанов:</FormLabel>
                 <Controller
@@ -209,7 +257,7 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                     render={({field}) => (
                         <NumberInput {...field} min={1}
                                      onChange={(_valueString, valueNumber) => field.onChange(valueNumber)}>
-                            <NumberInputField placeholder="Введите количество"/>
+                            <NumberInputField placeholder="Введите количество" id="count_valves"/>
                             <NumberInputStepper>
                                 <NumberIncrementStepper/>
                                 <NumberDecrementStepper/>
@@ -220,34 +268,37 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 <FormErrorMessage>{errors.count_valves?.message}</FormErrorMessage>
             </FormControl>
 
-            {/* Входные давления: Введите входные давления: */}
+            {/* Входные давления: P1, P2, P3... */}
             <Box borderWidth="1px" borderRadius="md" p={4}>
                 <Heading as="h3" size="md" mb={3}>Введите входные давления:</Heading>
                 <VStack spacing={4} align="stretch">
                     {pValueFields.map((field, index) => (
                         <FormControl key={field.id} isRequired isInvalid={!!errors.p_values?.[index]?.value}>
                             <HStack align="center">
-                                <FormLabel htmlFor={`p_values.${index}.value`} mb="0" minW="130px">Давление
-                                    P{index + 1}:</FormLabel>
+                                <FormLabel htmlFor={`p_values.${index}.value`} mb="0" minW="130px">
+                                    Давление P{index + 1}:
+                                </FormLabel>
                                 <Controller
                                     name={`p_values.${index}.value`}
                                     control={control}
                                     rules={{
                                         required: "Это поле обязательно",
-                                        validate: value => value !== '' && !isNaN(parseFloat(value as unknown as string)) || "Должно быть числом"
+                                        validate: (value) =>
+                                            isValidDecimal(value) ||
+                                            `Введите корректное число (например: 113,292 или 113.292; не более ${MAX_SCALE} знаков после запятой)`,
                                     }}
                                     render={({field: {onChange, onBlur, value, name, ref}}) => (
-                                        <NumberInput
-                                            value={value === '' ? undefined : Number(value)}
-                                            onChange={(_valueAsString, valueAsNumber) => onChange(isNaN(valueAsNumber) ? '' : valueAsNumber)}
+                                        <Input
+                                            id={name}
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={value ?? ''}
+                                            onChange={(e) => onChange(e.target.value)}
                                             onBlur={onBlur}
-                                            allowMouseWheel
-                                            step={0.001}
-                                            precision={3}
-                                            min={0}
-                                        >
-                                            <NumberInputField name={name} ref={ref} placeholder={`P${index + 1}`}/>
-                                        </NumberInput>
+                                            name={name}
+                                            ref={ref}
+                                            placeholder={`P${index + 1}`}
+                                        />
                                     )}
                                 />
                             </HStack>
@@ -257,35 +308,37 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 </VStack>
             </Box>
 
-            {/* Выходные давления: Введите выходные давления: */}
+            {/* Выходные давления: Потребитель 1, 2, 3... */}
             <Box borderWidth="1px" borderRadius="md" p={4}>
                 <Heading as="h3" size="md" mb={3}>Введите выходные давления:</Heading>
                 <VStack spacing={4} align="stretch">
                     {pEjectorFields.map((field, index) => (
                         <FormControl key={field.id} isRequired isInvalid={!!errors.p_ejector?.[index]?.value}>
                             <HStack align="center">
-                                <FormLabel htmlFor={`p_ejector.${index}.value`} mb="0"
-                                           minW="130px">Потребитель {index + 1}:</FormLabel>
+                                <FormLabel htmlFor={`p_ejector.${index}.value`} mb="0" minW="130px">
+                                    Потребитель {index + 1}:
+                                </FormLabel>
                                 <Controller
                                     name={`p_ejector.${index}.value`}
                                     control={control}
                                     rules={{
                                         required: "Это поле обязательно",
-                                        validate: value => value !== '' && !isNaN(parseFloat(value as unknown as string)) || "Должно быть числом"
+                                        validate: (value) =>
+                                            isValidDecimal(value) ||
+                                            `Введите корректное число (например: 113,292 или 113.292; не более ${MAX_SCALE} знаков после запятой)`,
                                     }}
                                     render={({field: {onChange, onBlur, value, name, ref}}) => (
-                                        <NumberInput
-                                            value={value === '' ? undefined : Number(value)}
-                                            onChange={(_valueAsString, valueAsNumber) => onChange(isNaN(valueAsNumber) ? '' : valueAsNumber)}
+                                        <Input
+                                            id={name}
+                                            type="text"
+                                            inputMode="decimal"
+                                            value={value ?? ''}
+                                            onChange={(e) => onChange(e.target.value)}
                                             onBlur={onBlur}
-                                            allowMouseWheel
-                                            step={0.001}
-                                            precision={3}
-                                            min={0}
-                                        >
-                                            <NumberInputField name={name} ref={ref}
-                                                              placeholder={`Потребитель ${index + 1}`}/>
-                                        </NumberInput>
+                                            name={name}
+                                            ref={ref}
+                                            placeholder={`Потребитель ${index + 1}`}
+                                        />
                                     )}
                                 />
                             </HStack>
@@ -295,30 +348,36 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 </VStack>
             </Box>
 
+            {/* Температуры */}
             <Box borderWidth="1px" borderRadius="md" p={4}>
                 <Heading as="h3" size="md" mb={3}>Введите температурные значения:</Heading>
                 <VStack spacing={4} align="stretch">
                     <FormControl isRequired isInvalid={!!errors.temperature_start}>
                         <HStack align="center">
-                            <FormLabel htmlFor="temperature_start" mb="0" minW="180px">Начальная температура
-                                (°C):</FormLabel>
+                            <FormLabel htmlFor="temperature_start" mb="0" minW="180px">
+                                Начальная температура (°C):
+                            </FormLabel>
                             <Controller
                                 name="temperature_start"
                                 control={control}
                                 rules={{
                                     required: "Это поле обязательно",
-                                    validate: value => value !== '' && !isNaN(parseFloat(value as unknown as string)) || "Должно быть числом"
+                                    validate: (value) =>
+                                        isValidDecimal(value) ||
+                                        `Введите корректное число (например: 113,292 или 113.292; не более ${MAX_SCALE} знаков после запятой)`,
                                 }}
-                                render={({field: {onChange, onBlur, value, name, ref}}) => (
-                                    <NumberInput
-                                        value={value === '' ? undefined : Number(value)}
-                                        onChange={(_valueAsString, valueAsNumber) => onChange(isNaN(valueAsNumber) ? '' : valueAsNumber)}
-                                        onBlur={onBlur}
-                                        allowMouseWheel
-                                        step={1}
-                                    >
-                                        <NumberInputField name={name} ref={ref} placeholder="Начальная температура"/>
-                                    </NumberInput>
+                                render={({field}) => (
+                                    <Input
+                                        id="temperature_start"
+                                        type="text"
+                                        inputMode="decimal"
+                                        value={field.value ?? ''}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        placeholder="Начальная температура"
+                                    />
                                 )}
                             />
                         </HStack>
@@ -327,25 +386,30 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
 
                     <FormControl isRequired isInvalid={!!errors.t_air}>
                         <HStack align="center">
-                            <FormLabel htmlFor="t_air" mb="0" minW="180px">Температура воздуха
-                                (°C):</FormLabel>
+                            <FormLabel htmlFor="t_air" mb="0" minW="180px">
+                                Температура воздуха (°C):
+                            </FormLabel>
                             <Controller
                                 name="t_air"
                                 control={control}
                                 rules={{
                                     required: "Это поле обязательно",
-                                    validate: value => value !== '' && !isNaN(parseFloat(value as unknown as string)) || "Должно быть числом"
+                                    validate: (value) =>
+                                        isValidDecimal(value) ||
+                                        `Введите корректное число (например: 113,292 или 113.292; не более ${MAX_SCALE} знаков после запятой)`,
                                 }}
-                                render={({field: {onChange, onBlur, value, name, ref}}) => ( // Добавили ref
-                                    <NumberInput
-                                        value={value === '' ? undefined : Number(value)}
-                                        onChange={(_valueAsString, valueAsNumber) => onChange(isNaN(valueAsNumber) ? '' : valueAsNumber)}
-                                        onBlur={onBlur}
-                                        allowMouseWheel
-                                        step={1}
-                                    >
-                                        <NumberInputField name={name} ref={ref} placeholder="Температура воздуха"/>
-                                    </NumberInput>
+                                render={({field}) => (
+                                    <Input
+                                        id="t_air"
+                                        type="text"
+                                        inputMode="decimal"
+                                        value={field.value ?? ''}
+                                        onChange={(e) => field.onChange(e.target.value)}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                        placeholder="Температура воздуха"
+                                    />
                                 )}
                             />
                         </HStack>
@@ -354,8 +418,7 @@ const StockInputPage: React.FC<Props> = ({stock, turbine, onSubmit, initialData,
                 </VStack>
             </Box>
 
-            <Button type="submit" colorScheme="teal" isLoading={isSubmitting} size="lg" mt={4}
-                    width="full">
+            <Button type="submit" colorScheme="teal" isLoading={isSubmitting} size="lg" mt={4} width="full">
                 Отправить
             </Button>
         </VStack>
