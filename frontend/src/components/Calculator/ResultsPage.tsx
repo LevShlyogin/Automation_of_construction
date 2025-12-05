@@ -1,32 +1,13 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import * as XLSX from 'xlsx';
 import {
-    Box,
-    Button,
-    Heading,
-    Text,
-    VStack,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
-    TableContainer,
-    SimpleGrid,
-    Divider,
-    HStack,
-    useToast,
-    Icon,
-    useColorModeValue,
-    Flex,
+    Box, Button, Heading, Text, VStack, Table, Thead, Tbody, Tr, Th, Td,
+    TableContainer, SimpleGrid, Divider, HStack, useToast, Icon, useColorModeValue, Flex,
 } from '@chakra-ui/react';
-import {FiChevronLeft, FiDownload} from 'react-icons/fi';
-import {
-    OpenAPI,
-    type CalculationParams,
-    type ValveInfo_Output as ValveInfo,
-} from '../../client';
+// Убрали FiChevronLeft из импорта, если он не используется в этом файле (или добавьте, если нужен для навигации)
+// В вашем коде он используется в кнопках "Назад", так что оставляем.
+import {FiChevronLeft, FiDownload, FiSave} from 'react-icons/fi';
+import { OpenAPI, type CalculationParams, type ValveInfo_Output as ValveInfo } from '../../client';
 
 export interface ExpectedOutputData {
     Gi?: number[];
@@ -62,9 +43,38 @@ const ResultsPage: React.FC<Props> = ({
                                           onGoBack
                                       }) => {
     const [isDownloadingDrawio, setIsDownloadingDrawio] = useState(false);
-    const [isSavedMessageVisible, setIsSavedMessageVisible] = useState(false);
+    // УДАЛЕНО: const [isSavedMessageVisible, setIsSavedMessageVisible] = useState(false);
+    
     const toast = useToast();
     const buttonHoverBg = useColorModeValue("gray.100", "gray.700");
+
+    // --- INTEGRATION LOGIC START ---
+    const [isEmbedded, setIsEmbedded] = useState(false);
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        setIsEmbedded(urlParams.get('embedded') === 'true');
+    }, []);
+
+    const handleSaveToIde = () => {
+        const message = {
+            type: 'WSA_CALCULATION_COMPLETE',
+            payload: {
+                input: inputData,
+                output: outputData,
+                stockId: stockId
+            }
+        };
+        window.parent.postMessage(message, '*');
+        
+        toast({
+            title: "Отправлено в Balance+",
+            description: "Результаты переданы в IDE для сохранения в Git.",
+            status: "info",
+            duration: 3000
+        });
+    };
+    // --- INTEGRATION LOGIC END ---
 
     const currentInputData: Partial<CalculationParams> = inputData || {};
     const currentOutputData: Partial<ExpectedOutputData> = outputData || {};
@@ -131,7 +141,6 @@ const ResultsPage: React.FC<Props> = ({
             }
 
             const blob = await response.blob();
-
             const downloadUrl = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = downloadUrl;
@@ -158,7 +167,6 @@ const ResultsPage: React.FC<Props> = ({
     const handleDownloadExcel = () => {
         try {
             const wb = XLSX.utils.book_new();
-
             if (Object.keys(currentInputData).length > 0) {
                 const inputSheetData = [{
                     'Название турбины': currentInputData.turbine_name,
@@ -221,18 +229,27 @@ const ResultsPage: React.FC<Props> = ({
         }
     };
 
-    const handleShowSavedMessage = () => {
-        setIsSavedMessageVisible(true);
-        setTimeout(() => setIsSavedMessageVisible(false), 4000);
-    };
+    // УДАЛЕНО: const handleShowSavedMessage = ...
 
     return (
         <VStack spacing={8} p={5} align="stretch" w="100%" maxW="container.xl" mx="auto">
-            <VStack spacing={2} w="full"> {/* Обертка для заголовка и кнопки "назад" */}
+            <VStack spacing={2} w="full">
                 <Heading as="h2" size="xl" textAlign="center">
                     Результаты расчётов для клапана: <Text as="span" color="teal.500">{stockId}</Text>
                 </Heading>
-                {onGoBack && (
+                
+                {isEmbedded && (
+                   <Button
+                        onClick={() => window.parent.postMessage({ type: 'WSA_CLOSE' }, '*')}
+                        variant="ghost"
+                        size="sm"
+                        leftIcon={<Icon as={FiChevronLeft}/>}
+                    >
+                        Вернуться в Balance+
+                    </Button>
+                )}
+
+                {!isEmbedded && onGoBack && (
                     <Button
                         onClick={onGoBack}
                         variant="outline"
@@ -370,48 +387,38 @@ const ResultsPage: React.FC<Props> = ({
             )}
 
             <HStack spacing={6} justifyContent="center" mt={8} mb={4}>
-                <Button
-                    onClick={handleDownloadExcel}
-                    colorScheme="green"
-                    variant="solid"
-                    size="lg"
-                    minW="240px"
-                    boxShadow="md"
-                    _hover={{boxShadow: "lg"}}
-                >
+                
+                {isEmbedded && (
+                    <Button
+                        onClick={handleSaveToIde}
+                        colorScheme="purple"
+                        variant="solid"
+                        size="lg"
+                        minW="240px"
+                        leftIcon={<Icon as={FiSave}/>}
+                        boxShadow="md"
+                        _hover={{boxShadow: "lg", bg: "purple.600"}}
+                    >
+                        Сохранить в Balance+
+                    </Button>
+                )}
+                
+                <Button onClick={handleDownloadExcel} colorScheme="green" variant="solid" size="lg">
                     Сохранить в Excel
                 </Button>
-                <Button
-                    onClick={handleDownloadDrawio}
-                    colorScheme="blue"
-                    size="lg"
-                    minW="260px"
-                    leftIcon={<Icon as={FiDownload}/>}
+                
+                {/* Кнопка использует FiDownload, поэтому импорт нужен */}
+                <Button 
+                    onClick={handleDownloadDrawio} 
+                    colorScheme="blue" 
+                    size="lg" 
                     isLoading={isDownloadingDrawio}
-                    loadingText="Генерация схемы..."
-                    boxShadow="md"
-                    _hover={{boxShadow: "lg"}}
-                    isDisabled={!stockInfo || !stockInfo.count_parts}
+                    leftIcon={<Icon as={FiDownload}/>}
                 >
                     Скачать схему .vsdx
                 </Button>
-                <Button
-                    onClick={handleShowSavedMessage}
-                    colorScheme="blue"
-                    variant="outline"
-                    size="lg"
-                    minW="240px"
-                    boxShadow="sm"
-                    _hover={{boxShadow: "md"}}
-                >
-                    Сохранено в БД
-                </Button>
+
             </HStack>
-            {isSavedMessageVisible && (
-                <Text textAlign="center" color="green.500" mt={2} fontWeight="bold">
-                    Данные этого расчета уже сохранены при его выполнении.
-                </Text>
-            )}
         </VStack>
     );
 };
