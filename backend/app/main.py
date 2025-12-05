@@ -36,7 +36,8 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    openapi_url="/api/v1/openapi.json", # Жестко прописали путь
+    docs_url="/docs", # Жестко прописали путь к документации
     generate_unique_id_function=custom_generate_unique_id,
 )
 
