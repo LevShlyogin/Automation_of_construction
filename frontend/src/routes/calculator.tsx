@@ -1,14 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
-import { createFileRoute, useSearch, useNavigate } from '@tanstack/react-router';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Box, Spinner, Text, VStack, useToast } from '@chakra-ui/react';
+import {useState, useCallback, useEffect} from 'react';
+import {createFileRoute, useSearch, useNavigate} from '@tanstack/react-router';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import {Box, Spinner, Text, VStack, useToast} from '@chakra-ui/react';
 
 import TurbineSearch from '../components/Calculator/TurbineSearch';
 import StockSelection from '../components/Calculator/StockSelection';
 import EarlyCalculationPage from '../components/Calculator/EarlyCalculationPage';
 import StockInputPage from '../components/Calculator/StockInputPage';
 import ResultsPage from '../components/Calculator/ResultsPage';
-import { type HistoryEntry, LOCAL_STORAGE_HISTORY_KEY } from '../components/Common/Sidebar';
+import {type HistoryEntry, LOCAL_STORAGE_HISTORY_KEY} from '../components/Common/Sidebar';
 
 import {
     ResultsService,
@@ -46,6 +46,10 @@ export const Route = createFileRoute('/calculator')({
         resultId: search.resultId ? String(search.resultId) : undefined,
         stockIdToLoad: search.stockIdToLoad ? String(search.stockIdToLoad) : undefined,
         turbineIdToLoad: search.turbineIdToLoad ? String(search.turbineIdToLoad) : undefined,
+
+        // Параметры для интеграции
+        taskId: search.taskId ? Number(search.taskId) : undefined,
+        embedded: search.embedded === 'true' || search.embedded === true,
     }),
 });
 
@@ -63,6 +67,10 @@ function CalculatorPage() {
     const queryClient = useQueryClient();
     const toast = useToast();
     const searchParams = useSearch({from: Route.fullPath});
+
+    // Флаги интеграции
+    const isEmbedded = searchParams.embedded;
+    const taskId = searchParams.taskId;
 
     const [currentStep, setCurrentStep] = useState<CalculatorStep>('turbineSearch');
     const [selectedTurbine, setSelectedTurbine] = useState<TurbineInfo | null>(null);
@@ -82,7 +90,7 @@ function CalculatorPage() {
             if (!searchParams.resultId) throw new Error("ID результата не предоставлен");
             const id = parseInt(searchParams.resultId, 10);
             if (isNaN(id)) throw new Error("Неверный ID результата");
-            const result = await ResultsService.resultsReadCalculationResult({ resultId: id });
+            const result = await ResultsService.resultsReadCalculationResult({resultId: id});
             return {
                 ...result,
                 input_data: typeof result.input_data === 'string' ? JSON.parse(result.input_data) : result.input_data,
@@ -104,7 +112,7 @@ function CalculatorPage() {
             if (!searchParams.turbineIdToLoad) throw new Error("ID турбины не предоставлен");
             const id = parseInt(searchParams.turbineIdToLoad, 10);
             if (isNaN(id)) throw new Error("Неверный ID турбины");
-            return TurbinesService.turbinesReadTurbineById({ turbineId: id });
+            return TurbinesService.turbinesReadTurbineById({turbineId: id});
         },
         enabled: !!searchParams.turbineIdToLoad && !!searchParams.resultId,
         retry: 1,
@@ -121,7 +129,7 @@ function CalculatorPage() {
             if (!searchParams.stockIdToLoad) throw new Error("ID штока не предоставлен");
             const id = parseInt(searchParams.stockIdToLoad, 10);
             if (isNaN(id)) throw new Error("Неверный ID штока");
-            return ValvesService.valvesReadValveById({ valveId: id });
+            return ValvesService.valvesReadValveById({valveId: id});
         },
         enabled: !!searchParams.stockIdToLoad && !!searchParams.resultId,
         retry: 1,
@@ -137,7 +145,7 @@ function CalculatorPage() {
         queryFn: async () => {
             if (!selectedStock?.name) return [];
             const encodedStockName = encodeURIComponent(selectedStock.name);
-            const results = await ResultsService.resultsGetCalculationResults({ valveName: encodedStockName });
+            const results = await ResultsService.resultsGetCalculationResults({valveName: encodedStockName});
             return results.map(r => ({
                 ...r,
                 input_data: typeof r.input_data === 'string' ? JSON.parse(r.input_data) : r.input_data,
@@ -472,6 +480,8 @@ function CalculatorPage() {
                         calculationId={calculationData.id}
                         inputData={calculationData.input_data as CalculationParams}
                         outputData={calculationData.output_data as ExpectedOutputData}
+                        isEmbedded={isEmbedded}
+                        taskId={taskId}
                         onGoBack={() => {
                             setCalculationData(null);
                             if (selectedStock && selectedTurbine) {

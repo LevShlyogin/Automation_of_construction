@@ -15,13 +15,12 @@ import {
     TableContainer,
     SimpleGrid,
     Divider,
-    HStack,
     useToast,
     Icon,
     useColorModeValue,
     Flex,
 } from '@chakra-ui/react';
-import {FiChevronLeft, FiDownload} from 'react-icons/fi';
+import {FiChevronLeft, FiDownload, FiSend} from 'react-icons/fi';
 import {
     OpenAPI,
     type CalculationParams,
@@ -44,6 +43,9 @@ type Props = {
     inputData?: Partial<CalculationParams>;
     outputData?: Partial<ExpectedOutputData>;
     onGoBack?: () => void;
+    // Новые пропсы для интеграции
+    isEmbedded?: boolean;
+    taskId?: number;
 };
 
 const roundNumber = (num: any, decimals: number = 4): string | number => {
@@ -59,7 +61,9 @@ const ResultsPage: React.FC<Props> = ({
                                           stockInfo,
                                           inputData = {},
                                           outputData = {},
-                                          onGoBack
+                                          onGoBack,
+                                          isEmbedded = false,
+                                          taskId,
                                       }) => {
     const [isDownloadingDrawio, setIsDownloadingDrawio] = useState(false);
     const [isSavedMessageVisible, setIsSavedMessageVisible] = useState(false);
@@ -92,6 +96,35 @@ const ResultsPage: React.FC<Props> = ({
     const hi = Array.isArray(currentOutputData.Hi) ? currentOutputData.Hi : [];
     const deaeratorProps = Array.isArray(currentOutputData.deaerator_props) ? currentOutputData.deaerator_props : [];
     const ejectorProps = Array.isArray(currentOutputData.ejector_props) ? currentOutputData.ejector_props : [];
+
+    const handleSendToParent = () => {
+        const payload = {
+            input: currentInputData,
+            output: currentOutputData
+        };
+
+        // 1. Отправляем данные для сохранения
+        window.parent.postMessage({
+            type: 'WSA_CALCULATION_COMPLETE',
+            payload: payload
+        }, '*');
+
+        toast({
+            title: `Данные отправлены в задачу #${taskId || ''}`,
+            description: "Возврат в главное приложение...",
+            status: "success",
+            duration: 2000
+        });
+
+        // 2. Через полсекунды отправляем команду закрытия, чтобы Vue скрыл iframe
+        // (Vue делает emit('back') по этому событию)
+        setTimeout(() => {
+            window.parent.postMessage({
+                type: 'WSA_CLOSE',
+                payload: {}
+            }, '*');
+        }, 800);
+    };
 
     const handleDownloadDrawio = async () => {
         if (!stockInfo) {
@@ -141,7 +174,7 @@ const ResultsPage: React.FC<Props> = ({
             link.parentNode?.removeChild(link);
             window.URL.revokeObjectURL(downloadUrl);
 
-            toast({ title: "Схема Draw.io успешно загружена!", status: "success" });
+            toast({title: "Схема Draw.io успешно загружена!", status: "success"});
 
         } catch (error: any) {
             console.error("Ошибка при скачивании Draw.io:", error);
@@ -369,7 +402,28 @@ const ResultsPage: React.FC<Props> = ({
                 </Box>
             )}
 
-            <HStack spacing={6} justifyContent="center" mt={8} mb={4}>
+            <Flex
+                direction={{base: "column", xl: "row"}}
+                gap={6}
+                justify="center"
+                mt={8}
+                mb={4}
+            >
+                {isEmbedded && (
+                    <Button
+                        onClick={handleSendToParent}
+                        colorScheme="purple"
+                        variant="solid"
+                        size="lg"
+                        minW="240px"
+                        boxShadow="md"
+                        _hover={{boxShadow: "lg", transform: "translateY(-2px)"}}
+                        leftIcon={<Icon as={FiSend}/>}
+                    >
+                        Отправить в B+
+                    </Button>
+                )}
+
                 <Button
                     onClick={handleDownloadExcel}
                     colorScheme="green"
@@ -395,18 +449,20 @@ const ResultsPage: React.FC<Props> = ({
                 >
                     Скачать схему .vsdx
                 </Button>
-                <Button
-                    onClick={handleShowSavedMessage}
-                    colorScheme="blue"
-                    variant="outline"
-                    size="lg"
-                    minW="240px"
-                    boxShadow="sm"
-                    _hover={{boxShadow: "md"}}
-                >
-                    Сохранено в БД
-                </Button>
-            </HStack>
+                {!isEmbedded && (
+                    <Button
+                        onClick={handleShowSavedMessage}
+                        colorScheme="blue"
+                        variant="outline"
+                        size="lg"
+                        minW="240px"
+                        boxShadow="sm"
+                        _hover={{boxShadow: "md"}}
+                    >
+                        Сохранено в БД
+                    </Button>
+                )}
+            </Flex>
             {isSavedMessageVisible && (
                 <Text textAlign="center" color="green.500" mt={2} fontWeight="bold">
                     Данные этого расчета уже сохранены при его выполнении.
