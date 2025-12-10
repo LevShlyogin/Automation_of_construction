@@ -77,66 +77,6 @@ function CalculatorPage() {
     const [selectedStock, setSelectedStock] = useState<ValveInfo | null>(null);
     const [calculationData, setCalculationData] = useState<ClientCalculationResult | null>(null);
 
-    // --- Обработка сообщений от Balance+ ---
-    useEffect(() => {
-        if (!isEmbedded) return;
-
-        const handleMessage = (event: MessageEvent) => {
-            const {type, payload} = event.data;
-
-            if (type === 'WSA_RESTORE_STATE') {
-                console.log("📥 Stock-Calc: Received state restore request", payload);
-
-                if (payload && payload.input && payload.output) {
-                    // Формируем объект результата из полученных данных
-                    const restoredData: ClientCalculationResult = {
-                        id: 0,
-                        input_data: payload.input,
-                        output_data: payload.output,
-                        stock_name: payload.input.valve_drawing || 'Unknown',
-                        turbine_name: payload.input.turbine_name || 'Unknown',
-                        calc_timestamp: new Date().toISOString(),
-                        user_name: 'System',
-                    };
-
-                    setCalculationData(restoredData);
-
-                    // Если есть имена, можно попробовать установить их в стейт (визуально)
-                    // Но для ResultsPage важнее сам calculationData
-                    if (payload.input.turbine_name) {
-                        setSelectedTurbine({id: 0, name: payload.input.turbine_name} as any);
-                    }
-                    if (payload.input.valve_drawing) {
-                        setSelectedStock({id: 0, name: payload.input.valve_drawing} as any);
-                    }
-
-                    // Переходим сразу к результатам
-                    setCurrentStep('results');
-
-                    toast({
-                        title: "Данные восстановлены",
-                        description: "Загружен предыдущий расчет из задачи.",
-                        status: "info",
-                        duration: 3000,
-                        position: "top"
-                    });
-                }
-            }
-        };
-
-        window.addEventListener('message', handleMessage);
-
-        const timer = setTimeout(() => {
-            console.log("📤 Stock-Calc: Sending WSA_READY");
-            window.parent.postMessage({type: 'WSA_READY'}, '*');
-        }, 500);
-
-        return () => {
-            window.removeEventListener('message', handleMessage);
-            clearTimeout(timer);
-        };
-    }, [isEmbedded, toast]);
-
     const isLoadingFromHistory = !!searchParams.resultId;
 
     const {
@@ -301,6 +241,7 @@ function CalculatorPage() {
 
         if (currentStep === 'loadingPreviousCalculation' && selectedStock) {
             if (isErrorLatestPrevious) {
+                // Проверяем, если это 404, то просто нет предыдущих расчетов
                 if (errorLatestPrevious instanceof ApiError && errorLatestPrevious.status === 404) {
                     console.log('No previous calculations found for stock:', selectedStock.name);
                     setCalculationData(null);
@@ -348,7 +289,10 @@ function CalculatorPage() {
 
         setSelectedStock(stock);
         setCalculationData(null);
+
+        // Инвалидируем кеш для нового штока
         queryClient.invalidateQueries({queryKey: ['valveResults', stock.id]});
+
         setCurrentStep('loadingPreviousCalculation');
     }, [navigate, queryClient]);
 
@@ -364,6 +308,7 @@ function CalculatorPage() {
             setCurrentStep('results');
             toast({title: "Расчет выполнен успешно!", status: "success"});
 
+            // Сохранение в историю
             if (selectedStock?.id !== undefined && selectedTurbine?.id !== undefined && parsedData.id !== undefined) {
                 const newHistoryEntry: HistoryEntry = {
                     id: String(parsedData.id),
@@ -387,6 +332,7 @@ function CalculatorPage() {
                 window.dispatchEvent(new Event('wsaHistoryUpdated'));
             }
 
+            // Инвалидируем кеш для этого штока
             if (selectedStock?.id) {
                 void queryClient.invalidateQueries({queryKey: ['valveResults', selectedStock.id]});
             }
@@ -537,18 +483,13 @@ function CalculatorPage() {
                         isEmbedded={isEmbedded}
                         taskId={taskId}
                         onGoBack={() => {
-                            if (isEmbedded) {
-                                setCalculationData(null);
-                                setCurrentStep('turbineSearch');
+                            setCalculationData(null);
+                            if (selectedStock && selectedTurbine) {
+                                setCurrentStep('stockInput');
+                            } else if (selectedTurbine) {
+                                setCurrentStep('stockSelection');
                             } else {
-                                setCalculationData(null);
-                                if (selectedStock && selectedTurbine) {
-                                    setCurrentStep('stockInput');
-                                } else if (selectedTurbine) {
-                                    setCurrentStep('stockSelection');
-                                } else {
-                                    setCurrentStep('turbineSearch');
-                                }
+                                setCurrentStep('turbineSearch');
                             }
                         }}
                     />;
